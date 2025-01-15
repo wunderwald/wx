@@ -1,5 +1,4 @@
 import numpy as np
-from plot import plot_windowed_cross_correlation
 
 def windowed_cross_correlation(x, y, window_size, step_size, max_lag):
     """
@@ -61,16 +60,3 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag):
         })
 
     return results
-
-
-length = 100
-signal1 = np.sin(np.linspace(0, 4 * np.pi, length))
-signal2 = np.cos(np.linspace(0, 4 * np.pi, length))
-
-window_size = 10
-step_size=window_size
-max_lag=window_size//2
-
-# Example usage of the windowed_cross_correlation function with a window size of 10
-windowed_corr_data = windowed_cross_correlation(signal1, signal1, window_size=window_size, step_size=step_size, max_lag=max_lag)
-plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size)
