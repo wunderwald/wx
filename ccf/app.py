@@ -189,13 +189,31 @@ button_export.grid(row=11, column=0, sticky="w", padx=10, pady=5)
 def update_color_window_size_entry(*args):
     entry_window_size.configure(border_color='#777777' if val_WINDOW_SIZE_VALID.get() else 'red')
 val_WINDOW_SIZE_VALID.trace_add('write', update_color_window_size_entry)
+
 def update_color_step_size_entry(*args):
     entry_step_size.configure(border_color='#777777' if val_STEP_SIZE_VALID.get() else 'red')
 val_STEP_SIZE_VALID.trace_add('write', update_color_step_size_entry)
+
 def update_color_max_lag_entry(*args):
     entry_max_lag.configure(border_color='#777777' if val_MAX_LAG_VALID.get() else 'red')
 val_MAX_LAG_VALID.trace_add('write', update_color_max_lag_entry)
 
+def update_active_state_export_button(*args):
+    button_export.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
+val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_button)
 
-# run app
+def update_active_state_correlation_parameters(*args):
+    is_active = val_checkbox_windowed_xcorr.get()
+    active_state = "normal" if is_active else "disabled"
+    entry_window_size.configure(state=active_state)
+    entry_window_size.configure(border_color='#777777' if is_active else '#000000')
+    entry_max_lag.configure(state=active_state)
+    entry_max_lag.configure(border_color='#777777' if is_active else '#000000')
+    entry_step_size.configure(state=active_state)
+    entry_step_size.configure(border_color='#777777' if is_active else '#000000')
+val_checkbox_windowed_xcorr.trace_add('write', update_active_state_correlation_parameters)
+
+# ---
+# RUN
+# ---
 app.mainloop()
