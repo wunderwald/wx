@@ -8,13 +8,13 @@ setup(
         'numpy',
         'pandas',
         'scipy',
-        
+
         'setuptools',
     ],
 
     author='Moritz Wunderwald',
     author_email='code@moritzwunderwald.de',
-    description='ccf - GUI tool for calculating cross-correlation for IBI and EDA data',
+    description='ccf - GUI tool for computing cross-correlation for IBI and EDA data',
     url='https://github.com/wunderwald/CCF',
     classifiers=[
         'Programming Language :: Python :: 3',
