@@ -290,9 +290,10 @@ def plot_test(*args):
         return
     
     # calculate wxcorr
-    length = 400
+    length = 800
     signal1 = np.sin(np.linspace(0, 5 * np.pi, length))
-    signal2 = np.cos(np.linspace(0, 4 * np.pi, length))
+    # signal2 = np.cos(np.linspace(0, 4 * np.pi, length))
+    signal2 = signal1 * 4*(np.random.random(length))
 
     window_size = val_window_size.get()
     step_size = val_step_size.get()
