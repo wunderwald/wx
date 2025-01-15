@@ -10,6 +10,23 @@ def _invalid_ibi_sample_indices(ibi_ms):
     return invalidIndices
 
 def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False, filter_ibi=True):  
+    """
+    Resample inter-beat intervals (IBI) to a target sampling rate using cubic spline interpolation.
+    Parameters:
+    -----------
+    ibi_ms : list or array-like
+        List or array of inter-beat intervals in milliseconds.
+    target_sampling_rate_hz : int, optional
+        The target sampling rate in Hertz (Hz). Default is 5 Hz.
+    scale_output : bool, optional
+        If True, scales the output IBI to maintain the same total sum as the original IBI. Default is False.
+    filter_ibi : bool, optional
+        If True, filters out invalid IBI samples before resampling. Default is True.
+    Returns:
+    --------
+    ibi_ms_interpl_out : numpy.ndarray
+        The resampled IBI values.
+    """
     # convert ibi to time series (t, ibi)
     t_ms_raw = np.cumsum(np.insert(t_ms_raw, 0, 0)[:-1])
     ibi_ms_raw = np.array(ibi_ms)
