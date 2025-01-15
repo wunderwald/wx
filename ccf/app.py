@@ -87,9 +87,9 @@ val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value='20')
 val_step_size_input = tk.StringVar(value='10')
 val_max_lag_input = tk.StringVar(value='10')        # default: window_size//2
-val_window_size = tk.IntVar(value=10)
-val_step_size = tk.IntVar(value=1)
-val_max_lag = tk.IntVar(value=5)
+val_window_size = tk.IntVar(value=20)
+val_step_size = tk.IntVar(value=10)
+val_max_lag = tk.IntVar(value=10)
 val_selected_file = tk.StringVar(value = '')
 
 # entry callbacks
@@ -148,6 +148,8 @@ def on_windowed_xcorr_change():
 
 # button callbacks
 def export_data():
+    print("TODO: prepare data for export, open path picker, save file")
+def export_plot():
     print("TODO: prepare data for export, open path picker, save file")
 
 # -----------
@@ -222,8 +224,10 @@ checkbox_absolute_corr.grid(row=10, column=0, sticky="w", padx=10, pady=5)
 # export
 label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Export", font=("Arial", 20, "bold"))
 label_corr_settings.grid(row=11, column=0, columnspan=2, pady=10)
-button_export = tk.CTkButton(group_parameter_settings, text='Export XLSX', command=export_data)
-button_export.grid(row=12, column=0, columnspan=2, padx=10, pady=10)
+button_export_data = tk.CTkButton(group_parameter_settings, text='Export XLSX', command=export_data)
+button_export_data.grid(row=12, column=0, padx=10, pady=10)
+button_export_plot = tk.CTkButton(group_parameter_settings, text='Export XLSX', command=export_plot)
+button_export_plot.grid(row=12, column=1, padx=10, pady=10)
 
 # ---------------------
 # PARAMETER GUI UPDATES
@@ -241,7 +245,8 @@ def update_color_max_lag_entry(*args):
 val_MAX_LAG_VALID.trace_add('write', update_color_max_lag_entry)
 
 def update_active_state_export_button(*args):
-    button_export.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
+    button_export_data.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
+    button_export_plot.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
 val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_button)
 
 def update_active_state_correlation_parameters(*args):
