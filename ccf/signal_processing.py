@@ -1,14 +1,14 @@
 import numpy as np
 from scipy.interpolate import CubicSpline
 
-def _invalid_ibi_sample_indices(ibi_ms):
-    invalidIndices = []
-    for i, sample in enumerate(ibi_ms):
-        if sample > 1500 or sample < 100:
-            invalidIndices.append(i)
-    return invalidIndices
+def _remove_invalid_IBI(ibi_ms):
+    return [sample for sample in ibi_ms if sample >= 100 and sample < 1000]
 
-def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False, filter_ibi=True):  
+def _remove_invalid_EDA(eda):
+    print("!! EDA filter not implemented yet.")
+    return [sample for sample in eda if sample >= 0]
+
+def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False):  
     """
     Resample inter-beat intervals (IBI) to a target sampling rate using cubic spline interpolation.
     Parameters:
@@ -27,20 +27,15 @@ def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False, filter_i
         The resampled IBI values.
     """
     # convert ibi to time series (t, ibi)
-    t_ms_raw = np.cumsum(np.insert(t_ms_raw, 0, 0)[:-1])
-    ibi_ms_raw = np.array(ibi_ms)
-
-    # clean ibi time series
-    delete_indices = _invalid_ibi_sample_indices(ibi_ms_raw) if filter_ibi else []
-    t_ms_clean = np.delete(t_ms_raw, delete_indices)
-    ibi_ms_clean = np.delete(ibi_ms_raw, delete_indices)
+    t_ms_ts = np.cumsum(np.insert(ibi_ms, 0, 0)[:-1])
+    ibi_ms_ts = np.array(ibi_ms)
 
     # Create a cubic spline interpolation
-    cs = CubicSpline(t_ms_clean, ibi_ms_clean)
+    cs = CubicSpline(t_ms_ts, ibi_ms_ts)
 
     # Generate time grid for interpolation
     sampling_interval_ms = 1000/target_sampling_rate_hz
-    t_ms_interpl = np.arange(min(t_ms_clean), max(t_ms_clean), sampling_interval_ms)
+    t_ms_interpl = np.arange(min(t_ms_ts), max(t_ms_ts), sampling_interval_ms)
 
     # Get sample values at new grid
     ibi_ms_interpl = cs(t_ms_interpl)
@@ -53,4 +48,37 @@ def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False, filter_i
 
     return ibi_ms_interpl_out
 
-# def preprocess_signal(signal, signal_type):
+
+
+def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=False):
+    """
+    Preprocesses two signals (dyad) by filtering invalid values, resampling, and aligning their lengths.
+    Parameters:
+        signal_a (list or array-like): The first signal to preprocess.
+        signal_b (list or array-like): The second signal to preprocess.
+        signal_type (str): The type of the signals, must be either 'IBI_MS' or 'EDA'.
+        remove_invalid_samples (bool, optional): If True, invalid samples will be removed from the signals. Defaults to False.
+    Returns:
+        tuple: A tuple containing the preprocessed signal_a and signal_b.
+    Raises:
+        Exception: If the signal_type is not 'IBI_MS' or 'EDA'.
+    """
+    if signal_type not in ['IBI_MS', 'EDA']:
+        raise Exception("Invalid signal type. Must be 'IBI_MS' or 'EDA'.")
+    
+    # filter invalid values
+    if remove_invalid_samples:
+        signal_a = _remove_invalid_IBI(signal_a) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_a)
+        signal_b = _remove_invalid_IBI(signal_b) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_b)
+
+    # resample IBI
+    if signal_type == 'IBI_MS':
+        signal_a = resample_ibi(signal_a, target_sampling_rate_hz=5)
+        signal_b = resample_ibi(signal_b, target_sampling_rate_hz=5)
+
+    # fix lengths
+    min_length = min(len(signal_a), len(signal_b))
+    signal_a = signal_a[:min_length]
+    signal_b = signal_b[:min_length]
+
+    return signal_a, signal_b
