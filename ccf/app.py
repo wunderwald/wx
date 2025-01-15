@@ -6,6 +6,10 @@ import numpy as np
 from plot import plot_windowed_cross_correlation, plot_init
 from cross_correlation import windowed_cross_correlation
 
+# ------------------
+# APP INITIALIZATION
+# ------------------
+
 #init theme
 tk.set_appearance_mode("System")
 tk.set_default_color_theme("dark-blue")
@@ -14,6 +18,14 @@ tk.set_default_color_theme("dark-blue")
 app = tk.CTk()  
 app.title("ccf")
 app.geometry("1620x900")
+
+# ----------------------
+# DEFAULTS / INIT VALUES
+# ----------------------
+
+INIT_WINDOW_SIZE = 20
+INIT_STEP_SIZE = 10
+INIT_MAX_LAG = 10    # default: window_size//2
 
 # ---------------------
 # GLOBAL STATE & EVENTS
@@ -84,12 +96,12 @@ val_checkbox_filter_data = tk.BooleanVar(value=False)
 val_checkbox_IBI = tk.BooleanVar(value=True)
 val_checkbox_EDA = tk.BooleanVar(value=False)
 val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
-val_window_size_input = tk.StringVar(value='20')
-val_step_size_input = tk.StringVar(value='10')
-val_max_lag_input = tk.StringVar(value='10')        # default: window_size//2
-val_window_size = tk.IntVar(value=20)
-val_step_size = tk.IntVar(value=10)
-val_max_lag = tk.IntVar(value=10)
+val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
+val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
+val_max_lag_input = tk.StringVar(value=INIT_MAX_LAG)    
+val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
+val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
+val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_selected_file = tk.StringVar(value = '')
 
 # entry callbacks
