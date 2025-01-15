@@ -6,11 +6,14 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
     """
     Plot the results of the windowed cross-correlation.
 
-    Parameters:
+    Args:
         results (list of dict): Output from `windowed_cross_correlation`.
         max_lag (int): Maximum lag used in the computation.
         step_size (int): Step size for the sliding window.
+        signal_a (array-like): First input signal.
+        signal_b (array-like): Second input signal.
     """
+    
     # Extract values for plotting
     window_starts = [res['start_idx'] for res in results]
     r_max_values = [res['r_max'] for res in results]
