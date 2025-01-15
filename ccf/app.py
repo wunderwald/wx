@@ -130,7 +130,6 @@ def on_is_eda_change():
 
 def on_windowed_xcorr_change():
     new_val = val_checkbox_windowed_xcorr.get()
-    print("TODO ! (de-) activate window settings")
     PARAMS_CHANGED()    
 
 # button callbacks
