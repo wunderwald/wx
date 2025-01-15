@@ -10,6 +10,7 @@ setup(
         'scipy',
         'matplotlib'
         'setuptools',
+        'customtkinter'
     ],
 
     author='Moritz Wunderwald',

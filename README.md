@@ -17,3 +17,8 @@ GUI tool for computing cross-correlation for IBI and EDA data
 
 - zero-order correlation coefficients of the two time-series along the midpoint of the display
 - correlations between the previous behavior of one partner and the subsequent behavior of the other partner
+
+## UI
+
+[customTkinter](https://github.com/TomSchimansky/CustomTkinter)
+[customTkinter docs](https://customtkinter.tomschimansky.com/documentation)
