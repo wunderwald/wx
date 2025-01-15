@@ -1,15 +1,19 @@
+import os
 import customtkinter as tk
 from tkinter import filedialog
-import os
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
+from plot import plot_windowed_cross_correlation, plot_init
+from cross_correlation import windowed_cross_correlation
 
- #init theme
+#init theme
 tk.set_appearance_mode("System")
 tk.set_default_color_theme("dark-blue")
 
 # init window
 app = tk.CTk()  
 app.title("ccf")
-app.geometry("1280x720")
+app.geometry("1620x900")
 
 # ---------------------
 # GLOBAL STATE & EVENTS
@@ -21,9 +25,13 @@ val_WINDOW_SIZE_VALID = tk.BooleanVar(value=True)
 val_STEP_SIZE_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID = tk.BooleanVar(value=True)
 
+# update count
+val_UPDATE_COUNT = tk.IntVar(value=0)
+
 # main event callback
 def PARAMS_CHANGED():
     print('PARAMS_CHANGED')
+    val_UPDATE_COUNT.set(val_UPDATE_COUNT.get() + 1)
 
 # ----------------
 # INPUT VALIDATION
@@ -43,8 +51,11 @@ def check_window_size():
     return window_size_is_valid
 
 def check_step_size():
-    # step size must be at least 1
-    step_size_is_valid = val_step_size.get() >= 1
+    # step size must be at least 1 and at most window size
+    window_size_is_valid = val_WINDOW_SIZE_VALID.get()
+    window_size = val_window_size.get()
+    step_size = val_step_size.get()
+    step_size_is_valid = step_size >= 1 and (not window_size_is_valid or step_size <= window_size)
     val_STEP_SIZE_VALID.set(step_size_is_valid)
     return step_size_is_valid
 
@@ -73,9 +84,9 @@ val_checkbox_filter_data = tk.BooleanVar(value=False)
 val_checkbox_IBI = tk.BooleanVar(value=True)
 val_checkbox_EDA = tk.BooleanVar(value=False)
 val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
-val_window_size_input = tk.StringVar(value='10')
-val_step_size_input = tk.StringVar(value='1')
-val_max_lag_input = tk.StringVar(value='5')
+val_window_size_input = tk.StringVar(value='20')
+val_step_size_input = tk.StringVar(value='10')
+val_max_lag_input = tk.StringVar(value='10')        # default: window_size//2
 val_window_size = tk.IntVar(value=10)
 val_step_size = tk.IntVar(value=1)
 val_max_lag = tk.IntVar(value=5)
@@ -248,6 +259,41 @@ def update_file_picker_label(*args):
     file_path = val_selected_file.get()
     label_file_picker.configure(text='No file selected.' if file_path == '' else os.path.basename(file_path))
 val_selected_file.trace_add('write', update_file_picker_label)
+
+# --------
+# PLOTTING
+# --------
+# create canvas
+fig_init = plot_init()
+canvas = FigureCanvasTkAgg(fig_init, master=group_plot)
+
+# test plot
+def plot_test(*args):
+    if not val_CORRELATION_SETTINGS_VALID.get():
+        return
+    
+    # calculate wxcorr
+    length = 400
+    signal1 = np.sin(np.linspace(0, 5 * np.pi, length))
+    signal2 = np.cos(np.linspace(0, 4 * np.pi, length))
+
+    window_size = val_window_size.get()
+    step_size = val_step_size.get()
+    max_lag = val_max_lag.get()
+    absolute_values = val_checkbox_absolute_corr.get()
+
+    windowed_corr_data = windowed_cross_correlation(signal1, signal2, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values)
+    
+    # make plot figure
+    fig_plot = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal1, signal2)
+
+    canvas.figure = fig_plot
+    canvas.draw()
+    canvas.get_tk_widget().pack(pady=10)
+plot_test()
+
+# auto refresh
+val_UPDATE_COUNT.trace_add('write', plot_test)
 
 # ---
 # RUN

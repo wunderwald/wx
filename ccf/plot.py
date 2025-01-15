@@ -2,9 +2,15 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
 
+FIGSIZE=(10, 8)
+
+def plot_init():
+    fig = plt.figure(figsize=FIGSIZE)
+    return fig
+
 def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signal_b):
     """
-    Plot the results of the windowed cross-correlation.
+    Create and return a figure plotting the results of the windowed cross-correlation.
 
     Args:
         results (list of dict): Output from `windowed_cross_correlation`.
@@ -12,59 +18,63 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
         step_size (int): Step size for the sliding window.
         signal_a (array-like): First input signal.
         signal_b (array-like): Second input signal.
+
+    Returns:
+        matplotlib.figure.Figure: The figure containing the plots.
     """
-    
     # Extract values for plotting
     window_starts = [res['start_idx'] for res in results]
     r_max_values = [res['r_max'] for res in results]
     tau_max_values = [res['tau_max'] for res in results]
 
-    # init plot layout
-    plt.figure(figsize=(16, 8))
+    # Initialize plot layout
+    fig = plt.figure(figsize=FIGSIZE)
     gs = gridspec.GridSpec(4, 1, height_ratios=[5, 1, 1, 1])
-    plt.subplot(gs[0]) 
-    plt.subplot(gs[1]) 
-    plt.subplot(gs[2]) 
-    plt.subplot(gs[3]) 
 
     # Create a heatmap of correlations
+    ax1 = fig.add_subplot(gs[0])
     heatmap_data = np.array([res['correlations'] for res in results])
-    plt.subplot(4, 1, 1)
-    plt.imshow(heatmap_data.T, aspect='auto', cmap='viridis', extent=[0, len(results) * step_size, -max_lag, max_lag])
-    plt.colorbar(label='Correlation')
-    plt.xlabel('Window Start Index')
-    plt.ylabel('Lag')
-    plt.title('Correlation Heatmap')
+    im = ax1.imshow(
+        heatmap_data.T,
+        aspect='auto',
+        cmap='viridis',
+        extent=[0, len(results) * step_size, -max_lag, max_lag]
+    )
+    fig.colorbar(im, ax=ax1, label='Correlation')
+    ax1.set_xlabel('Window Start Index')
+    ax1.set_ylabel('Lag')
+    ax1.set_title('Correlation Heatmap')
 
     # Plot input signals over time
-    plt.subplot(4, 1, 2)
-    plt.plot(signal_a, label='Signal a')
-    plt.plot(signal_b, label='Signal b')
-    plt.xlabel('Time')
-    plt.ylabel('Sample Value')
-    plt.title('Signals over time')
-    plt.legend()
-    plt.grid()
+    ax2 = fig.add_subplot(gs[1])
+    ax2.plot(signal_a, label='Signal a')
+    ax2.plot(signal_b, label='Signal b')
+    ax2.set_xlabel('Time')
+    ax2.set_ylabel('Sample Value')
+    ax2.set_title('Signals over time')
+    ax2.legend()
+    ax2.grid()
 
     # Plot peak correlation values over time
-    plt.subplot(4, 1, 3)
-    plt.plot(window_starts, r_max_values, marker='o', label='Peak Correlation')
-    plt.xlabel('Window Start Index')
-    plt.ylabel('r_max')
-    plt.title('Peak Correlation Over Time')
-    plt.legend()
-    plt.grid()
+    ax3 = fig.add_subplot(gs[2])
+    ax3.plot(window_starts, r_max_values, marker='o', label='Peak Correlation')
+    ax3.set_xlabel('Window Start Index')
+    ax3.set_ylabel('r_max')
+    ax3.set_title('Peak Correlation Over Time')
+    ax3.legend()
+    ax3.grid()
 
     # Plot corresponding lags over time
-    plt.subplot(4, 1, 4)
-    plt.plot(window_starts, tau_max_values, marker='o', label='Lag at Peak')
-    plt.xlabel('Window Start Index')
-    plt.ylabel('tau_max')
-    plt.title('Lag at Peak Correlation Over Time')
-    plt.legend()
-    plt.grid()
+    ax4 = fig.add_subplot(gs[3])
+    ax4.plot(window_starts, tau_max_values, marker='o', label='Lag at Peak')
+    ax4.set_xlabel('Window Start Index')
+    ax4.set_ylabel('tau_max')
+    ax4.set_title('Lag at Peak Correlation Over Time')
+    ax4.legend()
+    ax4.grid()
 
-    plt.tight_layout()
-    plt.show()
+    # Adjust layout
+    fig.tight_layout()
 
-    
+    # Return the figure
+    return fig
