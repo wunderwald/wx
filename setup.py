@@ -8,7 +8,7 @@ setup(
         'numpy',
         'pandas',
         'scipy',
-
+        'matplotlib'
         'setuptools',
     ],
 

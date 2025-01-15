@@ -1,59 +1,76 @@
 import numpy as np
-import matplotlib.pyplot as plt
+from plot import plot_windowed_cross_correlation
 
-def cross_correlation(signal1, signal2, max_lag=None):
+def windowed_cross_correlation(x, y, window_size, step_size, max_lag):
     """
-    Calculate the cross-correlation of two signals up to a maximum lag.
-    
+    Compute windowed cross-correlation between two time series.
+
     Parameters:
-    signal1 (array-like): First input signal.
-    signal2 (array-like): Second input signal.
-    max_lag (int, optional): Maximum lag to compute the cross-correlation. If None, compute full cross-correlation.
-    
+        x (np.ndarray): First time series.
+        y (np.ndarray): Second time series.
+        window_size (int): Number of data points in each window.
+        step_size (int): Step size for the sliding window.
+        max_lag (int): Maximum lag to compute cross-correlation.
+
     Returns:
-    array: Cross-correlation of the two signals.
+        results (list of dict): A list containing the results for each window. 
+            Each result is a dictionary with keys:
+                - 'start_idx': Start index of the window in the time series.
+                - 'r_max': Peak cross-correlation value in the window.
+                - 'tau_max': Lag at which the peak correlation occurs.
+                - 'correlations': Array of cross-correlation values for all lags.
     """
-    corr = np.correlate(signal1, signal2, mode='full')
-    if max_lag is not None:
-        center = len(corr) // 2
-        start = max(center - max_lag, 0)
-        end = min(center + max_lag + 1, len(corr))
-        corr = corr[start:end]
-    return corr
+    n = len(x)
+    results = []
 
-def windowed_cross_correlation(signal1, signal2, window_size):
-    """
-    Calculate the windowed cross-correlation of two signals up to a maximum lag.
-    
-    Parameters:
-    signal1 (array-like): First input signal.
-    signal2 (array-like): Second input signal.
-    window_size (int): Size of the window to compute the cross-correlation.
-    max_lag (int, optional): Maximum lag to compute the cross-correlation. If None, compute full cross-correlation.
-    
-    Returns:
-    array: Windowed cross-correlation of the two signals.
-    """
-    n = len(signal1)
-    result = []
-    for i in range(n - window_size + 1):
-        window1 = signal1[i:i + window_size]
-        window2 = signal2[i:i + window_size]
-        corr = cross_correlation(window1, window2)
-        result.append(corr)
-    return np.array(result)
+    # Ensure inputs are numpy arrays
+    x = np.asarray(x)
+    y = np.asarray(y)
 
-# Generate two random sequences, each with 100 elements
-np.random.seed(0)  # For reproducibility
-signal1 = np.random.randn(100)
-signal2 = np.random.randn(100)
+    for start in range(0, n - window_size + 1, step_size):
+        # Extract the windowed segments
+        x_window = x[start:start + window_size]
+        y_window = y[start:start + window_size]
 
-# Example usage of the cross_correlation function
-corr = cross_correlation(signal1, signal2)
-print("Cross-correlation:", corr)
+        # Normalize the segments (zero mean, unit variance)
+        x_window = (x_window - np.mean(x_window)) / np.std(x_window)
+        y_window = (y_window - np.mean(y_window)) / np.std(y_window)
+
+        # Compute cross-correlation for lags in the range [-max_lag, max_lag]
+        correlations = []
+        for lag in range(-max_lag, max_lag + 1):
+            if lag < 0:
+                corr = np.mean(x_window[:lag] * y_window[-lag:])
+            elif lag > 0:
+                corr = np.mean(x_window[lag:] * y_window[:-lag])
+            else:
+                corr = np.mean(x_window * y_window)
+            correlations.append(corr)
+
+        # Find the peak correlation and its corresponding lag
+        correlations = np.array(correlations)
+        r_max = np.max(correlations)
+        tau_max = np.argmax(correlations) - max_lag
+
+        # Store results for this window
+        results.append({
+            'start_idx': start,
+            'r_max': r_max,
+            'tau_max': tau_max,
+            'correlations': correlations
+        })
+
+    return results
+
+
+length = 100
+signal1 = np.sin(np.linspace(0, 4 * np.pi, length))
+signal2 = np.cos(np.linspace(0, 4 * np.pi, length))
+
+window_size = 10
+step_size=window_size
+max_lag=window_size//2
 
 # Example usage of the windowed_cross_correlation function with a window size of 10
-windowed_corr = windowed_cross_correlation(signal1, signal2, window_size=10)
-print("Windowed cross-correlation:", windowed_corr)
-
-print(windowed_corr.shape)
+windowed_corr_data = windowed_cross_correlation(signal1, signal1, window_size=window_size, step_size=step_size, max_lag=max_lag)
+plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size)
