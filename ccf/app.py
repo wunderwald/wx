@@ -36,21 +36,18 @@ validate_numeric_input = app.register(on_validate_numeric_input)
 # entry validation
 def check_window_size():
     # window size must be at least 3
-    # TODO input should turn red if value is invalid
     window_size_is_valid = val_window_size.get() >= 3
     val_WINDOW_SIZE_VALID.set(window_size_is_valid)
     return window_size_is_valid
 
 def check_step_size():
     # step size must be at least 1
-    # TODO input should turn red if value is invalid
     step_size_is_valid = val_step_size.get() >= 1
     val_STEP_SIZE_VALID.set(step_size_is_valid)
     return step_size_is_valid
 
 def check_max_lag():
     # max lag can be at most half the window size and more than 0
-    # TODO max lag input should turn red if value is invalid
     max_lag_is_valid = val_max_lag.get() > 0 and val_max_lag.get() <= val_window_size.get() // 2
     val_MAX_LAG_VALID.set(max_lag_is_valid)
     return max_lag_is_valid
