@@ -238,7 +238,7 @@ label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Export", font=
 label_corr_settings.grid(row=11, column=0, columnspan=2, pady=10)
 button_export_data = tk.CTkButton(group_parameter_settings, text='Export XLSX', command=export_data)
 button_export_data.grid(row=12, column=0, padx=10, pady=10)
-button_export_plot = tk.CTkButton(group_parameter_settings, text='Export XLSX', command=export_plot)
+button_export_plot = tk.CTkButton(group_parameter_settings, text='Export Plots', command=export_plot)
 button_export_plot.grid(row=12, column=1, padx=10, pady=10)
 
 # ---------------------
