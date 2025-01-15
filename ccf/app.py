@@ -161,7 +161,7 @@ frame_parameter_group = tk.CTkFrame(app)
 frame_parameter_group.pack(pady=10, padx=20)
 
 # input data
-label_input_data = tk.CTkLabel(frame_parameter_group, text="Input Data")
+label_input_data = tk.CTkLabel(frame_parameter_group, text="Input Data", font=("Arial", 20, "bold"))
 label_input_data.grid(row=0, column=0, columnspan=2, pady=10)
 button_file_picker = tk.CTkButton(frame_parameter_group, text="Choose Excel File", command=open_file_picker)
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
@@ -171,7 +171,7 @@ checkbox_filter_data = tk.CTkCheckBox(frame_parameter_group, text='Remove out of
 checkbox_filter_data.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 
 # data type
-label_data_type = tk.CTkLabel(frame_parameter_group, text="Data Type")
+label_data_type = tk.CTkLabel(frame_parameter_group, text="Data Type", font=("Arial", 20, "bold"))
 label_data_type.grid(row=3, column=0, columnspan=2, pady=10)
 checkbox_is_ibi_data = tk.CTkCheckBox(frame_parameter_group, text='IBI', variable=val_checkbox_IBI, command=on_is_ibi_change)
 checkbox_is_ibi_data.grid(row=4, column=0, sticky="w", padx=10, pady=5)
@@ -179,7 +179,7 @@ checkbox_is_eda_data = tk.CTkCheckBox(frame_parameter_group, text='EDA', variabl
 checkbox_is_eda_data.grid(row=4, column=1, sticky="w", padx=10, pady=5)
 
 # correlation settings
-label_corr_settings = tk.CTkLabel(frame_parameter_group, text="Correlation Settings")
+label_corr_settings = tk.CTkLabel(frame_parameter_group, text="Correlation Settings", font=("Arial", 20, "bold"))
 label_corr_settings.grid(row=5, column=0, columnspan=2, pady=10)
 checkbox_is_eda_data = tk.CTkCheckBox(frame_parameter_group, text='Windowed XCorr', variable=val_checkbox_windowed_xcorr, command=on_windowed_xcorr_change)
 checkbox_is_eda_data.grid(row=6, column=0, sticky="w", padx=10, pady=5)
@@ -199,8 +199,10 @@ checkbox_absolute_corr = tk.CTkCheckBox(frame_parameter_group, text='Absolute Co
 checkbox_absolute_corr.grid(row=10, column=0, sticky="w", padx=10, pady=5)
 
 # export
+label_corr_settings = tk.CTkLabel(frame_parameter_group, text="Export", font=("Arial", 20, "bold"))
+label_corr_settings.grid(row=11, column=0, columnspan=2, pady=10)
 button_export = tk.CTkButton(frame_parameter_group, text='Export', command=export_data)
-button_export.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+button_export.grid(row=12, column=0, sticky="w", padx=10, pady=5)
 
 # ---------------------
 # PARAMETER GUI UPDATES
