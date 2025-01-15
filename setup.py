@@ -6,6 +6,9 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy',
+        'pandas',
+        'scipy',
+        
         'setuptools',
     ],
 
