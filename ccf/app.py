@@ -1,5 +1,6 @@
 import customtkinter as tk
 from tkinter import filedialog
+import os
 
  #init theme
 tk.set_appearance_mode("System")
@@ -7,6 +8,7 @@ tk.set_default_color_theme("dark-blue")
 
 # init window
 app = tk.CTk()  
+app.title("ccf")
 app.geometry("1280x720")
 
 # ---------------------
@@ -77,6 +79,7 @@ val_max_lag_input = tk.StringVar(value='5')
 val_window_size = tk.IntVar(value=10)
 val_step_size = tk.IntVar(value=1)
 val_max_lag = tk.IntVar(value=5)
+val_selected_file = tk.StringVar(value = '')
 
 # entry callbacks
 def on_window_size_input_change(name, index, mode):
@@ -136,6 +139,20 @@ def on_windowed_xcorr_change():
 def export_data():
     print("TODO: prepare data for export, open path picker, save file")
 
+# -----------
+# FILE PICKER
+# -----------
+
+def open_file_picker():
+    file_path = filedialog.askopenfilename(
+        title="Select an Excel file",
+        filetypes=(("Excel files", "*.xlsx"), ("All files", "*.*"))
+    )    
+    if file_path: 
+        val_selected_file.set(file_path)
+        PARAMS_CHANGED()    
+
+
 # -------------------
 # GUI PARAMETER GROUP
 # -------------------
@@ -146,7 +163,10 @@ frame_parameter_group.pack(pady=10, padx=20)
 # input data
 label_input_data = tk.CTkLabel(frame_parameter_group, text="Input Data")
 label_input_data.grid(row=0, column=0, columnspan=2, pady=10)
-# TODO Row 1: file picker
+button_file_picker = tk.CTkButton(frame_parameter_group, text="Choose Excel File", command=open_file_picker)
+button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+label_file_picker = tk.CTkLabel(frame_parameter_group, text="No file selected.")
+label_file_picker.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 checkbox_filter_data = tk.CTkCheckBox(frame_parameter_group, text='Remove out of range samples', variable=val_checkbox_filter_data, command=on_filter_data_change)
 checkbox_filter_data.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 
@@ -211,6 +231,11 @@ def update_active_state_correlation_parameters(*args):
     entry_step_size.configure(state=active_state)
     entry_step_size.configure(border_color='#777777' if is_active else '#000000')
 val_checkbox_windowed_xcorr.trace_add('write', update_active_state_correlation_parameters)
+
+def update_file_picker_label(*args):
+    file_path = val_selected_file.get()
+    label_file_picker.configure(text='No file selected.' if file_path == '' else os.path.basename(file_path))
+val_selected_file.trace_add('write', update_file_picker_label)
 
 # ---
 # RUN
