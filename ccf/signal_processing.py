@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from scipy.interpolate import CubicSpline
 
 def _invalid_ibi_sample_indices(ibi_ms):
