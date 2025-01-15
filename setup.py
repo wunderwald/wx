@@ -12,7 +12,7 @@ setup(
     author='Moritz Wunderwald',
     author_email='code@moritzwunderwald.de',
     description='ccf - GUI tool for calculating cross-correlation for IBI and EDA data',
-    url='https://github.com/yourusername/your-repo',
+    url='https://github.com/wunderwald/CCF',
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
