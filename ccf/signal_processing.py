@@ -52,3 +52,5 @@ def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False, filter_i
     ibi_ms_interpl_out = ibi_ms_interpl * (scl if scale_output else 1)
 
     return ibi_ms_interpl_out
+
+# def preprocess_signal(signal, signal_type):

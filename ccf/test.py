@@ -10,5 +10,5 @@ window_size = 40
 step_size=5 # default: window size
 max_lag=window_size//2
 
-windowed_corr_data = windowed_cross_correlation(signal1, signal2, window_size=window_size, step_size=step_size, max_lag=max_lag)
+windowed_corr_data = windowed_cross_correlation(signal1, signal2, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=False)
 plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal1, signal2)

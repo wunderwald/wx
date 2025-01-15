@@ -1,6 +1,6 @@
 import numpy as np
 
-def windowed_cross_correlation(x, y, window_size, step_size, max_lag):
+def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False):
     """
     Compute windowed cross-correlation between two time series.
 
@@ -10,6 +10,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag):
         window_size (int): Number of data points in each window.
         step_size (int): Step size for the sliding window.
         max_lag (int): Maximum lag to compute cross-correlation.
+        absolute (bool): Calculate abs of correlation values.
 
     Returns:
         results (list of dict): A list containing the results for each window. 
@@ -44,6 +45,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag):
                 corr = np.mean(x_window[lag:] * y_window[:-lag])
             else:
                 corr = np.mean(x_window * y_window)
+            if absolute: corr = np.abs(corr)
             correlations.append(corr)
 
         # Find the peak correlation and its corresponding lag
