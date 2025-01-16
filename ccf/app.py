@@ -424,7 +424,7 @@ def update_plot(*args):
     windowed_corr_data = dat_correlation_data["wxcorr"]
     
     # make plot figure
-    fig = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal_a, signal_b)
+    fig = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
     dat_plot_data["fig"] = fig
 
 # -----------

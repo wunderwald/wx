@@ -8,7 +8,7 @@ def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signal_b):
+def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=False):
     """
     Create and return a figure plotting the results of the windowed cross-correlation.
 
@@ -18,6 +18,7 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
         step_size (int): Step size for the sliding window.
         signal_a (array-like): First input signal.
         signal_b (array-like): Second input signal.
+        use_win_center_tscl (bool): Use time/index of window centers for time axes (instead of window start indices; this helps to compare to other plots)
 
     Returns:
         matplotlib.figure.Figure: The figure containing the plots.
@@ -39,12 +40,11 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
-        extent=[max_lag, (len(results)-1) * step_size + max_lag, -max_lag, max_lag]
-        #extent=[0, len(results) * step_size, -max_lag, max_lag]
+        extent=[0, len(results) * step_size, -max_lag, max_lag] if not use_win_center_tscl
+          else [max_lag, (len(results)-1) * step_size + max_lag, -max_lag, max_lag]
     )
     fig.colorbar(im, ax=ax1, label='Correlation')
-    #ax1.set_xlabel('Window Center Time')
-    ax1.set_xlabel('Time')
+    ax1.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')
     ax1.set_ylabel('Lag')
     ax1.set_title('Correlation Heatmap')
 
@@ -60,8 +60,8 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot peak correlation values over time
     ax3 = fig.add_subplot(gs[2])
-    ax3.plot(window_center_indices, r_max_values, marker='o', color='black', label='Peak Correlation')
-    ax3.set_xlabel('Time [window centers]')
+    ax3.plot(window_start_indices if not use_win_center_tscl else window_center_indices, r_max_values, marker='o', color='black', label='Peak Correlation')
+    ax3.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time [window centers]')
     ax3.set_ylabel('r_max')
     ax3.set_title('Peak Correlation Over Time')
     ax3.legend()
@@ -69,8 +69,8 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot corresponding lags over time
     ax4 = fig.add_subplot(gs[3])
-    ax4.plot(window_center_indices, tau_max_values, marker='o', color='black', label='Lag at Peak')
-    ax4.set_xlabel('Time [window centers]')
+    ax4.plot(window_start_indices if not use_win_center_tscl else window_center_indices, tau_max_values, marker='o', color='black', label='Lag at Peak')
+    ax4.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time [window centers]')
     ax4.set_ylabel('tau_max')
     ax4.set_title('Lag at Peak Correlation Over Time')
     ax4.legend()
