@@ -8,12 +8,12 @@ def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=False):
+def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=False):
     """
-    Create and return a figure plotting the results of the windowed cross-correlation.
+    Create and return a figure plotting the wxc_data of the windowed cross-correlation.
 
     Args:
-        results (list of dict): Output from `windowed_cross_correlation`.
+        wxc_data (list of dict): Output from `windowed_cross_correlation`.
         max_lag (int): Maximum lag used in the computation.
         step_size (int): Step size for the sliding window.
         signal_a (array-like): First input signal.
@@ -24,10 +24,10 @@ def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, si
         matplotlib.figure.Figure: The figure containing the plots.
     """
     # Extract values for plotting
-    window_start_indices = [res['start_idx'] for res in results]
-    window_center_indices = [res['center_idx'] for res in results]
-    r_max_values = [res['r_max'] for res in results]
-    tau_max_values = [res['tau_max'] for res in results]
+    window_start_indices = [res['start_idx'] for res in wxc_data]
+    window_center_indices = [res['center_idx'] for res in wxc_data]
+    r_max_values = [res['r_max'] for res in wxc_data]
+    tau_max_values = [res['tau_max'] for res in wxc_data]
 
     # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
@@ -35,14 +35,14 @@ def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, si
 
     # Create a heatmap of correlations
     ax1 = fig.add_subplot(gs[0])
-    heatmap_data = np.array([res['correlations'] for res in results])
+    heatmap_data = np.array([res['correlations'] for res in wxc_data])
     im = ax1.imshow(
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
-        extent=[0, len(results) * step_size, -max_lag, max_lag] if not use_win_center_tscl
-          # else [max_lag, (len(results)-1) * step_size + max_lag, -max_lag, max_lag]
-          else [window_size // 2, (len(results)-1) * step_size + window_size // 2, -max_lag, max_lag]
+        extent=[0, len(wxc_data) * step_size, -max_lag, max_lag] if not use_win_center_tscl
+          # else [max_lag, (len(wxc_data)-1) * step_size + max_lag, -max_lag, max_lag]
+          else [window_size // 2, (len(wxc_data)-1) * step_size + window_size // 2, -max_lag, max_lag]
     )
     fig.colorbar(im, ax=ax1, label='Correlation')
     ax1.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')
@@ -83,22 +83,24 @@ def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, si
     # Return the figure
     return fig
 
-def plot_standard_cross_correlation(signal_a, signal_b, corr, lags):
+def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     """
     Create and return a figure plotting the standard cross-correlation between two signals.
 
     Args:
+        sxc_data (dict): Dictionary containing 'corr' (correlation values) and 'lags' arrays.
         signal_a (array-like): First input signal.
         signal_b (array-like): Second input signal.
-        corr (array-like): Cross-correlation values.
-        lags (array-like): Array of lag values.
 
     Returns:
         matplotlib.figure.Figure: The figure containing the plot.
     """
+    corr = sxc_data['corr']
+    lags = sxc_data['lags']
+
     # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
-    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
+    gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1])
 
     # Plot cross-correlation
     ax2 = fig.add_subplot(gs[0])
@@ -108,13 +110,19 @@ def plot_standard_cross_correlation(signal_a, signal_b, corr, lags):
     ax2.set_title('Standard Cross-correlation')
     ax2.grid()
 
-    # Plot input signals over time
+    # Plot input signal a over time
     ax1 = fig.add_subplot(gs[1])
     ax1.plot(signal_a, label='Signal a', color='blue')
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('Sample Value')
+    ax1.legend()
+    ax1.grid()
+
+    # Plot input signal b over time
+    ax1 = fig.add_subplot(gs[2])
     ax1.plot(signal_b, label='Signal b', color='purple')
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Sample Value')
-    ax1.set_title('Signals over time')
     ax1.legend()
     ax1.grid()
 

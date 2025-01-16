@@ -3,8 +3,8 @@ import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
-from plot import plot_windowed_cross_correlation, plot_init
-from cross_correlation import windowed_cross_correlation
+from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init
+from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 from xlsx import write_xlsx
 
 # ------------------
@@ -12,7 +12,7 @@ from xlsx import write_xlsx
 # ------------------
 
 #init theme
-tk.set_appearance_mode("System")
+tk.set_appearance_mode("Light") # options 'System', 'Light', 'Dark'
 tk.set_default_color_theme("dark-blue")
 
 # init window
@@ -122,7 +122,8 @@ dat_physiological_data = {
     'signal_b': []
 }
 dat_correlation_data = {
-    'wxcorr': []
+    'wxcorr': [],
+    'sxcorr': []
 }
 
 # ---------
@@ -259,7 +260,9 @@ def open_file_picker():
     )
     if file_path: 
         val_selected_file.set(file_path)
-        # TODO: load data and update val_data_length
+        # TODO: load data 
+        # TODO: update val_data_length
+        # TODO: clear dat_correlation_data["wxcorr"] and dat_correlation_data["sxcorr"]
         PARAMS_CHANGED()    
 
 
@@ -271,7 +274,7 @@ group_main = tk.CTkFrame(app)
 group_main.pack(pady=10, padx=20)
 # plot group
 group_plot = tk.CTkFrame(group_main)
-group_plot.grid(row=0, column=0, pady=10, padx=20)
+group_plot.grid(row=0, column=0, pady=0, padx=0)
 # parameter group
 group_parameter_settings = tk.CTkFrame(group_main)
 group_parameter_settings.grid(row=0, column=1, pady=10, padx=20)
@@ -329,7 +332,6 @@ checkbox_absolute_corr.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 checkbox_average_windows = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Average Values in Windows', variable=val_checkbox_average_windows, command=on_average_windows_change)
 checkbox_average_windows.grid(row=10, column=0, sticky="w", padx=10, pady=5)
 
-
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(group_parameter_settings)
 label_subgroup_standard_xcorr_parameters=tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Standard cross-correlation parameters')
@@ -339,7 +341,7 @@ label_max_lag_sxc.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
 entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 
-# visualisation
+# visualisation settings
 label_vis_settings = tk.CTkLabel(group_parameter_settings, text="Visualisation", font=("Arial", 20, "bold"))
 label_vis_settings.grid(row=8, column=0, columnspan=2, pady=10)
 subgroup_vis_settings = tk.CTkFrame(group_parameter_settings)
@@ -419,10 +421,11 @@ val_selected_file.trace_add('write', update_file_picker_label)
 # CORRELATION
 # -----------
 
-def update_corr():
+# update windowed xcorr data
+def _update_wxcorr_data():
     if not val_CORRELATION_SETTINGS_VALID.get():
         return
-    # read data from data containers and state variabled
+    # read data from data containers and state variables
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
     window_size = val_window_size.get()
@@ -434,6 +437,27 @@ def update_corr():
     # update correlation data
     dat_correlation_data['wxcorr'] = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
 
+# uodate standard xcorr data
+def _update_sxcorr_data():
+    # TODO vcheck if parameters are valid
+
+    # read data from data containers and state variabled
+    signal_a = dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b"]
+    max_lag = val_max_lag_sxc.get()
+    absolute_values = False
+    #absolute_values = val_checkbox_absolute_corr_sxc.get() TODO absolute values checkbox
+    dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
+
+# update correlation data
+def update_corr():
+    is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
+    if is_windowed_xcorr:
+        _update_wxcorr_data()
+    else:
+        _update_sxcorr_data()
+    
+
 # --------
 # PLOTTING
 # --------
@@ -443,28 +467,49 @@ def update_canvas():
     if not dat_plot_data["fig"]: return
     canvas.figure = dat_plot_data["fig"]
     canvas.draw()
-    canvas.get_tk_widget().pack(pady=10)
+    canvas.get_tk_widget().pack()
 
-# test plot
-def update_plot(*args):
+# update windowed xcorr plots
+def _update_wxcorr_plots():
     if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']:
         return
     
-    # read data from data containers and state variabled
+    # read data from data containers and state variables
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
     window_size = val_window_size.get()
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
-    windowed_corr_data = dat_correlation_data["wxcorr"]
+    windowed_xcorr_data = dat_correlation_data["wxcorr"]
     
-    # make plot figure
-    fig = plot_windowed_cross_correlation(windowed_corr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
+    # create and store plot figure
+    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
     dat_plot_data["fig"] = fig
+
+# update standard xcorr plots
+def _update_sxcorr_plots():
+    # TODO check if data is valid
+
+    # read data from data containers and state variabled
+    signal_a = dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b"]
+    xcorr_data = dat_correlation_data["sxcorr"]
+
+    # create and store plot figure
+    fig = plot_standard_cross_correlation(xcorr_data, signal_a, signal_b)
+    dat_plot_data["fig"] = fig
+
+def update_plot(*args):
+    is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
+    if is_windowed_xcorr:
+        _update_wxcorr_plots()
+    else:
+        _update_sxcorr_plots()
 
 # -----------
 # UPDATE LOOP
 # -----------
+
 def UPDATE(*args):
     update_corr()
     update_plot()
@@ -475,6 +520,7 @@ UPDATE()
 # ---------------
 # TESTING HELPERS
 # ---------------
+
 def set_test_data():
     length = 1000
     dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi / 2, length))

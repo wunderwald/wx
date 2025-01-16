@@ -109,6 +109,6 @@ def standard_cross_correlation(x, y, max_lag, absolute=False):
         lags.append(lag)
 
     return {
-        'correlations': np.array(correlations),
+        'corr': np.array(correlations),
         'lags': np.array(lags)
     }
