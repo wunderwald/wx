@@ -325,10 +325,10 @@ entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="ke
 entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 
 # visualisation
+label_vis_settings = tk.CTkLabel(group_parameter_settings, text="Visualisation", font=("Arial", 20, "bold"))
+label_vis_settings.grid(row=8, column=0, columnspan=2, pady=10)
 subgroup_vis_settings = tk.CTkFrame(group_parameter_settings)
-subgroup_vis_settings.grid(row=8, column=0, columnspan=2, padx=0, pady=0)
-label_vis_settings = tk.CTkLabel(subgroup_vis_settings, text="Visualisation", font=("Arial", 20, "bold"))
-label_vis_settings.grid(row=1, column=0, columnspan=2, pady=10)
+subgroup_vis_settings.grid(row=9, column=0, columnspan=2, padx=0, pady=0)
 label_vis_time_scale  = tk.CTkLabel(subgroup_vis_settings, text="Time format in plots")
 label_vis_time_scale.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky='w')
 checkbox_use_tscl_index = tk.CTkCheckBox(subgroup_vis_settings, text='Window Start Indices', variable=val_checkbox_tscl_index, command=on_use_tscl_index_change)
@@ -337,10 +337,10 @@ checkbox_use_tscl_center = tk.CTkCheckBox(subgroup_vis_settings, text='Window Ce
 checkbox_use_tscl_center.grid(row=3, column=1, sticky="w", padx=10, pady=5)
 
 # export
+label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Export", font=("Arial", 20, "bold"))
+label_corr_settings.grid(row=10, column=0, columnspan=2, pady=10)
 subgroup_export_buttons = tk.CTkFrame(group_parameter_settings)
-subgroup_export_buttons.grid(row=9, column=0, columnspan=2, padx=0, pady=0)
-label_corr_settings = tk.CTkLabel(subgroup_export_buttons, text="Export", font=("Arial", 20, "bold"))
-label_corr_settings.grid(row=1, column=0, columnspan=2, pady=10)
+subgroup_export_buttons.grid(row=11, column=0, columnspan=2, padx=0, pady=0)
 button_export_data = tk.CTkButton(subgroup_export_buttons, text='Export XLSX', command=export_data)
 button_export_data.grid(row=2, column=0, padx=10, pady=10)
 button_export_plot = tk.CTkButton(subgroup_export_buttons, text='Export Plots', command=export_plot)
