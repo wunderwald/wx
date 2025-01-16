@@ -82,3 +82,34 @@ def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, si
 
     # Return the figure
     return fig
+
+def plot_cross_correlation(signal_a, signal_b, max_lag):
+    """
+    Create and return a figure plotting the standard cross-correlation between two signals.
+
+    Args:
+        signal_a (array-like): First input signal.
+        signal_b (array-like): Second input signal.
+        max_lag (int): Maximum lag to compute the cross-correlation.
+
+    Returns:
+        matplotlib.figure.Figure: The figure containing the plot.
+    """
+    # Compute cross-correlation
+    lags = np.arange(-max_lag, max_lag + 1)
+    corr = np.correlate(signal_a - np.mean(signal_a), signal_b - np.mean(signal_b), mode='full')
+    corr = corr[len(corr)//2 - max_lag:len(corr)//2 + max_lag + 1]
+
+    # Initialize plot
+    fig = plt.figure(figsize=FIGSIZE)
+    ax = fig.add_subplot(1, 1, 1)
+    
+    # Plot cross-correlation
+    ax.plot(lags, corr, marker='o', color='black')
+    ax.set_xlabel('Lag')
+    ax.set_ylabel('Cross-correlation')
+    ax.set_title('Standard Cross-correlation')
+    ax.grid()
+
+    # Return the figure
+    return fig
