@@ -41,12 +41,11 @@ val_STEP_SIZE_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID_SXC = tk.BooleanVar(value=True)
 
-# update count
+# update count: changes trigger rerendering
 val_UPDATE_COUNT = tk.IntVar(value=0)
 
-# main event callback
+# main event callback: causes rerendering
 def PARAMS_CHANGED():
-    print('PARAMS_CHANGED')
     val_UPDATE_COUNT.set(val_UPDATE_COUNT.get() + 1)
 
 # ----------------
