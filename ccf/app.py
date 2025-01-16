@@ -34,9 +34,11 @@ INIT_MAX_LAG = 50    # default: window_size//2
 
 # input validation trackers
 val_CORRELATION_SETTINGS_VALID = tk.BooleanVar(value=True)
+val_CORRELATION_SETTINGS_VALID_SXC = tk.BooleanVar(value=True)
 val_WINDOW_SIZE_VALID = tk.BooleanVar(value=True)
 val_STEP_SIZE_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID = tk.BooleanVar(value=True)
+val_MAX_LAG_VALID_SXC = tk.BooleanVar(value=True)
 
 # update count
 val_UPDATE_COUNT = tk.IntVar(value=0)
@@ -56,7 +58,7 @@ def on_validate_numeric_input(input):
     return False
 validate_numeric_input = app.register(on_validate_numeric_input)
 
-# entry validation
+# entry validation (windowed_xcorr)
 def check_window_size():
     # window size must be at least 1
     data_length = val_data_length.get()
@@ -80,12 +82,28 @@ def check_max_lag():
     val_MAX_LAG_VALID.set(max_lag_is_valid)
     return max_lag_is_valid
 
-def check_correlation_settings():
+def check_wx_correlation_settings():
     window_size_is_valid = check_window_size()
     step_size_is_valid = check_step_size()
     max_lag_is_valid = check_max_lag()
     correlation_settings_valid = window_size_is_valid and step_size_is_valid and max_lag_is_valid
     val_CORRELATION_SETTINGS_VALID.set(correlation_settings_valid)
+    PARAMS_CHANGED()
+    return correlation_settings_valid
+
+# entry validation (standard xcorr)
+def check_max_lag_sxc():
+    # max lag range [0, data_length - 1]
+    data_length = val_data_length.get()
+    max_lag = val_max_lag_sxc.get()
+    max_lag_is_valid = max_lag >= 0 and  max_lag < data_length
+    val_MAX_LAG_VALID_SXC.set(max_lag_is_valid)
+    return max_lag_is_valid
+
+def check_sx_correlation_settings():
+    max_lag_is_valid = check_max_lag_sxc()
+    correlation_settings_valid = max_lag_is_valid
+    val_CORRELATION_SETTINGS_VALID_SXC.set(correlation_settings_valid)
     PARAMS_CHANGED()
     return correlation_settings_valid
 
@@ -95,6 +113,7 @@ def check_correlation_settings():
 
 # set up app state variables 
 val_checkbox_absolute_corr = tk.BooleanVar(value=False)
+val_checkbox_absolute_corr_sxc = tk.BooleanVar(value=False)
 val_checkbox_filter_data = tk.BooleanVar(value=False)
 val_checkbox_IBI = tk.BooleanVar(value=True)
 val_checkbox_EDA = tk.BooleanVar(value=False)
@@ -138,7 +157,7 @@ def on_window_size_input_change(name, index, mode):
     else:
         new_val = int(new_str_val)
         val_window_size.set(new_val)
-    check_correlation_settings()
+    check_wx_correlation_settings()
 val_window_size_input.trace_add("write", on_window_size_input_change)
 
 def on_step_size_input_change(name, index, mode):
@@ -148,7 +167,7 @@ def on_step_size_input_change(name, index, mode):
     else:
         new_val = int(new_str_val)
         val_step_size.set(new_val)
-    check_correlation_settings()
+    check_wx_correlation_settings()
 val_step_size_input.trace_add("write", on_step_size_input_change)
 
 def on_max_lag_input_change(name, index, mode):
@@ -158,7 +177,7 @@ def on_max_lag_input_change(name, index, mode):
     else:
         new_val = int(new_str_val)
         val_max_lag.set(new_val)
-    check_correlation_settings()
+    check_wx_correlation_settings()
 val_max_lag_input.trace_add("write", on_max_lag_input_change)
 
 # entry callbacks standard xcorr
@@ -169,12 +188,16 @@ def on_max_lag_input_change_sxc(name, index, mode):
     else:
         new_val = int(new_str_val)
         val_max_lag_sxc.set(new_val)
-    check_correlation_settings()
+    check_sx_correlation_settings()
 val_max_lag_input_sxc.trace_add("write", on_max_lag_input_change_sxc)
 
 # checkbox callbacks
 def on_absolute_corr_change():
     new_val = val_checkbox_absolute_corr.get()
+    PARAMS_CHANGED()
+
+def on_absolute_corr_change_sxc():
+    new_val = val_checkbox_absolute_corr_sxc.get()
     PARAMS_CHANGED()
 
 def on_filter_data_change():
@@ -338,8 +361,10 @@ label_subgroup_standard_xcorr_parameters=tk.CTkLabel(subgroup_standard_xcorr_par
 label_subgroup_standard_xcorr_parameters.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky='w')
 label_max_lag_sxc = tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Max Lag')
 label_max_lag_sxc.grid(row=1, column=0, sticky="w", padx=10, pady=5)
-entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
+entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input_sxc, border_color='#777777')
 entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+checkbox_absolute_corr_sxc = tk.CTkCheckBox(subgroup_standard_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr_sxc, command=on_absolute_corr_change_sxc)
+checkbox_absolute_corr_sxc.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 
 # visualisation settings
 label_vis_settings = tk.CTkLabel(group_parameter_settings, text="Visualisation", font=("Arial", 20, "bold"))
@@ -439,14 +464,14 @@ def _update_wxcorr_data():
 
 # uodate standard xcorr data
 def _update_sxcorr_data():
-    # TODO vcheck if parameters are valid
+    if not val_CORRELATION_SETTINGS_VALID_SXC.get():
+        return
 
     # read data from data containers and state variabled
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
     max_lag = val_max_lag_sxc.get()
-    absolute_values = False
-    #absolute_values = val_checkbox_absolute_corr_sxc.get() TODO absolute values checkbox
+    absolute_values = val_checkbox_absolute_corr_sxc.get()
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
 
 # update correlation data
@@ -488,7 +513,8 @@ def _update_wxcorr_plots():
 
 # update standard xcorr plots
 def _update_sxcorr_plots():
-    # TODO check if data is valid
+    if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']:
+        return
 
     # read data from data containers and state variabled
     signal_a = dat_physiological_data["signal_a"]
