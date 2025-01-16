@@ -1,6 +1,6 @@
 from openpyxl import Workbook
 
-def write_xlsx(vectors: dict, single_value: dict, output_path: str):
+def write_xlsx(vectors: dict, single_values: dict, output_path: str):
     """
     Write data to an Excel file.
     Args:
@@ -10,7 +10,7 @@ def write_xlsx(vectors: dict, single_value: dict, output_path: str):
     Returns:
         None
     """
-    
+
     # Create a new workbook
     wb = Workbook()
     sheet = wb.active
