@@ -5,6 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 from plot import plot_windowed_cross_correlation, plot_init
 from cross_correlation import windowed_cross_correlation
+from xlsx import write_xlsx
 
 # ------------------
 # APP INITIALIZATION
@@ -160,9 +161,28 @@ def on_windowed_xcorr_change():
 
 # button callbacks
 def export_data():
-    print("TODO: prepare data for export, open path picker, save file")
+    # get filename using file picker
+    file_path = filedialog.asksaveasfilename(
+        title="Save As",
+        defaultextension=".xlsx",  # Default file extension
+        filetypes=(
+            ("XLSX files", "*.xlsx"),
+        )
+    )
+    if not file_path: return
+    print(file_path)
+
 def export_plot():
-    print("TODO: prepare data for export, open path picker, save file")
+    # get filename using file picker
+    file_path = filedialog.asksaveasfilename(
+        title="Save As",
+        defaultextension=".png",  # Default file extension
+        filetypes=(
+            ("PNG files", "*.png"),
+        )
+    )
+    if not file_path: return
+    print(file_path)
 
 # -----------
 # FILE PICKER
