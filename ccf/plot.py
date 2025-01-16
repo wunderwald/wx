@@ -50,8 +50,8 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot input signals over time
     ax2 = fig.add_subplot(gs[1])
-    ax2.plot(signal_a, label='Signal a')
-    ax2.plot(signal_b, label='Signal b')
+    ax2.plot(signal_a, label='Signal a', color='blue')
+    ax2.plot(signal_b, label='Signal b', color='purple')
     ax2.set_xlabel('Time')
     ax2.set_ylabel('Sample Value')
     ax2.set_title('Signals over time')
@@ -60,9 +60,7 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot peak correlation values over time
     ax3 = fig.add_subplot(gs[2])
-    # ax3.plot(window_start_indices, r_max_values, marker='o', label='Peak Correlation')
-    # ax3.set_xlabel('Window Start Index')
-    ax3.plot(window_start_times, r_max_values, marker='o', label='Peak Correlation')
+    ax3.plot(window_start_times, r_max_values, marker='o', color='black', label='Peak Correlation')
     ax3.set_xlabel('Window Start Times')
     ax3.set_ylabel('r_max')
     ax3.set_title('Peak Correlation Over Time')
@@ -71,9 +69,7 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot corresponding lags over time
     ax4 = fig.add_subplot(gs[3])
-    #ax4.plot(window_start_indices, tau_max_values, marker='o', label='Lag at Peak')
-    #ax4.set_xlabel('Window Start Index')
-    ax4.plot(window_start_times, tau_max_values, marker='o', label='Lag at Peak')
+    ax4.plot(window_start_times, tau_max_values, marker='o', color='black', label='Lag at Peak')
     ax4.set_xlabel('Window Start Time')
     ax4.set_ylabel('tau_max')
     ax4.set_title('Lag at Peak Correlation Over Time')
