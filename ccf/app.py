@@ -105,6 +105,8 @@ val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG)
+val_checkbox_tscl_index = tk.BooleanVar(value=True)
+val_checkbox_tscl_center = tk.BooleanVar(value=False)
 val_selected_file = tk.StringVar(value = '')
 
 # set up data containers
@@ -182,6 +184,16 @@ def on_is_ibi_change():
 def on_is_eda_change():
     new_val = val_checkbox_EDA.get()
     val_checkbox_IBI.set(not new_val)
+    PARAMS_CHANGED()
+
+def on_use_tscl_index_change():
+    new_val = val_checkbox_tscl_index.get()
+    val_checkbox_tscl_center.set(not new_val)
+    PARAMS_CHANGED()
+
+def on_use_tscl_center_change():
+    new_val = val_checkbox_tscl_center.get()
+    val_checkbox_tscl_index.set(not new_val)
     PARAMS_CHANGED()
 
 def on_windowed_xcorr_change():
@@ -312,19 +324,32 @@ label_max_lag_sxc.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
 entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 
-# export
-label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Export", font=("Arial", 20, "bold"))
-label_corr_settings.grid(row=11, column=0, columnspan=2, pady=10)
-button_export_data = tk.CTkButton(group_parameter_settings, text='Export XLSX', command=export_data)
-button_export_data.grid(row=12, column=0, padx=10, pady=10)
-button_export_plot = tk.CTkButton(group_parameter_settings, text='Export Plots', command=export_plot)
-button_export_plot.grid(row=12, column=1, padx=10, pady=10)
+# visualisation
+subgroup_vis_settings = tk.CTkFrame(group_parameter_settings)
+subgroup_vis_settings.grid(row=8, column=0, columnspan=2, padx=0, pady=0)
+label_vis_settings = tk.CTkLabel(subgroup_vis_settings, text="Visualisation", font=("Arial", 20, "bold"))
+label_vis_settings.grid(row=1, column=0, columnspan=2, pady=10)
+label_vis_time_scale  = tk.CTkLabel(subgroup_vis_settings, text="Time format in plots")
+label_vis_time_scale.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky='w')
+checkbox_use_tscl_index = tk.CTkCheckBox(subgroup_vis_settings, text='Window Start Indices', variable=val_checkbox_tscl_index, command=on_use_tscl_index_change)
+checkbox_use_tscl_index.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+checkbox_use_tscl_center = tk.CTkCheckBox(subgroup_vis_settings, text='Window Center Time', variable=val_checkbox_tscl_center, command=on_use_tscl_center_change)
+checkbox_use_tscl_center.grid(row=3, column=1, sticky="w", padx=10, pady=5)
 
- # TODO deactivate export buttons if there is no data
+# export
+subgroup_export_buttons = tk.CTkFrame(group_parameter_settings)
+subgroup_export_buttons.grid(row=9, column=0, columnspan=2, padx=0, pady=0)
+label_corr_settings = tk.CTkLabel(subgroup_export_buttons, text="Export", font=("Arial", 20, "bold"))
+label_corr_settings.grid(row=1, column=0, columnspan=2, pady=10)
+button_export_data = tk.CTkButton(subgroup_export_buttons, text='Export XLSX', command=export_data)
+button_export_data.grid(row=2, column=0, padx=10, pady=10)
+button_export_plot = tk.CTkButton(subgroup_export_buttons, text='Export Plots', command=export_plot)
+button_export_plot.grid(row=2, column=1, padx=10, pady=10)
 
 # ---------------------
 # PARAMETER GUI UPDATES
 # ---------------------
+
 def update_color_window_size_entry(*args):
     entry_window_size.configure(border_color='#777777' if val_WINDOW_SIZE_VALID.get() else 'red')
 val_WINDOW_SIZE_VALID.trace_add('write', update_color_window_size_entry)
