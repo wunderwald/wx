@@ -59,8 +59,8 @@ validate_numeric_input = app.register(on_validate_numeric_input)
 # entry validation
 def check_window_size():
     # window size must be at least 1
-    # ... TODO AND less than or equal to data length
-    window_size_is_valid = val_window_size.get() >= 1
+    data_length = val_data_length.get()
+    window_size_is_valid = val_window_size.get() >= 1 and val_window_size.get() <= data_length
     val_WINDOW_SIZE_VALID.set(window_size_is_valid)
     return window_size_is_valid
 
@@ -109,7 +109,8 @@ val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
-val_selected_file = tk.StringVar(value = '')
+val_selected_file = tk.StringVar(value='')
+val_data_length = tk.IntVar(value=0)
 
 # set up data containers
 dat_plot_data = {
@@ -253,6 +254,7 @@ def open_file_picker():
     )
     if file_path: 
         val_selected_file.set(file_path)
+        # TODO: load data and update val_data_length
         PARAMS_CHANGED()    
 
 
@@ -469,6 +471,7 @@ def set_test_data():
     dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi / 2, length))
     #dat_physiological_data["signal_b"] = np.cos(np.linspace(0, 4 * np.pi, length))
     dat_physiological_data["signal_b"] = dat_physiological_data["signal_a"] * 4*(np.random.random(length))
+    val_data_length.set(length)
 
 set_test_data()
 UPDATE()
