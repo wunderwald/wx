@@ -102,11 +102,12 @@ val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
 val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
 val_max_lag_input = tk.StringVar(value=INIT_MAX_LAG) 
-val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)    
+val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)    # sxc == standard cross correlation
 val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG)
+val_checkbox_average_windows = tk.BooleanVar(value=False)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
 val_selected_file = tk.StringVar(value='')
@@ -202,6 +203,10 @@ def on_use_tscl_center_change():
 def on_windowed_xcorr_change():
     new_val = val_checkbox_windowed_xcorr.get()
     PARAMS_CHANGED()    
+
+def on_average_windows_change():
+    new_val = val_checkbox_average_windows.get()
+    PARAMS_CHANGED()
 
 # ---------------
 # EXPORT HANDLERS
@@ -321,6 +326,9 @@ entry_step_size.grid(row=5, column=1, sticky="w", padx=10, pady=5)
 error_label_step_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Step Size must be in range [1, window_size]', text_color='red') # initially hidden
 checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr, command=on_absolute_corr_change)
 checkbox_absolute_corr.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+checkbox_average_windows = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Average Values in Windows', variable=val_checkbox_average_windows, command=on_average_windows_change)
+checkbox_average_windows.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
 
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(group_parameter_settings)
@@ -421,9 +429,10 @@ def update_corr():
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
     absolute_values = val_checkbox_absolute_corr.get()
+    average_windows = val_checkbox_average_windows.get()
 
     # update correlation data
-    dat_correlation_data['wxcorr'] = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values)
+    dat_correlation_data['wxcorr'] = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
 
 # --------
 # PLOTTING
