@@ -122,7 +122,7 @@ val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
 val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
 val_max_lag_input = tk.StringVar(value=INIT_MAX_LAG) 
-val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)   
+val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG_SXC)   
 val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
@@ -238,17 +238,41 @@ def on_average_windows_change():
 # ---------------
 
 def _export_wxcorr_data(file_path):
-    return
+    vectors = {
+        'signal_a': dat_physiological_data["signal_a"],
+        'signal_b': dat_physiological_data["signal_b"],
+    }
+    metadata = {}
+    write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
 def _export_sxcorr_data(file_path):
-    return
+    vectors = {
+        'signal_a': dat_physiological_data["signal_a"],
+        'signal_b': dat_physiological_data["signal_b"],
+        'lag': dat_correlation_data["sxcorr"]['lags'],
+        'correlation': dat_correlation_data["sxcorr"]['corr'],
+    }
+    metadata = {
+        'xcorr type': "(standard) cross-correlation",
+        'Input file': f"{os.path.basename(val_selected_file.get())}.xlsx",
+        'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
+        'Filtered input data': val_checkbox_filter_data.get(),
+        'Max lag': val_max_lag_sxc.get(),
+        'Absolute correlation values': val_checkbox_absolute_corr_sxc.get()
+    }
+    write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
 # export XLSX data
 def export_data():
+    # create initial output file name
+    selected_file = val_selected_file.get()
+    filename_init = f"xc_data_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "xc_data"
+
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
         title="Save As",
         defaultextension=".xlsx",  
+        initialfile=filename_init,
         filetypes=(
             ("XLSX files", "*.xlsx"),
         )
@@ -258,9 +282,9 @@ def export_data():
     # call specialised export function
     is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
     if is_windowed_xcorr:
-        _export_wxcorr_data()
+        _export_wxcorr_data(file_path)
     else:
-        _export_sxcorr_data()
+        _export_sxcorr_data(file_path)
 
 # export plots as PNG
 def export_plot():
@@ -270,7 +294,7 @@ def export_plot():
     
     # create initial output file name
     selected_file = val_selected_file.get()
-    filename_init = f"plot_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "plot_cff"
+    filename_init = f"xc_plot_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "xc_plot"
 
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
