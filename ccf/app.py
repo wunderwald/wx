@@ -24,9 +24,9 @@ app.geometry("1620x900")
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 20
+INIT_WINDOW_SIZE = 60
 INIT_STEP_SIZE = 10
-INIT_MAX_LAG = 10    # default: window_size//2
+INIT_MAX_LAG = 30    # default: window_size//2
 
 # ---------------------
 # GLOBAL STATE & EVENTS
@@ -105,9 +105,16 @@ val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_selected_file = tk.StringVar(value = '')
 
-# set up data container
+# set up data containers
 dat_plot_data = {
     'fig': plot_init()
+}
+dat_physiological_data = {
+    'signal_a': [],
+    'signal_b': []
+}
+dat_correlation_data = {
+    'wxcorr': []
 }
 
 # entry callbacks
@@ -316,13 +323,29 @@ def update_file_picker_label(*args):
     label_file_picker.configure(text='No file selected.' if file_path == '' else os.path.basename(file_path))
 val_selected_file.trace_add('write', update_file_picker_label)
 
+# -----------
+# CORRELATION
+# -----------
+
+def update_corr():
+    if not val_CORRELATION_SETTINGS_VALID.get():
+        return
+    # read data from data containers and state variabled
+    signal_a = dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b"]
+    window_size = val_window_size.get()
+    step_size = val_step_size.get()
+    max_lag = val_max_lag.get()
+    absolute_values = val_checkbox_absolute_corr.get()
+
+    # update correlation data
+    dat_correlation_data['wxcorr'] = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values)
+
 # --------
 # PLOTTING
 # --------
-# create canvas
-#dat_current_plot = plot_init()
-canvas = FigureCanvasTkAgg(dat_plot_data["fig"], master=group_plot)
 
+canvas = FigureCanvasTkAgg(dat_plot_data["fig"], master=group_plot)
 def update_canvas():
     if not dat_plot_data["fig"]: return
     canvas.figure = dat_plot_data["fig"]
@@ -330,34 +353,43 @@ def update_canvas():
     canvas.get_tk_widget().pack(pady=10)
 
 # test plot
-def plot_test(*args):
-    if not val_CORRELATION_SETTINGS_VALID.get():
+def update_plot(*args):
+    if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']:
         return
     
-    # calculate wxcorr
-    length = 800
-    signal1 = np.sin(np.linspace(0, 5 * np.pi, length))
-    # signal2 = np.cos(np.linspace(0, 4 * np.pi, length))
-    signal2 = signal1 * 4*(np.random.random(length))
-
+    # read data from data containers and state variabled
+    signal_a = dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b"]
     window_size = val_window_size.get()
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
-    absolute_values = val_checkbox_absolute_corr.get()
-
-    windowed_corr_data = windowed_cross_correlation(signal1, signal2, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values)
+    windowed_corr_data = dat_correlation_data["wxcorr"]
     
     # make plot figure
-    fig = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal1, signal2)
+    fig = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal_a, signal_b)
     dat_plot_data["fig"] = fig
 
-    # update canvas
+# -----------
+# UPDATE LOOP
+# -----------
+def UPDATE(*args):
+    update_corr()
+    update_plot()
     update_canvas()
+val_UPDATE_COUNT.trace_add('write', UPDATE)
+UPDATE()
 
-plot_test()
+# ---------------
+# TESTING HELPERS
+# ---------------
+def set_test_data():
+    length = 800
+    dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi, length))
+    #dat_physiological_data["signal_b"] = np.cos(np.linspace(0, 4 * np.pi, length))
+    dat_physiological_data["signal_b"] = dat_physiological_data["signal_a"] * 4*(np.random.random(length))
 
-# auto refresh
-val_UPDATE_COUNT.trace_add('write', plot_test)
+set_test_data()
+UPDATE()
 
 # ---
 # RUN
