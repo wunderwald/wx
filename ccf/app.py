@@ -182,7 +182,6 @@ def export_plot():
     fig = dat_plot_data["fig"]
     if not fig: return
     
-    # TODO deactivate button if there is no fig data
     # create initial output file name
     selected_file = val_selected_file.get()
     filename_init = f"plot_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "plot_cff"
@@ -278,6 +277,8 @@ button_export_data.grid(row=12, column=0, padx=10, pady=10)
 button_export_plot = tk.CTkButton(group_parameter_settings, text='Export Plots', command=export_plot)
 button_export_plot.grid(row=12, column=1, padx=10, pady=10)
 
+ # TODO deactivate export buttons if there is no data
+
 # ---------------------
 # PARAMETER GUI UPDATES
 # ---------------------
@@ -301,12 +302,13 @@ val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_but
 def update_active_state_correlation_parameters(*args):
     is_active = val_checkbox_windowed_xcorr.get()
     active_state = "normal" if is_active else "disabled"
+    border_color = '#777777' if is_active else '#000000'
     entry_window_size.configure(state=active_state)
-    entry_window_size.configure(border_color='#777777' if is_active else '#000000')
+    entry_window_size.configure(border_color=border_color)
     entry_max_lag.configure(state=active_state)
-    entry_max_lag.configure(border_color='#777777' if is_active else '#000000')
+    entry_max_lag.configure(border_color=border_color)
     entry_step_size.configure(state=active_state)
-    entry_step_size.configure(border_color='#777777' if is_active else '#000000')
+    entry_step_size.configure(border_color=border_color)
 val_checkbox_windowed_xcorr.trace_add('write', update_active_state_correlation_parameters)
 
 def update_file_picker_label(*args):
