@@ -8,7 +8,7 @@ def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=False):
+def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=False):
     """
     Create and return a figure plotting the results of the windowed cross-correlation.
 
@@ -25,7 +25,7 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
     """
     # Extract values for plotting
     window_start_indices = [res['start_idx'] for res in results]
-    window_center_indices = [index + max_lag for index in window_start_indices]
+    window_center_indices = [res['center_idx'] for res in results]
     r_max_values = [res['r_max'] for res in results]
     tau_max_values = [res['tau_max'] for res in results]
 
@@ -41,7 +41,8 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
         extent=[0, len(results) * step_size, -max_lag, max_lag] if not use_win_center_tscl
-          else [max_lag, (len(results)-1) * step_size + max_lag, -max_lag, max_lag]
+          # else [max_lag, (len(results)-1) * step_size + max_lag, -max_lag, max_lag]
+          else [window_size // 2, (len(results)-1) * step_size + window_size // 2, -max_lag, max_lag]
     )
     fig.colorbar(im, ax=ax1, label='Correlation')
     ax1.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')

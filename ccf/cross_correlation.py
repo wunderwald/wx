@@ -57,7 +57,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         # Store results for this window
         results.append({
             'start_idx': start,
-            'center_idx': start + max_lag,
+            'center_idx': start + window_size//2,
             'r_max': r_max,
             'tau_max': tau_max,
             'correlations': correlations

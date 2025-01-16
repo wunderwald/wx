@@ -419,12 +419,13 @@ def update_plot(*args):
     # read data from data containers and state variabled
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
+    window_size = val_window_size.get()
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
     windowed_corr_data = dat_correlation_data["wxcorr"]
     
     # make plot figure
-    fig = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
+    fig = plot_windowed_cross_correlation(windowed_corr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
     dat_plot_data["fig"] = fig
 
 # -----------
@@ -441,8 +442,8 @@ UPDATE()
 # TESTING HELPERS
 # ---------------
 def set_test_data():
-    length = 400
-    dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi, length))
+    length = 1000
+    dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi / 2, length))
     #dat_physiological_data["signal_b"] = np.cos(np.linspace(0, 4 * np.pi, length))
     dat_physiological_data["signal_b"] = dat_physiological_data["signal_a"] * 4*(np.random.random(length))
 
