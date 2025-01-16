@@ -23,7 +23,8 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
         matplotlib.figure.Figure: The figure containing the plots.
     """
     # Extract values for plotting
-    window_starts = [res['start_idx'] for res in results]
+    window_start_indices = [res['start_idx'] for res in results]
+    window_start_times = [index + max_lag for index in window_start_indices]
     r_max_values = [res['r_max'] for res in results]
     tau_max_values = [res['tau_max'] for res in results]
 
@@ -37,11 +38,13 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
     im = ax1.imshow(
         heatmap_data.T,
         aspect='auto',
-        cmap='viridis',
-        extent=[0, len(results) * step_size, -max_lag, max_lag]
+        cmap='magma', # options: viridis, plasma, magma...
+        #extent=[0, len(results) * step_size, -max_lag, max_lag]
+        extent=[max_lag, len(results) * step_size, -max_lag, max_lag]
     )
     fig.colorbar(im, ax=ax1, label='Correlation')
-    ax1.set_xlabel('Window Start Index')
+    ## ax1.set_xlabel('Window Start Index')
+    ax1.set_xlabel('Window Start Time')
     ax1.set_ylabel('Lag')
     ax1.set_title('Correlation Heatmap')
 
@@ -57,8 +60,10 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot peak correlation values over time
     ax3 = fig.add_subplot(gs[2])
-    ax3.plot(window_starts, r_max_values, marker='o', label='Peak Correlation')
-    ax3.set_xlabel('Window Start Index')
+    # ax3.plot(window_start_indices, r_max_values, marker='o', label='Peak Correlation')
+    # ax3.set_xlabel('Window Start Index')
+    ax3.plot(window_start_times, r_max_values, marker='o', label='Peak Correlation')
+    ax3.set_xlabel('Window Start Times')
     ax3.set_ylabel('r_max')
     ax3.set_title('Peak Correlation Over Time')
     ax3.legend()
@@ -66,8 +71,10 @@ def plot_windowed_cross_correlation(results, max_lag, step_size, signal_a, signa
 
     # Plot corresponding lags over time
     ax4 = fig.add_subplot(gs[3])
-    ax4.plot(window_starts, tau_max_values, marker='o', label='Lag at Peak')
-    ax4.set_xlabel('Window Start Index')
+    #ax4.plot(window_start_indices, tau_max_values, marker='o', label='Lag at Peak')
+    #ax4.set_xlabel('Window Start Index')
+    ax4.plot(window_start_times, tau_max_values, marker='o', label='Lag at Peak')
+    ax4.set_xlabel('Window Start Time')
     ax4.set_ylabel('tau_max')
     ax4.set_title('Lag at Peak Correlation Over Time')
     ax4.legend()
