@@ -11,7 +11,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         step_size (int): Step size for the sliding window.
         max_lag (int): Maximum lag to compute cross-correlation.
         absolute (bool): Calculate abs of correlation values.
-        average_windows (bool): Calculate per-window averages.
+        average_windows (bool): Calculate per-window averages (for consistency, results will be stored for each lag).
 
     Returns:
         results (list of dict): A list containing the results for each window. 
@@ -53,8 +53,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         # optionally average correlation values in window
         if average_windows:
             avg = np.mean(np.array(correlations))
-            #correlations = [avg for c in correlations]
-            correlations = [avg]
+            correlations = [avg for c in correlations]
 
         # Find the peak correlation and its corresponding lag
         correlations = np.array(correlations)
