@@ -16,14 +16,17 @@ def write_xlsx(vectors: dict, single_values: dict, output_path: str):
     sheet = wb.active
     sheet.title = "(w)ccf data"
 
-    column_index = 1
-    # Write the single valued data to columns
+    # Write the single valued data to columns 
+    # (column 1 -> names, column 2 -> values)
+    row_index = 1
     for name, value in single_values.items():
-        sheet.cell(row=1, column=column_index, value=name)  
-        sheet.cell(row=2, column=column_index, value=str(value))  
-        column_index += 1
-
+        sheet.cell(row=row_index, column=1, value=name)  
+        sheet.cell(row=row_index, column=2, value=str(value))  
+        row_index += 1
+    
     # Write the time series data to columns
+    # (one vector with title per column, starting in column 4)
+    column_index = 4
     for name in vectors.keys():
         sheet.cell(row=1, column=column_index, value=name)
         for row_index, value in enumerate(vectors[name]):  
