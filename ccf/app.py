@@ -87,9 +87,9 @@ def check_correlation_settings():
     PARAMS_CHANGED()
     return correlation_settings_valid
 
-# ---------------------------
-# CALLBACKS & STATE VARIABLES
-# ---------------------------
+# ------------------------------
+# DATA STORAGE & STATE VARIABLES
+# ------------------------------
 
 # set up app state variables 
 val_checkbox_absolute_corr = tk.BooleanVar(value=False)
@@ -99,10 +99,12 @@ val_checkbox_EDA = tk.BooleanVar(value=False)
 val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
 val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
-val_max_lag_input = tk.StringVar(value=INIT_MAX_LAG)    
+val_max_lag_input = tk.StringVar(value=INIT_MAX_LAG) 
+val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)    
 val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
+val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG)
 val_selected_file = tk.StringVar(value = '')
 
 # set up data containers
@@ -117,7 +119,11 @@ dat_correlation_data = {
     'wxcorr': []
 }
 
-# entry callbacks
+# ---------
+# CALLBACKS
+# ---------
+
+# entry callbacks windowed xcorr
 def on_window_size_input_change(name, index, mode):
     new_str_val = val_window_size_input.get()
     if new_str_val == '':
@@ -148,6 +154,17 @@ def on_max_lag_input_change(name, index, mode):
     check_correlation_settings()
 val_max_lag_input.trace_add("write", on_max_lag_input_change)
 
+# entry callbacks standard xcorr
+def on_max_lag_input_change_sxc(name, index, mode):
+    new_str_val = val_max_lag_input_sxc.get()
+    if new_str_val == '':
+        val_max_lag_sxc.set(0)
+    else:
+        new_val = int(new_str_val)
+        val_max_lag_sxc.set(new_val)
+    check_correlation_settings()
+val_max_lag_input_sxc.trace_add("write", on_max_lag_input_change_sxc)
+
 # checkbox callbacks
 def on_absolute_corr_change():
     new_val = val_checkbox_absolute_corr.get()
@@ -170,6 +187,10 @@ def on_is_eda_change():
 def on_windowed_xcorr_change():
     new_val = val_checkbox_windowed_xcorr.get()
     PARAMS_CHANGED()    
+
+# ---------------
+# EXPORT HANDLERS
+# ---------------
 
 # button callbacks
 def export_data():
@@ -259,22 +280,37 @@ checkbox_is_eda_data.grid(row=4, column=1, sticky="w", padx=10, pady=5)
 # correlation settings
 label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Correlation Settings", font=("Arial", 20, "bold"))
 label_corr_settings.grid(row=5, column=0, columnspan=2, pady=20)
-checkbox_is_eda_data = tk.CTkCheckBox(group_parameter_settings, text='Windowed XCorr', variable=val_checkbox_windowed_xcorr, command=on_windowed_xcorr_change)
+checkbox_is_eda_data = tk.CTkCheckBox(group_parameter_settings, text='Windowed cross-correlation', variable=val_checkbox_windowed_xcorr, command=on_windowed_xcorr_change)
 checkbox_is_eda_data.grid(row=6, column=0, sticky="w", padx=10, pady=5)
-label_window_size = tk.CTkLabel(group_parameter_settings, text='Window Size')
-label_window_size.grid(row=7, column=0, sticky="w", padx=10, pady=5)
-entry_window_size = tk.CTkEntry(group_parameter_settings, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_window_size_input, border_color='#777777')
-entry_window_size.grid(row=7, column=1, sticky="w", padx=10, pady=5)
-label_max_lag = tk.CTkLabel(group_parameter_settings, text='Max Lag')
-label_max_lag.grid(row=8, column=0, sticky="w", padx=10, pady=5)
-entry_max_lag = tk.CTkEntry(group_parameter_settings, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
-entry_max_lag.grid(row=8, column=1, sticky="w", padx=10, pady=5)
-label_step_size = tk.CTkLabel(group_parameter_settings, text='Step Size')
-label_step_size.grid(row=9, column=0, sticky="w", padx=10, pady=5)
-entry_step_size = tk.CTkEntry(group_parameter_settings, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_step_size_input, border_color='#777777')
-entry_step_size.grid(row=9, column=1, sticky="w", padx=10, pady=5)
-checkbox_absolute_corr = tk.CTkCheckBox(group_parameter_settings, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr, command=on_absolute_corr_change)
-checkbox_absolute_corr.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+# windowerd xcorr specialised settings
+subgroup_windowed_xcorr_parameters = tk.CTkFrame(group_parameter_settings)
+subgroup_windowed_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0)
+label_subgroup_windowed_xcorr_parameters=tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Windowed cross-correlation parameters')
+label_subgroup_windowed_xcorr_parameters.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky='w')
+label_window_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Window Size')
+label_window_size.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+entry_window_size = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_window_size_input, border_color='#777777')
+entry_window_size.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+label_max_lag = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Max Lag')
+label_max_lag.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+entry_max_lag = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
+entry_max_lag.grid(row=2, column=1, sticky="w", padx=10, pady=5)
+label_step_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Step Size')
+label_step_size.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+entry_step_size = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_step_size_input, border_color='#777777')
+entry_step_size.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr, command=on_absolute_corr_change)
+checkbox_absolute_corr.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+# standard xcorr specialised settings (initially hidden)
+subgroup_standard_xcorr_parameters = tk.CTkFrame(group_parameter_settings)
+label_subgroup_standard_xcorr_parameters=tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Standard cross-correlation parameters')
+label_subgroup_standard_xcorr_parameters.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky='w')
+label_max_lag_sxc = tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Max Lag')
+label_max_lag_sxc.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
+entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 
 # export
 label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Export", font=("Arial", 20, "bold"))
@@ -306,17 +342,15 @@ def update_active_state_export_button(*args):
     button_export_plot.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
 val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_button)
 
-def update_active_state_correlation_parameters(*args):
+def update_xcorr_parameter_groups(*args):
     is_active = val_checkbox_windowed_xcorr.get()
-    active_state = "normal" if is_active else "disabled"
-    border_color = '#777777' if is_active else '#000000'
-    entry_window_size.configure(state=active_state)
-    entry_window_size.configure(border_color=border_color)
-    entry_max_lag.configure(state=active_state)
-    entry_max_lag.configure(border_color=border_color)
-    entry_step_size.configure(state=active_state)
-    entry_step_size.configure(border_color=border_color)
-val_checkbox_windowed_xcorr.trace_add('write', update_active_state_correlation_parameters)
+    if is_active:
+        subgroup_windowed_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0)
+        subgroup_standard_xcorr_parameters.grid_forget()
+    else:
+        subgroup_windowed_xcorr_parameters.grid_forget()
+        subgroup_standard_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0, sticky='w')
+val_checkbox_windowed_xcorr.trace_add('write', update_xcorr_parameter_groups)
 
 def update_file_picker_label(*args):
     file_path = val_selected_file.get()
