@@ -10,7 +10,8 @@ setup(
         'scipy',
         'matplotlib'
         'setuptools',
-        'customtkinter'
+        'customtkinter',
+        'openpyxl'
     ],
 
     author='Moritz Wunderwald',
