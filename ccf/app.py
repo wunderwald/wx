@@ -58,8 +58,9 @@ validate_numeric_input = app.register(on_validate_numeric_input)
 
 # entry validation
 def check_window_size():
-    # window size must be at least 3
-    window_size_is_valid = val_window_size.get() >= 3
+    # window size must be at least 1
+    # ... TODO AND less than or equal to data length
+    window_size_is_valid = val_window_size.get() >= 1
     val_WINDOW_SIZE_VALID.set(window_size_is_valid)
     return window_size_is_valid
 
@@ -74,7 +75,8 @@ def check_step_size():
 
 def check_max_lag():
     # max lag can be at most half the window size and more than 0
-    max_lag_is_valid = val_max_lag.get() > 0 and val_max_lag.get() <= val_window_size.get() // 2
+    window_size_is_valid = val_WINDOW_SIZE_VALID.get()
+    max_lag_is_valid = val_max_lag.get() > 0 and (not window_size_is_valid or (val_max_lag.get() <= val_window_size.get() // 2))
     val_MAX_LAG_VALID.set(max_lag_is_valid)
     return max_lag_is_valid
 
@@ -304,16 +306,19 @@ label_window_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Window
 label_window_size.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 entry_window_size = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_window_size_input, border_color='#777777')
 entry_window_size.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+error_label_window_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Window Size must be in range [1, data_length]', text_color='red') # initially hidden
 label_max_lag = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Max Lag')
-label_max_lag.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+label_max_lag.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 entry_max_lag = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input, border_color='#777777')
-entry_max_lag.grid(row=2, column=1, sticky="w", padx=10, pady=5)
+entry_max_lag.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+error_label_max_lag = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Max Lag must be in range [1, window_size//2]', text_color='red') # initially hidden
 label_step_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Step Size')
-label_step_size.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+label_step_size.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 entry_step_size = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_step_size_input, border_color='#777777')
-entry_step_size.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+entry_step_size.grid(row=5, column=1, sticky="w", padx=10, pady=5)
+error_label_step_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Step Size must be in range [1, window_size]', text_color='red') # initially hidden
 checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr, command=on_absolute_corr_change)
-checkbox_absolute_corr.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+checkbox_absolute_corr.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(group_parameter_settings)
@@ -350,17 +355,35 @@ button_export_plot.grid(row=2, column=1, padx=10, pady=10)
 # PARAMETER GUI UPDATES
 # ---------------------
 
-def update_color_window_size_entry(*args):
-    entry_window_size.configure(border_color='#777777' if val_WINDOW_SIZE_VALID.get() else 'red')
-val_WINDOW_SIZE_VALID.trace_add('write', update_color_window_size_entry)
+def update_window_size_entry_on_validation(*args):
+    win_size_is_valid = val_WINDOW_SIZE_VALID.get()
+    if win_size_is_valid:
+        entry_window_size.configure(border_color='#777777')
+        error_label_window_size.grid_forget()
+    else:  
+        entry_window_size.configure(border_color='red')  
+        error_label_window_size.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+val_WINDOW_SIZE_VALID.trace_add('write', update_window_size_entry_on_validation)
 
-def update_color_step_size_entry(*args):
-    entry_step_size.configure(border_color='#777777' if val_STEP_SIZE_VALID.get() else 'red')
-val_STEP_SIZE_VALID.trace_add('write', update_color_step_size_entry)
+def update_max_lag_entry_on_validation(*args):
+    max_lag_is_valid = val_MAX_LAG_VALID.get()
+    if max_lag_is_valid:
+        entry_max_lag.configure(border_color='#777777')
+        error_label_max_lag.grid_forget()
+    else:  
+        entry_max_lag.configure(border_color='red')  
+        error_label_max_lag.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+val_MAX_LAG_VALID.trace_add('write', update_max_lag_entry_on_validation)
 
-def update_color_max_lag_entry(*args):
-    entry_max_lag.configure(border_color='#777777' if val_MAX_LAG_VALID.get() else 'red')
-val_MAX_LAG_VALID.trace_add('write', update_color_max_lag_entry)
+def update_step_size_entry_on_validation(*args):
+    step_size_is_valid = val_STEP_SIZE_VALID.get()
+    if step_size_is_valid:
+        entry_step_size.configure(border_color='#777777')
+        error_label_step_size.grid_forget()
+    else:  
+        entry_step_size.configure(border_color='red')  
+        error_label_step_size.grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+val_STEP_SIZE_VALID.trace_add('write', update_step_size_entry_on_validation)
 
 def update_active_state_export_button(*args):
     button_export_data.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
