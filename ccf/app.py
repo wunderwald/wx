@@ -121,7 +121,7 @@ val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
 val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
 val_max_lag_input = tk.StringVar(value=INIT_MAX_LAG) 
-val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)    # sxc == standard cross correlation
+val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)   
 val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
@@ -363,8 +363,9 @@ label_max_lag_sxc = tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Max La
 label_max_lag_sxc.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 entry_max_lag_sxc = tk.CTkEntry(subgroup_standard_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_max_lag_input_sxc, border_color='#777777')
 entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+error_label_max_lag_sxc = tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Max Lag must be in range [0, data_length - 1]', text_color='red') # initially hidden
 checkbox_absolute_corr_sxc = tk.CTkCheckBox(subgroup_standard_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr_sxc, command=on_absolute_corr_change_sxc)
-checkbox_absolute_corr_sxc.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+checkbox_absolute_corr_sxc.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
 # visualisation settings
 label_vis_settings = tk.CTkLabel(group_parameter_settings, text="Visualisation", font=("Arial", 20, "bold"))
@@ -392,6 +393,7 @@ button_export_plot.grid(row=2, column=1, padx=10, pady=10)
 # PARAMETER GUI UPDATES
 # ---------------------
 
+# windowed xcorr entries
 def update_window_size_entry_on_validation(*args):
     win_size_is_valid = val_WINDOW_SIZE_VALID.get()
     if win_size_is_valid:
@@ -422,14 +424,27 @@ def update_step_size_entry_on_validation(*args):
         error_label_step_size.grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_STEP_SIZE_VALID.trace_add('write', update_step_size_entry_on_validation)
 
+# standard xcorr entries
+def update_max_lag_entry_on_validation_sxc(*args):
+    max_lag_is_valid = val_MAX_LAG_VALID_SXC.get()
+    if max_lag_is_valid:
+        entry_max_lag_sxc.configure(border_color='#777777')
+        error_label_max_lag_sxc.grid_forget()
+    else:  
+        entry_max_lag_sxc.configure(border_color='red')  
+        error_label_max_lag_sxc.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+val_MAX_LAG_VALID_SXC.trace_add('write', update_max_lag_entry_on_validation_sxc)
+
+# export buttons
 def update_active_state_export_button(*args):
     button_export_data.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
     button_export_plot.configure(state="normal" if val_CORRELATION_SETTINGS_VALID.get() else "disabled")
 val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_button)
 
+# toggle parameter xroups (wxc/sxc)
 def update_xcorr_parameter_groups(*args):
-    is_active = val_checkbox_windowed_xcorr.get()
-    if is_active:
+    wxc_is_active = val_checkbox_windowed_xcorr.get()
+    if wxc_is_active:
         subgroup_windowed_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0)
         subgroup_standard_xcorr_parameters.grid_forget()
     else:
@@ -437,6 +452,18 @@ def update_xcorr_parameter_groups(*args):
         subgroup_standard_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0, sticky='w')
 val_checkbox_windowed_xcorr.trace_add('write', update_xcorr_parameter_groups)
 
+# toggle vis group (only needed for wxc)
+def update_vis_settings_group(*args):
+    wxc_is_active = val_checkbox_windowed_xcorr.get()
+    if wxc_is_active:
+        label_vis_settings.grid(row=8, column=0, columnspan=2, pady=10)
+        subgroup_vis_settings.grid(row=9, column=0, columnspan=2, padx=0, pady=0)    
+    else:
+        label_vis_settings.grid_forget()
+        subgroup_vis_settings.grid_forget()
+val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
+
+# file picker
 def update_file_picker_label(*args):
     file_path = val_selected_file.get()
     label_file_picker.configure(text='No file selected.' if file_path == '' else os.path.basename(file_path))
