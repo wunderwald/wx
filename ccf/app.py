@@ -237,7 +237,13 @@ def on_average_windows_change():
 # EXPORT HANDLERS
 # ---------------
 
-# button callbacks
+def _export_wxcorr_data(file_path):
+    return
+
+def _export_sxcorr_data(file_path):
+    return
+
+# export XLSX data
 def export_data():
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
@@ -248,8 +254,15 @@ def export_data():
         )
     )
     if not file_path: return
-    print(file_path)
 
+    # call specialised export function
+    is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
+    if is_windowed_xcorr:
+        _export_wxcorr_data()
+    else:
+        _export_sxcorr_data()
+
+# export plots as PNG
 def export_plot():
     # get fig data
     fig = dat_plot_data["fig"]
