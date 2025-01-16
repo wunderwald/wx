@@ -24,9 +24,9 @@ app.geometry("1620x900")
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 60
+INIT_WINDOW_SIZE = 100
 INIT_STEP_SIZE = 10
-INIT_MAX_LAG = 30    # default: window_size//2
+INIT_MAX_LAG = 50    # default: window_size//2
 
 # ---------------------
 # GLOBAL STATE & EVENTS
@@ -382,7 +382,7 @@ UPDATE()
 # TESTING HELPERS
 # ---------------
 def set_test_data():
-    length = 800
+    length = 400
     dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi, length))
     #dat_physiological_data["signal_b"] = np.cos(np.linspace(0, 4 * np.pi, length))
     dat_physiological_data["signal_b"] = dat_physiological_data["signal_a"] * 4*(np.random.random(length))

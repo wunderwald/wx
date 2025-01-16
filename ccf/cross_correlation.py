@@ -16,6 +16,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         results (list of dict): A list containing the results for each window. 
             Each result is a dictionary with keys:
                 - 'start_idx': Start index of the window in the time series.
+                - 'center_idx': Index of window center in time series (allows aligning correlation result with input time series).
                 - 'r_max': Peak cross-correlation value in the window.
                 - 'tau_max': Lag at which the peak correlation occurs.
                 - 'correlations': Array of cross-correlation values for all lags.
@@ -56,6 +57,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         # Store results for this window
         results.append({
             'start_idx': start,
+            'center_idx': start + max_lag,
             'r_max': r_max,
             'tau_max': tau_max,
             'correlations': correlations
