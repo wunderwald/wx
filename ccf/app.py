@@ -360,7 +360,6 @@ def update_plot(*args):
     # read data from data containers and state variabled
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
-    window_size = val_window_size.get()
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
     windowed_corr_data = dat_correlation_data["wxcorr"]
