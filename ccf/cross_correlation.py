@@ -71,7 +71,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
 
     return results
 
-def cross_correlation(x, y, max_lag, absolute=False):
+def standard_cross_correlation(x, y, max_lag, absolute=False):
     """
     Compute standard (1D) cross-correlation between two time series.
 
@@ -96,6 +96,7 @@ def cross_correlation(x, y, max_lag, absolute=False):
 
     # Compute cross-correlation for lags in the range [-max_lag, max_lag]
     correlations = []
+    lags = []
     for lag in range(-max_lag, max_lag + 1):
         if lag < 0:
             corr = np.mean(x[:lag] * y[-lag:])
@@ -105,5 +106,9 @@ def cross_correlation(x, y, max_lag, absolute=False):
             corr = np.mean(x * y)
         if absolute: corr = np.abs(corr)
         correlations.append(corr)
+        lags.append(lag)
 
-    return np.array(correlations)
+    return {
+        'correlations': np.array(correlations),
+        'lags': np.array(lags)
+    }
