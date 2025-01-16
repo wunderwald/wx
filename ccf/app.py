@@ -27,6 +27,7 @@ app.geometry("1620x900")
 INIT_WINDOW_SIZE = 100
 INIT_STEP_SIZE = 10
 INIT_MAX_LAG = 50    # default: window_size//2
+INIT_MAX_LAG_SXC = 100
 
 # ---------------------
 # GLOBAL STATE & EVENTS
@@ -125,7 +126,7 @@ val_max_lag_input_sxc = tk.StringVar(value=INIT_MAX_LAG)
 val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
-val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG)
+val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG_SXC)
 val_checkbox_average_windows = tk.BooleanVar(value=False)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
