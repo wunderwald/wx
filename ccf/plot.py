@@ -83,33 +83,41 @@ def plot_windowed_cross_correlation(results, window_size, max_lag, step_size, si
     # Return the figure
     return fig
 
-def plot_cross_correlation(signal_a, signal_b, max_lag):
+def plot_standard_cross_correlation(signal_a, signal_b, corr, lags):
     """
     Create and return a figure plotting the standard cross-correlation between two signals.
 
     Args:
         signal_a (array-like): First input signal.
         signal_b (array-like): Second input signal.
-        max_lag (int): Maximum lag to compute the cross-correlation.
+        corr (array-like): Cross-correlation values.
+        lags (array-like): Array of lag values.
 
     Returns:
         matplotlib.figure.Figure: The figure containing the plot.
     """
-    # Compute cross-correlation
-    lags = np.arange(-max_lag, max_lag + 1)
-    corr = np.correlate(signal_a - np.mean(signal_a), signal_b - np.mean(signal_b), mode='full')
-    corr = corr[len(corr)//2 - max_lag:len(corr)//2 + max_lag + 1]
-
-    # Initialize plot
+    # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
-    ax = fig.add_subplot(1, 1, 1)
-    
-    # Plot cross-correlation
-    ax.plot(lags, corr, marker='o', color='black')
-    ax.set_xlabel('Lag')
-    ax.set_ylabel('Cross-correlation')
-    ax.set_title('Standard Cross-correlation')
-    ax.grid()
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
-    # Return the figure
+    # Plot cross-correlation
+    ax2 = fig.add_subplot(gs[0])
+    ax2.plot(lags, corr, marker='o', color='black')
+    ax2.set_xlabel('Lag')
+    ax2.set_ylabel('Cross-correlation')
+    ax2.set_title('Standard Cross-correlation')
+    ax2.grid()
+
+    # Plot input signals over time
+    ax1 = fig.add_subplot(gs[1])
+    ax1.plot(signal_a, label='Signal a', color='blue')
+    ax1.plot(signal_b, label='Signal b', color='purple')
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('Sample Value')
+    ax1.set_title('Signals over time')
+    ax1.legend()
+    ax1.grid()
+
+    # Return figure object
+    fig.tight_layout()
     return fig
