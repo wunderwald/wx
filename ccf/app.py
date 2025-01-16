@@ -105,6 +105,11 @@ val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_selected_file = tk.StringVar(value = '')
 
+# set up data container
+dat_plot_data = {
+    'fig': plot_init()
+}
+
 # entry callbacks
 def on_window_size_input_change(name, index, mode):
     new_str_val = val_window_size_input.get()
@@ -164,7 +169,7 @@ def export_data():
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
         title="Save As",
-        defaultextension=".xlsx",  # Default file extension
+        defaultextension=".xlsx",  
         filetypes=(
             ("XLSX files", "*.xlsx"),
         )
@@ -173,16 +178,28 @@ def export_data():
     print(file_path)
 
 def export_plot():
+    # get fig data
+    fig = dat_plot_data["fig"]
+    if not fig: return
+    
+    # TODO deactivate button if there is no fig data
+    # create initial output file name
+    selected_file = val_selected_file.get()
+    filename_init = f"plot_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "plot_cff"
+
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
         title="Save As",
-        defaultextension=".png",  # Default file extension
+        defaultextension=".png",  
+        initialfile=filename_init,
         filetypes=(
             ("PNG files", "*.png"),
         )
     )
     if not file_path: return
-    print(file_path)
+    
+    # export plot
+    fig.savefig(file_path, dpi=300, format='png')
 
 # -----------
 # FILE PICKER
@@ -192,7 +209,7 @@ def open_file_picker():
     file_path = filedialog.askopenfilename(
         title="Select an Excel file",
         filetypes=(("Excel files", "*.xlsx"), ("All files", "*.*"))
-    )    
+    )
     if file_path: 
         val_selected_file.set(file_path)
         PARAMS_CHANGED()    
@@ -301,8 +318,14 @@ val_selected_file.trace_add('write', update_file_picker_label)
 # PLOTTING
 # --------
 # create canvas
-fig_init = plot_init()
-canvas = FigureCanvasTkAgg(fig_init, master=group_plot)
+#dat_current_plot = plot_init()
+canvas = FigureCanvasTkAgg(dat_plot_data["fig"], master=group_plot)
+
+def update_canvas():
+    if not dat_plot_data["fig"]: return
+    canvas.figure = dat_plot_data["fig"]
+    canvas.draw()
+    canvas.get_tk_widget().pack(pady=10)
 
 # test plot
 def plot_test(*args):
@@ -323,11 +346,12 @@ def plot_test(*args):
     windowed_corr_data = windowed_cross_correlation(signal1, signal2, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values)
     
     # make plot figure
-    fig_plot = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal1, signal2)
+    fig = plot_windowed_cross_correlation(windowed_corr_data, max_lag, step_size, signal1, signal2)
+    dat_plot_data["fig"] = fig
 
-    canvas.figure = fig_plot
-    canvas.draw()
-    canvas.get_tk_widget().pack(pady=10)
+    # update canvas
+    update_canvas()
+
 plot_test()
 
 # auto refresh
