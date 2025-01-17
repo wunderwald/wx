@@ -238,27 +238,47 @@ def on_average_windows_change():
 # ---------------
 
 def _export_wxcorr_data(file_path):
+    metadata = {
+        'xcorr type': "windowed cross-correlation",
+        'Input file': f"{os.path.basename(val_selected_file.get())}.xlsx",
+        'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
+        'Filtered input data': val_checkbox_filter_data.get(),
+        'Window size': val_window_size.get(),
+        'Max lag': val_max_lag.get(),
+        'Step size': val_step_size.get(),
+        'Window overlap ratio': val_step_size.get() / val_window_size.get(),
+        'Absolute correlation values': val_checkbox_absolute_corr.get(),
+        'Per-window averages': val_checkbox_average_windows.get(),
+        'Input signals resampled to 5hz': val_checkbox_IBI.get(),
+    }
     vectors = {
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
+        'window start index': [o['start_idx'] for o in dat_correlation_data["wxcorr"]],
+        'max correlation (r_max)': [o['r_max'] for o in dat_correlation_data["wxcorr"]],
+        'lag of max correlation (tau_max)': [o['tau_max'] for o in dat_correlation_data["wxcorr"]],
     }
-    metadata = {}
+    for window_index, window in enumerate(dat_correlation_data["wxcorr"]):
+        vectors[f"w_{window_index}_correlations"] = window['correlations']
+        vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
+
     write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
 def _export_sxcorr_data(file_path):
-    vectors = {
-        'signal_a': dat_physiological_data["signal_a"],
-        'signal_b': dat_physiological_data["signal_b"],
-        'lag': dat_correlation_data["sxcorr"]['lags'],
-        'correlation': dat_correlation_data["sxcorr"]['corr'],
-    }
     metadata = {
         'xcorr type': "(standard) cross-correlation",
         'Input file': f"{os.path.basename(val_selected_file.get())}.xlsx",
         'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
         'Filtered input data': val_checkbox_filter_data.get(),
         'Max lag': val_max_lag_sxc.get(),
-        'Absolute correlation values': val_checkbox_absolute_corr_sxc.get()
+        'Absolute correlation values': val_checkbox_absolute_corr_sxc.get(),
+        'Input signals resampled to 5hz': val_checkbox_IBI.get(),
+    }
+    vectors = {
+        'signal_a': dat_physiological_data["signal_a"],
+        'signal_b': dat_physiological_data["signal_b"],
+        'lag': dat_correlation_data["sxcorr"]['lags'],
+        'correlation': dat_correlation_data["sxcorr"]['corr'],
     }
     write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
@@ -267,7 +287,6 @@ def export_data():
     # create initial output file name
     selected_file = val_selected_file.get()
     filename_init = f"xc_data_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "xc_data"
-
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
         title="Save As",
@@ -278,7 +297,6 @@ def export_data():
         )
     )
     if not file_path: return
-
     # call specialised export function
     is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
     if is_windowed_xcorr:
