@@ -246,7 +246,7 @@ def _export_wxcorr_data(file_path):
         'Window size': val_window_size.get(),
         'Max lag': val_max_lag.get(),
         'Step size': val_step_size.get(),
-        'Window overlap ratio': val_step_size.get() / val_window_size.get(),
+        'Window overlap ratio': (val_window_size.get() - val_step_size.get()) / val_window_size.get(),
         'Absolute correlation values': val_checkbox_absolute_corr.get(),
         'Per-window averages': val_checkbox_average_windows.get(),
         'Input signals resampled to 5hz': val_checkbox_IBI.get(),
