@@ -18,7 +18,12 @@ tk.set_default_color_theme("dark-blue")
 # init window
 app = tk.CTk()  
 app.title("ccf")
-app.geometry("1620x900")
+# app.geometry("1620x900")
+app.geometry("1500x900")
+
+# Set the scaling factor
+scaling_factor = 1.5  # Adjust this value (default is 1.0, lower values shrink, higher values enlarge)
+app.tk.call('tk', 'scaling', scaling_factor)
 
 # ----------------------
 # DEFAULTS / INIT VALUES

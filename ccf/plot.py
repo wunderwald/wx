@@ -2,7 +2,17 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
 
-FIGSIZE=(10, 8)
+#FIGSIZE=(10, 8)
+FIGSIZE=(5, 4)
+
+plt.rcParams.update({
+    'font.size': 6,         # Default font size
+    'axes.titlesize': 4,    # Title font size
+    'axes.labelsize': 4,    # Axis label font size
+    'xtick.labelsize': 4,   # X-axis tick label font size
+    'ytick.labelsize': 4,   # Y-axis tick label font size
+    'lines.linewidth': 1,    # Line width
+})
 
 def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
@@ -31,7 +41,8 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
 
     # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
-    gs = gridspec.GridSpec(4, 1, height_ratios=[5, 1, 1, 1])
+    # gs = gridspec.GridSpec(4, 1, height_ratios=[5, 1, 1, 1])
+    gs = gridspec.GridSpec(4, 1, height_ratios=[8, 1, 1, 1])
 
     # Create a heatmap of correlations
     ax1 = fig.add_subplot(gs[0])
@@ -61,7 +72,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
 
     # Plot peak correlation values over time
     ax3 = fig.add_subplot(gs[2])
-    ax3.plot(window_start_indices if not use_win_center_tscl else window_center_indices, r_max_values, marker='o', color='black', label='Peak Correlation')
+    ax3.plot(window_start_indices if not use_win_center_tscl else window_center_indices, r_max_values, marker='o', markersize=.5, color='black', label='Peak Correlation')
     ax3.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time [window centers]')
     ax3.set_ylabel('r_max')
     ax3.set_title('Peak Correlation Over Time')
@@ -70,7 +81,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
 
     # Plot corresponding lags over time
     ax4 = fig.add_subplot(gs[3])
-    ax4.plot(window_start_indices if not use_win_center_tscl else window_center_indices, tau_max_values, marker='o', color='black', label='Lag at Peak')
+    ax4.plot(window_start_indices if not use_win_center_tscl else window_center_indices, tau_max_values, marker='o', markersize=.5, color='black', label='Lag at Peak')
     ax4.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time [window centers]')
     ax4.set_ylabel('tau_max')
     ax4.set_title('Lag at Peak Correlation Over Time')
