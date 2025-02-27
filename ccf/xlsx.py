@@ -64,7 +64,7 @@ def get_columns(workbook: Workbook, sheet_name: str, headers: bool=True):
     Args:
         workbook (Workbook): openpyxl workbook object
         sheet_name (str): The name of the sheet
-        headers (bool): If True, the first row is considered as headers
+        headers (bool): If True, the first row is considered as headers. Default is True.
     Returns:
         columns (dict): A dictionary where keys are column names and values are lists of data
     """
