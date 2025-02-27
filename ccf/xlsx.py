@@ -1,4 +1,4 @@
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 
 def write_xlsx(vectors: dict, single_values: dict, output_path: str):
     """
@@ -35,3 +35,48 @@ def write_xlsx(vectors: dict, single_values: dict, output_path: str):
 
     # Save the workbook
     wb.save(output_path)
+
+def read_xlsx(input_path: str):
+    """
+    Read data from xlsx file and create openpyxl workbook object.
+    Args:
+        input_path (str): The file path where the Excel file is saved.
+    Returns:
+        wb (Workbook): openpyxl workbook object
+    """
+    wb = load_workbook(input_path)
+    return wb
+
+def get_sheet_names(workbook: Workbook):
+    """
+    Get the names of the sheets in the workbook.
+    Args:
+        workbook (Workbook): openpyxl workbook object
+    Returns:
+        sheet_names (list): List of sheet names
+    """
+    sheet_names = workbook.sheetnames
+    return sheet_names
+
+def get_columns(workbook: Workbook, sheet_name: str, headers: bool=True):
+    """
+    Get the columns from the sheet in the workbook.
+    Args:
+        workbook (Workbook): openpyxl workbook object
+        sheet_name (str): The name of the sheet
+        headers (bool): If True, the first row is considered as headers
+    Returns:
+        columns (dict): A dictionary where keys are column names and values are lists of data
+    """
+    sheet = workbook[sheet_name]
+    columns = {}
+    for index, column in enumerate(sheet.iter_cols(values_only=True)):
+        if headers:
+            column_name = f"{column[0]}"
+            column_data = column[1:]
+        else:
+            column_name = f"Column_{index+1}"
+            column_data = column
+        columns[column_name] = column_data
+    return columns
+    

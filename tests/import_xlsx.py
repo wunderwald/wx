@@ -1,6 +1,6 @@
 import openpyxl
 
-workbook = openpyxl.load_workbook('HRV_1009_127_FS_C.xlsx')
+workbook = openpyxl.load_workbook('data/HRV_1009_127_FS_C.xlsx')
 
 # select sheet
 sheet_names = workbook.sheetnames
