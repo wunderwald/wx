@@ -5,7 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
-from xlsx import write_xlsx
+import xlsx
 
 # ------------------
 # APP INITIALIZATION
@@ -267,7 +267,7 @@ def _export_wxcorr_data(file_path):
         vectors[f"w_{window_index}_correlations"] = window['correlations']
         vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
 
-    write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
+    xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
 def _export_sxcorr_data(file_path):
     metadata = {
@@ -285,7 +285,7 @@ def _export_sxcorr_data(file_path):
         'lag': dat_correlation_data["sxcorr"]['lags'],
         'correlation': dat_correlation_data["sxcorr"]['corr'],
     }
-    write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
+    xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
 # export XLSX data
 def export_data():
