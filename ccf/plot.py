@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
 
-RETINA = False
+RETINA = True
 
-FIGSIZE=(5, 4) if RETINA else (10, 8)
+FIGSIZE = (5, 4) if RETINA else (10, 8)
 
 if RETINA:
     plt.rcParams.update({

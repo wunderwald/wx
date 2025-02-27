@@ -20,7 +20,7 @@ app = tk.CTk()
 app.title("ccf")
 
 # Window Scaling
-RETINA = False
+RETINA = True
 app.geometry("1500x900" if RETINA else "1620x900")
 scaling_factor = 1.5 if RETINA else 1
 app.tk.call('tk', 'scaling', scaling_factor)
