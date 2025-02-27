@@ -66,10 +66,12 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
     if signal_type not in ['IBI_MS', 'EDA']:
         raise Exception("Invalid signal type. Must be 'IBI_MS' or 'EDA'.")
     
-    # filter invalid values
+    # optionally remove invalid values
     if remove_invalid_samples:
         signal_a = _remove_invalid_IBI(signal_a) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_a)
         signal_b = _remove_invalid_IBI(signal_b) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_b)
+
+    # TODO: in IBI data - first and last sample should only be used for timing, they are not valid ibi samples
 
     # resample IBI
     if signal_type == 'IBI_MS':

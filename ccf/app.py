@@ -6,6 +6,7 @@ import numpy as np
 from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
+from signal_processing import preprocess_dyad
 
 # ------------------
 # APP INITIALIZATION
@@ -142,9 +143,20 @@ val_data_length = tk.IntVar(value=0)
 dat_plot_data = {
     'fig': plot_init()
 }
+dat_workbook_data = {
+    'workbook': None,
+    'sheet_names': [],
+    'columns': {},
+    'selected_sheet': None,
+    'selected_column_a': None,
+    'selected_column_b': None,
+    'has_headers': True
+}
 dat_physiological_data = {
     'signal_a': [],
-    'signal_b': []
+    'signal_b': [],
+    'raw_signal_a': [],
+    'raw_signal_b': []
 }
 dat_correlation_data = {
     'wxcorr': [],
@@ -337,6 +349,44 @@ def export_plot():
 # FILE PICKER
 # -----------
 
+def load_xlsx_data():
+    file_path = val_selected_file.get()
+    dat_workbook_data["workbook"] = xlsx.read_xlsx(file_path)
+    dat_workbook_data["sheet_names"] = xlsx.get_sheet_names(dat_workbook_data["workbook"])
+
+def open_import_settings():
+    print("!!! WARNING !!! not implemented yet")
+    print("!!! Todo: implement import settings dialog")
+    # set column names, has headers?, sheet name
+    dat_workbook_data["selected_sheet"] = "IBI Series"
+    dat_workbook_data["selected_column_a"] = "1"
+    dat_workbook_data["selected_column_b"] = "2"
+    dat_workbook_data["has_headers"] = True
+
+def process_xlsx_data():
+    # create columns object from selected sheet
+    dat_workbook_data["columns"] = xlsx.get_columns(dat_workbook_data["workbook"], dat_workbook_data["selected_sheet"], headers=dat_workbook_data["has_headers"])
+    # store selected columns as raw data
+    dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns"][dat_workbook_data["selected_column_a"]]
+    dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns"][dat_workbook_data["selected_column_b"]]
+    # pre process data
+    signal_a, signal_b = preprocess_dyad(
+        dat_physiological_data["raw_signal_a"],
+        dat_physiological_data["raw_signal_b"],
+        signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA',
+        remove_invalid_samples=val_checkbox_filter_data.get()
+    )
+    print(signal_a)
+    # store physiological data
+    dat_physiological_data["signal_a"] = signal_a
+    dat_physiological_data["signal_b"] = signal_b
+    # update val data length
+    val_data_length.set(len(signal_a))
+
+def clear_correlatoin_data():
+    dat_correlation_data["wxcorr"] = []
+    dat_correlation_data["sxcorr"] = []
+
 def open_file_picker():
     file_path = filedialog.askopenfilename(
         title="Select an Excel file",
@@ -344,9 +394,10 @@ def open_file_picker():
     )
     if file_path: 
         val_selected_file.set(file_path)
-        # TODO: load data 
-        # TODO: update val_data_length
-        # TODO: clear dat_correlation_data["wxcorr"] and dat_correlation_data["sxcorr"]
+        load_xlsx_data()
+        open_import_settings()
+        process_xlsx_data()
+        clear_correlatoin_data()
         PARAMS_CHANGED()    
 
 
