@@ -78,21 +78,15 @@ def get_columns(workbook: Workbook, sheet_name: str, headers: bool=True):
         # create header-data pairs, 
         if headers:
             column_name = f"{column[0]}"
-            column_data = column[1:]
+            column_data = list(column[1:])
         else:
             column_name = f"Column_{index+1}"
-            column_data = column
+            column_data = list(column)
 
         # remove trailing None values
         while column_data[-1] is None:
             column_data = column_data[:-1]
-        
+
         # add to the dictionary
         columns[column_name] = column_data
     return columns
-    
-wb = read_xlsx("data/HRV_1009_127_FS_C_DYAD.xlsx")
-sheet_names = get_sheet_names(wb)
-selected_sheet = "IBI Series"
-columns = get_columns(wb, selected_sheet, headers=True)
-print(columns)
