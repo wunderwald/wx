@@ -390,13 +390,10 @@ def export_plot():
     # export plot
     fig.savefig(file_path, dpi=300, format='png')
 
-# -----------
-# FILE PICKER
-# -----------
 
-# --------------------------------------------------------
-# TODO Move these functions to data import/processing block
-# TODO check interpolation and resampling
+# -------------
+# DATA HANDLING
+# -------------
 
 def read_xlsx():
     # read data from selected files into workbook objects
@@ -486,7 +483,11 @@ def load_xlsx_data():
 def clear_correlation_data():
     dat_correlation_data["wxcorr"] = []
     dat_correlation_data["sxcorr"] = []
-# --------------------------------------------------------
+
+
+# -----------
+# FILE PICKER
+# -----------
 
 def open_dir_picker():
     dir_path = filedialog.askdirectory(
