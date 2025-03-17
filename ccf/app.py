@@ -514,7 +514,7 @@ label_input_data = tk.CTkLabel(subgroup_input_data, text="Input Data", font=("Ar
 label_input_data.grid(row=0, column=0, columnspan=2, pady=20, padx=10, sticky='w')
 button_file_picker = tk.CTkButton(subgroup_input_data, text="Choose Dyad Folder", command=open_dir_picker)
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
-label_dir_picker = tk.CTkLabel(subgroup_input_data, text="No folder selected.")
+label_dir_picker = tk.CTkLabel(subgroup_input_data, text="No folder selected.", font=("Arial", 14, "bold"))
 label_dir_picker.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet")
 label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
@@ -633,10 +633,19 @@ val_selected_file_b.trace_add('write', update_dir_picker_label)
 def update_select_column_a_label(*args):
     label_select_column_a.configure(text="Select Column" if not val_selected_file_a.get() else f"Select Column for {os.path.basename(val_selected_file_a.get())}")
 val_selected_file_a.trace_add('write', update_select_column_a_label)
-
 def update_select_column_b_label(*args):
     label_select_column_b.configure(text="Select Column" if not val_selected_file_b.get() else f"Select Column for {os.path.basename(val_selected_file_b.get())}")
 val_selected_file_b.trace_add('write', update_select_column_b_label)
+
+# input data validation error message
+def update_input_data_validation_error(*args):
+    input_data_is_valid = (val_selected_sheet.get() == '- None -') or val_INPUT_DATA_VALID.get()
+    if input_data_is_valid:
+        error_label_input_data.grid_forget()
+    else:
+        error_label_input_data.grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+val_selected_sheet.trace_add('write', update_input_data_validation_error)
+val_INPUT_DATA_VALID.trace_add('write', update_input_data_validation_error)
 
 # windowed xcorr entries
 def update_window_size_entry_on_validation(*args):
