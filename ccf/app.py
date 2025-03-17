@@ -349,6 +349,10 @@ def export_plot():
 # FILE PICKER
 # -----------
 
+# --------------------------------------------------------
+# TODO Move these functions to data import block
+# TODO check interpolation and resampling
+
 def load_xlsx_data():
     file_path = val_selected_file.get()
     dat_workbook_data["workbook"] = xlsx.read_xlsx(file_path)
@@ -383,9 +387,10 @@ def process_xlsx_data():
     # update val data length
     val_data_length.set(len(signal_a))
 
-def clear_correlatoin_data():
+def clear_correlation_data():
     dat_correlation_data["wxcorr"] = []
     dat_correlation_data["sxcorr"] = []
+# --------------------------------------------------------
 
 def open_file_picker():
     file_path = filedialog.askopenfilename(
@@ -397,7 +402,7 @@ def open_file_picker():
         load_xlsx_data()
         open_import_settings()
         process_xlsx_data()
-        clear_correlatoin_data()
+        clear_correlation_data()
         PARAMS_CHANGED()    
 
 
