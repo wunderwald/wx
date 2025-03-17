@@ -20,9 +20,13 @@ tk.set_default_color_theme("dark-blue")
 app = tk.CTk()  
 app.title("ccf")
 
+# Get the screen width and height
+screen_width = app.winfo_screenwidth()
+screen_height = app.winfo_screenheight()
+
 # Window Scaling
 RETINA = True
-app.geometry("1500x900" if RETINA else "1620x900")
+app.geometry(f"{screen_width}x{screen_height}")
 scaling_factor = 1.5 if RETINA else 1
 app.tk.call('tk', 'scaling', scaling_factor)
 
@@ -493,7 +497,7 @@ def open_dir_picker():
 # MAIN APP LAYOUT
 # ---------------
 # main grid
-group_main = tk.CTkFrame(app)
+group_main = tk.CTkScrollableFrame(app, width=screen_width, height=screen_height)
 group_main.pack(pady=10, padx=20)
 # plot group
 group_plot = tk.CTkFrame(group_main)
