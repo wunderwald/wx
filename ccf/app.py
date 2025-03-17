@@ -805,20 +805,6 @@ def UPDATE(*args):
 val_UPDATE_COUNT.trace_add('write', UPDATE)
 UPDATE()
 
-# ---------------
-# TESTING HELPERS
-# ---------------
-
-def set_test_data():
-    length = 1000
-    dat_physiological_data["signal_a"] = np.sin(np.linspace(0, 5 * np.pi / 2, length))
-    #dat_physiological_data["signal_b"] = np.cos(np.linspace(0, 4 * np.pi, length))
-    dat_physiological_data["signal_b"] = dat_physiological_data["signal_a"] * 4*(np.random.random(length))
-    val_data_length.set(length)
-
-set_test_data()
-UPDATE()
-
 # ---
 # RUN
 # ---
