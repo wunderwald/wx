@@ -437,10 +437,9 @@ def preprocess_data():
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
 
-    # TODO: only for testing
-    if not dat_workbook_data["has_headers"]:
-        dat_physiological_data["raw_signal_a"] = dat_physiological_data["raw_signal_a"][10:]
-        dat_physiological_data["raw_signal_b"] = dat_physiological_data["raw_signal_b"][10:]
+    # remove first/last values
+    dat_physiological_data["raw_signal_a"] = dat_physiological_data["raw_signal_a"][(1 if dat_workbook_data['has_headers'] else 2) :-1]
+    dat_physiological_data["raw_signal_b"] = dat_physiological_data["raw_signal_b"][(1 if dat_workbook_data['has_headers'] else 2):-1]
 
     # process data
     try:
