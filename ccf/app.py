@@ -408,6 +408,7 @@ def read_xlsx():
 
 def update_sheet_names():
     # get common sheet names
+    if not dat_workbook_data["workbook_a"] or not dat_workbook_data["workbook_b"]: return
     sheet_names_a = xlsx.get_sheet_names(dat_workbook_data["workbook_a"])
     sheet_names_b = xlsx.get_sheet_names(dat_workbook_data["workbook_b"])
     dat_workbook_data["sheet_names"] = list(set(sheet_names_a) & set(sheet_names_b))
@@ -416,6 +417,9 @@ def update_sheet_names():
     update_dropdown_options(dropdown_select_sheet, val_selected_sheet, dat_workbook_data["sheet_names"])
 
 def update_column_names():
+    if not val_selected_sheet.get() or val_selected_sheet.get() == '- None -':
+        return
+
     # get column names
     dat_workbook_data["column_names_a"] = list(xlsx.get_columns(dat_workbook_data["workbook_a"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"]).keys())
     dat_workbook_data["column_names_b"] = list(xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"]).keys())
@@ -433,6 +437,12 @@ def update_column_names():
     dat_workbook_data["columns_b"] = xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
 
 def preprocess_data():
+    if not val_selected_sheet.get() or val_selected_sheet.get() == '- None -':
+        return
+    if not val_selected_column_a.get() or val_selected_column_a.get() == '- None -':
+        return
+    if not val_selected_column_b.get() or val_selected_column_b.get() == '- None -':
+        return
     # store selected columns as raw data
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
@@ -740,7 +750,7 @@ val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 
 # update windowed xcorr data
 def _update_wxcorr_data():
-    if not val_CORRELATION_SETTINGS_VALID.get():
+    if not val_INPUT_DATA_VALID.get() or not val_CORRELATION_SETTINGS_VALID.get():
         return
     # read data from data containers and state variables
     signal_a = dat_physiological_data["signal_a"]
@@ -756,7 +766,7 @@ def _update_wxcorr_data():
 
 # uodate standard xcorr data
 def _update_sxcorr_data():
-    if not val_CORRELATION_SETTINGS_VALID_SXC.get():
+    if not val_INPUT_DATA_VALID.get() or not val_CORRELATION_SETTINGS_VALID_SXC.get():
         return
 
     # read data from data containers and state variabled
