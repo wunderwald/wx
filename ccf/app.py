@@ -372,6 +372,7 @@ def load_xlsx_data():
     sheet_names_a = xlsx.get_sheet_names(dat_workbook_data["workbook_a"])
     sheet_names_b = xlsx.get_sheet_names(dat_workbook_data["workbook_b"])
     dat_workbook_data["sheet_names"] = list(set(sheet_names_a) & set(sheet_names_b))
+    print(f"Common sheet names: {dat_workbook_data['sheet_names']}")
 
 def demo_import_settings():
     print("!!! Todo: implement as reactive dropdowns in main UI")
@@ -458,8 +459,9 @@ button_file_picker = tk.CTkButton(subgroup_input_data, text="Choose Dyad Folder"
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 label_dir_picker = tk.CTkLabel(subgroup_input_data, text="No folder selected.")
 label_dir_picker.grid(row=2, column=0, sticky="w", padx=10, pady=5)
-checkbox_filter_data = tk.CTkCheckBox(subgroup_input_data, text='Remove out of range samples', variable=val_checkbox_filter_data, command=on_filter_data_change)
-checkbox_filter_data.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+# checkbox_filter_data = tk.CTkCheckBox(subgroup_input_data, text='Remove out of range samples', variable=val_checkbox_filter_data, command=on_filter_data_change)
+# checkbox_filter_data.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
 # DATA TYPE
 subgroup_data_type = tk.CTkFrame(group_parameter_settings)
