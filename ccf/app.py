@@ -515,11 +515,11 @@ label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet")
 label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_sheet = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_sheet_change, variable=val_selected_sheet)
 dropdown_select_sheet.grid(row=3, column=1, sticky="w", padx=10, pady=5)
-label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column for {"TODO"}")
+label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
 label_select_column_a.grid(row=4, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_a = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_a_change, variable=val_selected_column_a)
 dropdown_select_column_a.grid(row=4, column=1, sticky="w", padx=10, pady=5)
-label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column for {"TODO"}")
+label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
 label_select_column_b.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
 dropdown_select_column_b.grid(row=5, column=1, sticky="w", padx=10, pady=5)
@@ -617,6 +617,23 @@ button_export_plot.grid(row=1, column=1, padx=10, pady=10)
 # ---------------------
 # PARAMETER GUI UPDATES
 # ---------------------
+# input data section labels
+# directory picker
+def update_dir_picker_label(*args):
+    dir_path = val_selected_dyad_dir.get()
+    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"Selected: {os.path.basename(dir_path)} [{os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}]")
+val_selected_dyad_dir.trace_add('write', update_dir_picker_label)
+val_selected_file_a.trace_add('write', update_dir_picker_label)
+val_selected_file_b.trace_add('write', update_dir_picker_label)
+
+# column selector dropdowns
+def update_select_column_a_label(*args):
+    label_select_column_a.configure(text="Select Column" if not val_selected_file_a.get() else f"Select Column for {os.path.basename(val_selected_file_a.get())}")
+val_selected_file_a.trace_add('write', update_select_column_a_label)
+
+def update_select_column_b_label(*args):
+    label_select_column_b.configure(text="Select Column" if not val_selected_file_b.get() else f"Select Column for {os.path.basename(val_selected_file_b.get())}")
+val_selected_file_b.trace_add('write', update_select_column_b_label)
 
 # windowed xcorr entries
 def update_window_size_entry_on_validation(*args):
@@ -686,13 +703,6 @@ def update_vis_settings_group(*args):
         subgroup_vis.grid_forget()
 val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 
-# directory picker
-def update_dir_picker_label(*args):
-    dir_path = val_selected_dyad_dir.get()
-    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"Selected: {os.path.basename(dir_path)} [{os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}]")
-val_selected_dyad_dir.trace_add('write', update_dir_picker_label)
-val_selected_file_a.trace_add('write', update_dir_picker_label)
-val_selected_file_b.trace_add('write', update_dir_picker_label)
 
 # -----------
 # CORRELATION
