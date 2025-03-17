@@ -515,7 +515,7 @@ group_main = tk.CTkScrollableFrame(app, width=screen_width, height=screen_height
 group_main.pack(pady=10, padx=20)
 # plot group
 group_plot = tk.CTkFrame(group_main)
-group_plot.grid(row=0, column=0, pady=0, padx=0)
+group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='n')
 # parameter group
 group_parameter_settings = tk.CTkFrame(group_main)
 group_parameter_settings.grid(row=0, column=1, pady=10, padx=20)
@@ -537,17 +537,17 @@ label_dir_picker.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet")
 label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_sheet = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_sheet_change, variable=val_selected_sheet)
-dropdown_select_sheet.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+dropdown_select_sheet.grid(row=4, column=0, sticky="w", padx=10, pady=5)
 checkbox_data_has_headers = tk.CTkCheckBox(subgroup_input_data, text='Column headers', variable=val_checkbox_data_has_headers)
-checkbox_data_has_headers.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+checkbox_data_has_headers.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
-label_select_column_a.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+label_select_column_a.grid(row=6, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_a = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_a_change, variable=val_selected_column_a)
-dropdown_select_column_a.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_column_a.grid(row=7, column=0, sticky="w", padx=10, pady=5)
 label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
-label_select_column_b.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+label_select_column_b.grid(row=8, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
-dropdown_select_column_b.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_column_b.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 error_label_input_data = tk.CTkLabel(subgroup_input_data, text='Data is invalid.', text_color='red') # initially hidden
 
 # DATA TYPE
@@ -663,7 +663,7 @@ def update_input_data_validation_error(*args):
     if input_data_is_valid:
         error_label_input_data.grid_forget()
     else:
-        error_label_input_data.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+        error_label_input_data.grid(row=10, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_selected_sheet.trace_add('write', update_input_data_validation_error)
 val_INPUT_DATA_VALID.trace_add('write', update_input_data_validation_error)
 
