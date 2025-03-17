@@ -47,6 +47,7 @@ val_WINDOW_SIZE_VALID = tk.BooleanVar(value=True)
 val_STEP_SIZE_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID_SXC = tk.BooleanVar(value=True)
+val_INPUT_DATA_VALID = tk.BooleanVar(value=False)
 
 # update count: changes trigger rerendering
 val_UPDATE_COUNT = tk.IntVar(value=0)
@@ -121,7 +122,6 @@ def check_sx_correlation_settings():
 # set up app state variables 
 val_checkbox_absolute_corr = tk.BooleanVar(value=False)
 val_checkbox_absolute_corr_sxc = tk.BooleanVar(value=False)
-val_checkbox_filter_data = tk.BooleanVar(value=False)
 val_checkbox_IBI = tk.BooleanVar(value=True)
 val_checkbox_EDA = tk.BooleanVar(value=False)
 val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
@@ -226,10 +226,6 @@ def on_absolute_corr_change_sxc():
     new_val = val_checkbox_absolute_corr_sxc.get()
     PARAMS_CHANGED()
 
-def on_filter_data_change():
-    new_val = val_checkbox_filter_data.get()
-    PARAMS_CHANGED()
-
 def on_is_ibi_change():
     new_val = val_checkbox_IBI.get()
     val_checkbox_EDA.set(not new_val)
@@ -296,7 +292,6 @@ def _export_wxcorr_data(file_path):
         'Input file A': f"{os.path.basename(val_selected_file_a.get())}",
         'Input file B': f"{os.path.basename(val_selected_file_b.get())}",
         'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
-        'Filtered input data': val_checkbox_filter_data.get(),
         'Window size': val_window_size.get(),
         'Max lag': val_max_lag.get(),
         'Step size': val_step_size.get(),
@@ -325,7 +320,6 @@ def _export_sxcorr_data(file_path):
         'Input file A': f"{os.path.basename(val_selected_file_a.get())}",
         'Input file B': f"{os.path.basename(val_selected_file_b.get())}",
         'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
-        'Filtered input data': val_checkbox_filter_data.get(),
         'Max lag': val_max_lag_sxc.get(),
         'Absolute correlation values': val_checkbox_absolute_corr_sxc.get(),
         'Input signals resampled to 5hz': val_checkbox_IBI.get(),
@@ -389,7 +383,7 @@ def export_plot():
 # -----------
 
 # --------------------------------------------------------
-# TODO Move these functions to data import block
+# TODO Move these functions to data import/processing block
 # TODO check interpolation and resampling
 
 def read_xlsx():
@@ -437,14 +431,15 @@ def preprocess_data():
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
             signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA',
-            remove_invalid_samples=val_checkbox_filter_data.get()
         )
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a
         dat_physiological_data["signal_b"] = signal_b
         # update val data length
         val_data_length.set(len(signal_a))
-        
+        #set validation state
+        val_INPUT_DATA_VALID.set(True)
+
     except Exception as e:
         # if data cant be processed: clear plots and physiological data
         # reset physiological data
@@ -454,6 +449,8 @@ def preprocess_data():
         dat_physiological_data["raw_signal_b"] = []
         # reset plot
         dat_plot_data['fig'] = plot_init()
+        # set validation state
+        val_INPUT_DATA_VALID.set(False)
 
 
 def load_xlsx_data():
@@ -531,9 +528,7 @@ label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
 label_select_column_b.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
 dropdown_select_column_b.grid(row=5, column=1, sticky="w", padx=10, pady=5)
-
-# checkbox_filter_data = tk.CTkCheckBox(subgroup_input_data, text='Remove out of range samples', variable=val_checkbox_filter_data, command=on_filter_data_change)
-# checkbox_filter_data.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+error_label_input_data = tk.CTkLabel(subgroup_input_data, text='Data is invalid.', text_color='red') # initially hidden
 
 # DATA TYPE
 subgroup_data_type = tk.CTkFrame(group_parameter_settings)
