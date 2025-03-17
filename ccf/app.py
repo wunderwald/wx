@@ -438,8 +438,8 @@ def preprocess_data():
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
 
     # remove first/last values
-    dat_physiological_data["raw_signal_a"] = dat_physiological_data["raw_signal_a"][(1 if dat_workbook_data['has_headers'] else 2) :-1]
-    dat_physiological_data["raw_signal_b"] = dat_physiological_data["raw_signal_b"][(1 if dat_workbook_data['has_headers'] else 2):-1]
+    dat_physiological_data["raw_signal_a"] = dat_physiological_data["raw_signal_a"][1:-1]
+    dat_physiological_data["raw_signal_b"] = dat_physiological_data["raw_signal_b"][1:-1]
 
     # process data
     try:
@@ -472,7 +472,6 @@ def preprocess_data():
 
 
 def load_xlsx_data():
-    dat_workbook_data["has_headers"] = True # TODO: implement as checkbox    
     read_xlsx()
     update_sheet_names()
     update_column_names()
