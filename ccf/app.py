@@ -395,7 +395,6 @@ def process_xlsx_data():
         signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA',
         remove_invalid_samples=val_checkbox_filter_data.get()
     )
-    print(signal_a)
     # store physiological data
     dat_physiological_data["signal_a"] = signal_a
     dat_physiological_data["signal_b"] = signal_b
@@ -452,30 +451,30 @@ group_parameter_settings.grid(row=0, column=1, pady=10, padx=20)
 # input data
 label_input_data = tk.CTkLabel(group_parameter_settings, text="Input Data", font=("Arial", 20, "bold"))
 label_input_data.grid(row=0, column=0, columnspan=2, pady=20)
-button_file_picker = tk.CTkButton(group_parameter_settings, text="Choose Excel File", command=open_dir_picker)
+button_file_picker = tk.CTkButton(group_parameter_settings, text="Choose Dyad Folder", command=open_dir_picker)
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
-label_file_picker = tk.CTkLabel(group_parameter_settings, text="No file selected.")
-label_file_picker.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+label_dir_picker = tk.CTkLabel(group_parameter_settings, text="No folder selected.")
+label_dir_picker.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 checkbox_filter_data = tk.CTkCheckBox(group_parameter_settings, text='Remove out of range samples', variable=val_checkbox_filter_data, command=on_filter_data_change)
-checkbox_filter_data.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+checkbox_filter_data.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
 # data type
 label_data_type = tk.CTkLabel(group_parameter_settings, text="Data Type", font=("Arial", 20, "bold"))
-label_data_type.grid(row=3, column=0, columnspan=2, pady=20)
+label_data_type.grid(row=4, column=0, columnspan=2, pady=20)
 checkbox_is_ibi_data = tk.CTkCheckBox(group_parameter_settings, text='IBI', variable=val_checkbox_IBI, command=on_is_ibi_change)
-checkbox_is_ibi_data.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+checkbox_is_ibi_data.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 checkbox_is_eda_data = tk.CTkCheckBox(group_parameter_settings, text='EDA', variable=val_checkbox_EDA, command=on_is_eda_change)
-checkbox_is_eda_data.grid(row=4, column=1, sticky="w", padx=10, pady=5)
+checkbox_is_eda_data.grid(row=5, column=1, sticky="w", padx=10, pady=5)
 
 # correlation settings
 label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Correlation Settings", font=("Arial", 20, "bold"))
-label_corr_settings.grid(row=5, column=0, columnspan=2, pady=20)
+label_corr_settings.grid(row=6, column=0, columnspan=2, pady=20)
 checkbox_is_eda_data = tk.CTkCheckBox(group_parameter_settings, text='Windowed cross-correlation', variable=val_checkbox_windowed_xcorr, command=on_windowed_xcorr_change)
-checkbox_is_eda_data.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+checkbox_is_eda_data.grid(row=7, column=0, sticky="w", padx=10, pady=5)
 
 # windowerd xcorr specialised settings
 subgroup_windowed_xcorr_parameters = tk.CTkFrame(group_parameter_settings)
-subgroup_windowed_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0)
+subgroup_windowed_xcorr_parameters.grid(row=8, column=0, columnspan=2, padx=0, pady=0)
 label_subgroup_windowed_xcorr_parameters=tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Windowed cross-correlation parameters')
 label_subgroup_windowed_xcorr_parameters.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky='w')
 label_window_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Window Size')
@@ -512,9 +511,9 @@ checkbox_absolute_corr_sxc.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
 # visualisation settings
 label_vis_settings = tk.CTkLabel(group_parameter_settings, text="Visualisation", font=("Arial", 20, "bold"))
-label_vis_settings.grid(row=8, column=0, columnspan=2, pady=10)
+label_vis_settings.grid(row=9, column=0, columnspan=2, pady=10)
 subgroup_vis_settings = tk.CTkFrame(group_parameter_settings)
-subgroup_vis_settings.grid(row=9, column=0, columnspan=2, padx=0, pady=0)
+subgroup_vis_settings.grid(row=10, column=0, columnspan=2, padx=0, pady=0)
 label_vis_time_scale  = tk.CTkLabel(subgroup_vis_settings, text="Time format in plots")
 label_vis_time_scale.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky='w')
 checkbox_use_tscl_index = tk.CTkCheckBox(subgroup_vis_settings, text='Window Start Indices', variable=val_checkbox_tscl_index, command=on_use_tscl_index_change)
@@ -524,7 +523,7 @@ checkbox_use_tscl_center.grid(row=3, column=1, sticky="w", padx=10, pady=5)
 
 # export
 label_corr_settings = tk.CTkLabel(group_parameter_settings, text="Export", font=("Arial", 20, "bold"))
-label_corr_settings.grid(row=10, column=0, columnspan=2, pady=10)
+label_corr_settings.grid(row=11, column=0, columnspan=2, pady=10)
 subgroup_export_buttons = tk.CTkFrame(group_parameter_settings)
 subgroup_export_buttons.grid(row=11, column=0, columnspan=2, padx=0, pady=0)
 button_export_data = tk.CTkButton(subgroup_export_buttons, text='Export XLSX', command=export_data)
@@ -588,19 +587,19 @@ val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_but
 def update_xcorr_parameter_groups(*args):
     wxc_is_active = val_checkbox_windowed_xcorr.get()
     if wxc_is_active:
-        subgroup_windowed_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0)
+        subgroup_windowed_xcorr_parameters.grid(row=8, column=0, columnspan=2, padx=0, pady=0)
         subgroup_standard_xcorr_parameters.grid_forget()
     else:
         subgroup_windowed_xcorr_parameters.grid_forget()
-        subgroup_standard_xcorr_parameters.grid(row=7, column=0, columnspan=2, padx=0, pady=0, sticky='w')
+        subgroup_standard_xcorr_parameters.grid(row=8, column=0, columnspan=2, padx=0, pady=0, sticky='w')
 val_checkbox_windowed_xcorr.trace_add('write', update_xcorr_parameter_groups)
 
 # toggle vis group (only needed for wxc)
 def update_vis_settings_group(*args):
     wxc_is_active = val_checkbox_windowed_xcorr.get()
     if wxc_is_active:
-        label_vis_settings.grid(row=8, column=0, columnspan=2, pady=10)
-        subgroup_vis_settings.grid(row=9, column=0, columnspan=2, padx=0, pady=0)    
+        label_vis_settings.grid(row=9, column=0, columnspan=2, pady=10)
+        subgroup_vis_settings.grid(row=10, column=0, columnspan=2, padx=0, pady=0)    
     else:
         label_vis_settings.grid_forget()
         subgroup_vis_settings.grid_forget()
@@ -609,8 +608,10 @@ val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 # directory picker
 def update_dir_picker_label(*args):
     dir_path = val_selected_dyad_dir.get()
-    label_file_picker.configure(text='No directory selected.' if dir_path == '' else os.path.basename(dir_path))
+    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"{os.path.basename(dir_path)}: {os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}")
 val_selected_dyad_dir.trace_add('write', update_dir_picker_label)
+val_selected_file_a.trace_add('write', update_dir_picker_label)
+val_selected_file_b.trace_add('write', update_dir_picker_label)
 
 # -----------
 # CORRELATION
