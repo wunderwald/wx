@@ -136,7 +136,9 @@ val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG_SXC)
 val_checkbox_average_windows = tk.BooleanVar(value=False)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
-val_selected_file = tk.StringVar(value='')
+val_selected_dyad_dir = tk.StringVar(value='')
+val_selected_file_a = tk.StringVar(value='')
+val_selected_file_b = tk.StringVar(value='')
 val_data_length = tk.IntVar(value=0)
 
 # set up data containers
@@ -144,9 +146,12 @@ dat_plot_data = {
     'fig': plot_init()
 }
 dat_workbook_data = {
-    'workbook': None,
+    'workbook_a': None,
+    'workbook_b': None,
     'sheet_names': [],
-    'columns': {},
+    'columns_a': {},
+    'columns_b': {},
+    'column_names': [],
     'selected_sheet': None,
     'selected_column_a': None,
     'selected_column_b': None,
@@ -257,7 +262,9 @@ def on_average_windows_change():
 def _export_wxcorr_data(file_path):
     metadata = {
         'xcorr type': "windowed cross-correlation",
-        'Input file': f"{os.path.basename(val_selected_file.get())}.xlsx",
+        'Input dyad directory': f"{os.path.basename(val_selected_dyad_dir.get())}",
+        'Input file A': f"{os.path.basename(val_selected_file_a.get())}",
+        'Input file B': f"{os.path.basename(val_selected_file_b.get())}",
         'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
         'Filtered input data': val_checkbox_filter_data.get(),
         'Window size': val_window_size.get(),
@@ -284,7 +291,9 @@ def _export_wxcorr_data(file_path):
 def _export_sxcorr_data(file_path):
     metadata = {
         'xcorr type': "(standard) cross-correlation",
-        'Input file': f"{os.path.basename(val_selected_file.get())}.xlsx",
+        'Input dyad directory': f"{os.path.basename(val_selected_dyad_dir.get())}",
+        'Input file A': f"{os.path.basename(val_selected_file_a.get())}",
+        'Input file B': f"{os.path.basename(val_selected_file_b.get())}",
         'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
         'Filtered input data': val_checkbox_filter_data.get(),
         'Max lag': val_max_lag_sxc.get(),
@@ -302,8 +311,8 @@ def _export_sxcorr_data(file_path):
 # export XLSX data
 def export_data():
     # create initial output file name
-    selected_file = val_selected_file.get()
-    filename_init = f"xc_data_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "xc_data"
+    selected_dir = val_selected_dyad_dir.get()
+    filename_init = f"xc_data_{os.path.basename(selected_dir)}" if selected_dir else "xc_data"
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
         title="Save As",
@@ -328,8 +337,8 @@ def export_plot():
     if not fig: return
     
     # create initial output file name
-    selected_file = val_selected_file.get()
-    filename_init = f"xc_plot_{os.path.basename(selected_file).replace('.xlsx', '')}" if selected_file else "xc_plot"
+    selected_dir = val_selected_dyad_dir.get()
+    filename_init = f"xc_plot_{os.path.basename(selected_dir)}" if selected_dir else "xc_plot"
 
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
@@ -354,25 +363,31 @@ def export_plot():
 # TODO check interpolation and resampling
 
 def load_xlsx_data():
-    file_path = val_selected_file.get()
-    dat_workbook_data["workbook"] = xlsx.read_xlsx(file_path)
-    dat_workbook_data["sheet_names"] = xlsx.get_sheet_names(dat_workbook_data["workbook"])
+    # read data from selected files into workbook objects
+    file_path_a = val_selected_file_a.get()
+    file_path_b = val_selected_file_b.get()
+    dat_workbook_data["workbook_a"] = xlsx.read_xlsx(file_path_a)
+    dat_workbook_data["workbook_b"] = xlsx.read_xlsx(file_path_b)
+    # get common sheet names
+    sheet_names_a = xlsx.get_sheet_names(dat_workbook_data["workbook_a"])
+    sheet_names_b = xlsx.get_sheet_names(dat_workbook_data["workbook_b"])
+    dat_workbook_data["sheet_names"] = list(set(sheet_names_a) & set(sheet_names_b))
 
-def open_import_settings():
-    print("!!! WARNING !!! not implemented yet")
-    print("!!! Todo: implement import settings dialog")
+def demo_import_settings():
+    print("!!! Todo: implement as reactive dropdowns in main UI")
     # set column names, has headers?, sheet name
     dat_workbook_data["selected_sheet"] = "IBI Series"
     dat_workbook_data["selected_column_a"] = "1"
-    dat_workbook_data["selected_column_b"] = "2"
+    dat_workbook_data["selected_column_b"] = "1"
     dat_workbook_data["has_headers"] = True
 
 def process_xlsx_data():
     # create columns object from selected sheet
-    dat_workbook_data["columns"] = xlsx.get_columns(dat_workbook_data["workbook"], dat_workbook_data["selected_sheet"], headers=dat_workbook_data["has_headers"])
+    dat_workbook_data["columns_a"] = xlsx.get_columns(dat_workbook_data["workbook_a"], dat_workbook_data["selected_sheet"], headers=dat_workbook_data["has_headers"])
+    dat_workbook_data["columns_b"] = xlsx.get_columns(dat_workbook_data["workbook_b"], dat_workbook_data["selected_sheet"], headers=dat_workbook_data["has_headers"])
     # store selected columns as raw data
-    dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns"][dat_workbook_data["selected_column_a"]]
-    dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns"][dat_workbook_data["selected_column_b"]]
+    dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
+    dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
     # pre process data
     signal_a, signal_b = preprocess_dyad(
         dat_physiological_data["raw_signal_a"],
@@ -392,18 +407,29 @@ def clear_correlation_data():
     dat_correlation_data["sxcorr"] = []
 # --------------------------------------------------------
 
-def open_file_picker():
-    file_path = filedialog.askopenfilename(
-        title="Select an Excel file",
-        filetypes=(("Excel files", "*.xlsx"), ("All files", "*.*"))
+def open_dir_picker():
+    dir_path = filedialog.askdirectory(
+        title="Select a directory"
     )
-    if file_path: 
-        val_selected_file.set(file_path)
-        load_xlsx_data()
-        open_import_settings()
-        process_xlsx_data()
-        clear_correlation_data()
-        PARAMS_CHANGED()    
+    if not dir_path: 
+        return
+    
+    # set selected directory and find xlsx files
+    val_selected_dyad_dir.set(dir_path)
+
+    # Get  xlsx files in the selected directory
+    xlsx_files = [f for f in os.listdir(dir_path) if f.endswith('.xlsx')]
+    if len(xlsx_files) < 2:
+        return
+    val_selected_file_a.set(os.path.join(dir_path, xlsx_files[0]))
+    val_selected_file_b.set(os.path.join(dir_path, xlsx_files[1]))
+
+    # process data from xlsx files
+    load_xlsx_data()
+    demo_import_settings()
+    process_xlsx_data()
+    clear_correlation_data()
+    PARAMS_CHANGED()    
 
 
 # -----------
@@ -426,7 +452,7 @@ group_parameter_settings.grid(row=0, column=1, pady=10, padx=20)
 # input data
 label_input_data = tk.CTkLabel(group_parameter_settings, text="Input Data", font=("Arial", 20, "bold"))
 label_input_data.grid(row=0, column=0, columnspan=2, pady=20)
-button_file_picker = tk.CTkButton(group_parameter_settings, text="Choose Excel File", command=open_file_picker)
+button_file_picker = tk.CTkButton(group_parameter_settings, text="Choose Excel File", command=open_dir_picker)
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 label_file_picker = tk.CTkLabel(group_parameter_settings, text="No file selected.")
 label_file_picker.grid(row=1, column=1, sticky="w", padx=10, pady=5)
@@ -580,11 +606,11 @@ def update_vis_settings_group(*args):
         subgroup_vis_settings.grid_forget()
 val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 
-# file picker
-def update_file_picker_label(*args):
-    file_path = val_selected_file.get()
-    label_file_picker.configure(text='No file selected.' if file_path == '' else os.path.basename(file_path))
-val_selected_file.trace_add('write', update_file_picker_label)
+# directory picker
+def update_dir_picker_label(*args):
+    dir_path = val_selected_dyad_dir.get()
+    label_file_picker.configure(text='No directory selected.' if dir_path == '' else os.path.basename(dir_path))
+val_selected_dyad_dir.trace_add('write', update_dir_picker_label)
 
 # -----------
 # CORRELATION
