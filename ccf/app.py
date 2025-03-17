@@ -140,6 +140,9 @@ val_selected_dyad_dir = tk.StringVar(value='')
 val_selected_file_a = tk.StringVar(value='')
 val_selected_file_b = tk.StringVar(value='')
 val_data_length = tk.IntVar(value=0)
+val_selected_sheet = tk.StringVar(value='- None -')
+val_selected_column_a = tk.StringVar(value='- None -')
+val_selected_column_b = tk.StringVar(value='- None -')
 
 # set up data containers
 dat_plot_data = {
@@ -151,8 +154,8 @@ dat_workbook_data = {
     'sheet_names': [],
     'columns_a': {},
     'columns_b': {},
-    'column_names': [],
-    'selected_sheet': None,
+    'column_names_a': [],
+    'column_names_b': [],
     'selected_column_a': None,
     'selected_column_b': None,
     'has_headers': True
@@ -254,6 +257,33 @@ def on_windowed_xcorr_change():
 def on_average_windows_change():
     new_val = val_checkbox_average_windows.get()
     PARAMS_CHANGED()
+
+# dropdown callbacks
+def on_dropdown_select_sheet_change(value):
+    selected_sheet = val_selected_sheet.get()
+    update_column_names()
+    preprocess_data()
+    clear_correlation_data()
+    PARAMS_CHANGED()  
+
+def on_dropdown_select_column_a_change(value):
+    selected_col_a = val_selected_column_a.get()
+    # update data
+    preprocess_data()
+    clear_correlation_data()
+    PARAMS_CHANGED()  
+
+def on_dropdown_select_column_b_change(value):
+    selected_col_b = val_selected_column_b.get()
+    # update data
+    preprocess_data()
+    clear_correlation_data()
+    PARAMS_CHANGED()  
+
+# dropdown update utility
+def update_dropdown_options(dropdown, dropdown_state_var, new_options):
+    dropdown.configure(values=new_options)  
+    dropdown_state_var.set(new_options[0])  
 
 # ---------------
 # EXPORT HANDLERS
@@ -362,45 +392,70 @@ def export_plot():
 # TODO Move these functions to data import block
 # TODO check interpolation and resampling
 
-def load_xlsx_data():
+def read_xlsx():
     # read data from selected files into workbook objects
     file_path_a = val_selected_file_a.get()
     file_path_b = val_selected_file_b.get()
     dat_workbook_data["workbook_a"] = xlsx.read_xlsx(file_path_a)
     dat_workbook_data["workbook_b"] = xlsx.read_xlsx(file_path_b)
+
+def update_sheet_names():
     # get common sheet names
     sheet_names_a = xlsx.get_sheet_names(dat_workbook_data["workbook_a"])
     sheet_names_b = xlsx.get_sheet_names(dat_workbook_data["workbook_b"])
     dat_workbook_data["sheet_names"] = list(set(sheet_names_a) & set(sheet_names_b))
-    print(f"Common sheet names: {dat_workbook_data['sheet_names']}")
 
-def demo_import_settings():
-    print("!!! Todo: implement as reactive dropdowns in main UI")
-    # set column names, has headers?, sheet name
-    dat_workbook_data["selected_sheet"] = "IBI Series"
-    dat_workbook_data["selected_column_a"] = "1"
-    dat_workbook_data["selected_column_b"] = "1"
-    dat_workbook_data["has_headers"] = True
+    # update dropdown options
+    update_dropdown_options(dropdown_select_sheet, val_selected_sheet, dat_workbook_data["sheet_names"])
 
-def process_xlsx_data():
+def update_column_names():
+    # initialize column names: column of default/first sheet
+    dat_workbook_data["column_names_a"] = list(xlsx.get_columns(dat_workbook_data["workbook_a"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"]).keys())
+    dat_workbook_data["column_names_b"] = list(xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"]).keys())
+    
+    # update dropdown options
+    update_dropdown_options(dropdown_select_column_a, val_selected_column_a, dat_workbook_data["column_names_a"])
+    update_dropdown_options(dropdown_select_column_b, val_selected_column_b, dat_workbook_data["column_names_b"])
+    
+    # init selected column names
+    dat_workbook_data["selected_column_a"] = dat_workbook_data["column_names_a"][0]
+    dat_workbook_data["selected_column_b"] = dat_workbook_data["column_names_b"][0]
+
     # create columns object from selected sheet
-    dat_workbook_data["columns_a"] = xlsx.get_columns(dat_workbook_data["workbook_a"], dat_workbook_data["selected_sheet"], headers=dat_workbook_data["has_headers"])
-    dat_workbook_data["columns_b"] = xlsx.get_columns(dat_workbook_data["workbook_b"], dat_workbook_data["selected_sheet"], headers=dat_workbook_data["has_headers"])
+    dat_workbook_data["columns_a"] = xlsx.get_columns(dat_workbook_data["workbook_a"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
+    dat_workbook_data["columns_b"] = xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
+
+def preprocess_data():
     # store selected columns as raw data
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
-    # pre process data
-    signal_a, signal_b = preprocess_dyad(
-        dat_physiological_data["raw_signal_a"],
-        dat_physiological_data["raw_signal_b"],
-        signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA',
-        remove_invalid_samples=val_checkbox_filter_data.get()
-    )
-    # store physiological data
-    dat_physiological_data["signal_a"] = signal_a
-    dat_physiological_data["signal_b"] = signal_b
-    # update val data length
-    val_data_length.set(len(signal_a))
+
+    # process data
+    try:
+        # pre process data
+        signal_a, signal_b = preprocess_dyad(
+            dat_physiological_data["raw_signal_a"],
+            dat_physiological_data["raw_signal_b"],
+            signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA',
+            remove_invalid_samples=val_checkbox_filter_data.get()
+        )
+        # store physiological data
+        dat_physiological_data["signal_a"] = signal_a
+        dat_physiological_data["signal_b"] = signal_b
+        # update val data length
+        val_data_length.set(len(signal_a))
+    except Exception as e:
+        # TODO: inform user: selected column invalid
+        print(f"Error processing data: {e}")
+
+def load_xlsx_data():
+    # get has headers value
+    dat_workbook_data["has_headers"] = True # TODO: implement as checkbox    
+    read_xlsx()
+    update_sheet_names()
+    update_column_names()
+    preprocess_data()
+    clear_correlation_data()
 
 def clear_correlation_data():
     dat_correlation_data["wxcorr"] = []
@@ -426,15 +481,12 @@ def open_dir_picker():
 
     # process data from xlsx files
     load_xlsx_data()
-    demo_import_settings()
-    process_xlsx_data()
-    clear_correlation_data()
     PARAMS_CHANGED()    
 
 
-# -----------
-# MAIN LAYOUT
-# -----------
+# ---------------
+# MAIN APP LAYOUT
+# ---------------
 # main grid
 group_main = tk.CTkFrame(app)
 group_main.pack(pady=10, padx=20)
@@ -459,9 +511,21 @@ button_file_picker = tk.CTkButton(subgroup_input_data, text="Choose Dyad Folder"
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 label_dir_picker = tk.CTkLabel(subgroup_input_data, text="No folder selected.")
 label_dir_picker.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet")
+label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_sheet = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_sheet_change, variable=val_selected_sheet)
+dropdown_select_sheet.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column for {"TODO"}")
+label_select_column_a.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_column_a = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_a_change, variable=val_selected_column_a)
+dropdown_select_column_a.grid(row=4, column=1, sticky="w", padx=10, pady=5)
+label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column for {"TODO"}")
+label_select_column_b.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
+dropdown_select_column_b.grid(row=5, column=1, sticky="w", padx=10, pady=5)
 
 # checkbox_filter_data = tk.CTkCheckBox(subgroup_input_data, text='Remove out of range samples', variable=val_checkbox_filter_data, command=on_filter_data_change)
-# checkbox_filter_data.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+# checkbox_filter_data.grid(row=7, column=0, sticky="w", padx=10, pady=5)
 
 # DATA TYPE
 subgroup_data_type = tk.CTkFrame(group_parameter_settings)
@@ -625,7 +689,7 @@ val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 # directory picker
 def update_dir_picker_label(*args):
     dir_path = val_selected_dyad_dir.get()
-    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"{os.path.basename(dir_path)}: {os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}")
+    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"Selected: {os.path.basename(dir_path)} [{os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}]")
 val_selected_dyad_dir.trace_add('write', update_dir_picker_label)
 val_selected_file_a.trace_add('write', update_dir_picker_label)
 val_selected_file_b.trace_add('write', update_dir_picker_label)
