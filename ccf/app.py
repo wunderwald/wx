@@ -483,7 +483,7 @@ checkbox_windowed_xcorr.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 
 # windowerd xcorr specialised settings
 subgroup_windowed_xcorr_parameters = tk.CTkFrame(subgroup_corr_settings)
-subgroup_windowed_xcorr_parameters.grid(row=0, sticky='ew', column=0, columnspan=2, padx=0, pady=0)
+subgroup_windowed_xcorr_parameters.grid(row=2, sticky='ew', column=0, columnspan=2, padx=0, pady=0)
 # subgroup content
 label_subgroup_windowed_xcorr_parameters=tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Windowed cross-correlation parameters')
 label_subgroup_windowed_xcorr_parameters.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky='w')
@@ -604,11 +604,11 @@ val_CORRELATION_SETTINGS_VALID.trace_add('write', update_active_state_export_but
 def update_xcorr_parameter_groups(*args):
     wxc_is_active = val_checkbox_windowed_xcorr.get()
     if wxc_is_active:
-        subgroup_windowed_xcorr_parameters.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+        subgroup_windowed_xcorr_parameters.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
         subgroup_standard_xcorr_parameters.grid_forget()
     else:
         subgroup_windowed_xcorr_parameters.grid_forget()
-        subgroup_standard_xcorr_parameters.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+        subgroup_standard_xcorr_parameters.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 val_checkbox_windowed_xcorr.trace_add('write', update_xcorr_parameter_groups)
 
 # toggle vis group (only needed for wxc)
