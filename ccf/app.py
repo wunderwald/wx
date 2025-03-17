@@ -444,9 +444,17 @@ def preprocess_data():
         dat_physiological_data["signal_b"] = signal_b
         # update val data length
         val_data_length.set(len(signal_a))
+        
     except Exception as e:
-        # TODO: inform user: selected column invalid
-        print(f"Error processing data: {e}")
+        # if data cant be processed: clear plots and physiological data
+        # reset physiological data
+        dat_physiological_data["signal_a"] = []
+        dat_physiological_data["signal_b"] = []
+        dat_physiological_data["raw_signal_a"] = []
+        dat_physiological_data["raw_signal_b"] = []
+        # reset plot
+        dat_plot_data['fig'] = plot_init()
+
 
 def load_xlsx_data():
     # get has headers value
