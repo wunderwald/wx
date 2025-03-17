@@ -527,11 +527,11 @@ dropdown_select_sheet.grid(row=3, column=1, sticky="w", padx=10, pady=5)
 label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
 label_select_column_a.grid(row=4, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_a = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_a_change, variable=val_selected_column_a)
-dropdown_select_column_a.grid(row=4, column=1, sticky="w", padx=10, pady=5)
+dropdown_select_column_a.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
-label_select_column_b.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+label_select_column_b.grid(row=6, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
-dropdown_select_column_b.grid(row=5, column=1, sticky="w", padx=10, pady=5)
+dropdown_select_column_b.grid(row=7, column=0, sticky="w", padx=10, pady=5)
 error_label_input_data = tk.CTkLabel(subgroup_input_data, text='Data is invalid.', text_color='red') # initially hidden
 
 # DATA TYPE
@@ -647,7 +647,7 @@ def update_input_data_validation_error(*args):
     if input_data_is_valid:
         error_label_input_data.grid_forget()
     else:
-        error_label_input_data.grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=0)
+        error_label_input_data.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_selected_sheet.trace_add('write', update_input_data_validation_error)
 val_INPUT_DATA_VALID.trace_add('write', update_input_data_validation_error)
 
