@@ -44,7 +44,6 @@ INIT_MAX_LAG_SXC = 100
 # ---------------------
 
 # input validation trackers
-# TODO: init with false and reset to false when data changes [as soon as file input is implemented]
 val_CORRELATION_SETTINGS_VALID = tk.BooleanVar(value=True)
 val_CORRELATION_SETTINGS_VALID_SXC = tk.BooleanVar(value=True)
 val_WINDOW_SIZE_VALID = tk.BooleanVar(value=True)
@@ -796,7 +795,7 @@ def update_canvas():
 def _update_wxcorr_plots():
     if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']:
         return
-    
+
     # read data from data containers and state variables
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
