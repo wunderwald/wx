@@ -447,17 +447,13 @@ def preprocess_data():
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
 
-    # remove first/last values
-    dat_physiological_data["raw_signal_a"] = dat_physiological_data["raw_signal_a"][1:-1]
-    dat_physiological_data["raw_signal_b"] = dat_physiological_data["raw_signal_b"][1:-1]
-
     # process data
     try:
-        # pre process data
+        # pre process dyad: remove first and last sample & resample (IBI only), align signals
         signal_a, signal_b = preprocess_dyad(
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
-            signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA',
+            signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
         )
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a

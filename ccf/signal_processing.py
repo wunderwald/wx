@@ -8,13 +8,15 @@ def _remove_invalid_EDA(eda):
     print("!! EDA filter not implemented yet.")
     return [sample for sample in eda if sample >= 0]
 
-def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False):  
+def resample_ibi(ibi_ms, t_offset_ms=0, target_sampling_rate_hz=5, scale_output=False):  
     """
     Resample inter-beat intervals (IBI) to a target sampling rate using cubic spline interpolation.
     Parameters:
     -----------
     ibi_ms : list or array-like
         List or array of inter-beat intervals in milliseconds.
+    t_offset_ms : int, optional
+        The time offset in milliseconds. Default is 0.
     target_sampling_rate_hz : int, optional
         The target sampling rate in Hertz (Hz). Default is 5 Hz.
     scale_output : bool, optional
@@ -29,6 +31,9 @@ def resample_ibi(ibi_ms, target_sampling_rate_hz=5, scale_output=False):
     # convert ibi to time series (t, ibi)
     t_ms_ts = np.cumsum(np.insert(ibi_ms, 0, 0)[:-1])
     ibi_ms_ts = np.array(ibi_ms)
+
+    # add ofset to time axis
+    t_ms_ts = t_ms_ts + t_offset_ms
 
     # Create a cubic spline interpolation
     cs = CubicSpline(t_ms_ts, ibi_ms_ts)
@@ -57,6 +62,8 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
         signal_a (list or array-like): The first signal to preprocess.
         signal_b (list or array-like): The second signal to preprocess.
         signal_type (str): The type of the signals, must be either 'IBI_MS' or 'EDA'.
+        t_offset_ms_a (int, optional): The time offset in milliseconds for signal_a. Defaults to 0.
+        t_offset_ms_b (int, optional): The time offset in milliseconds for signal_b. Defaults to 0.
         remove_invalid_samples (bool, optional): If True, invalid samples will be removed from the signals. Defaults to False.
     Returns:
         tuple: A tuple containing the preprocessed signal_a and signal_b.
@@ -71,12 +78,12 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
         signal_a = _remove_invalid_IBI(signal_a) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_a)
         signal_b = _remove_invalid_IBI(signal_b) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_b)
 
-    # TODO: in IBI data - first and last sample should only be used for timing, they are not valid ibi samples
-
-    # resample IBI
+    # resample IBI (exclude first and last sample, shift by first sample)
     if signal_type == 'IBI_MS':
-        signal_a = resample_ibi(signal_a, target_sampling_rate_hz=5)
-        signal_b = resample_ibi(signal_b, target_sampling_rate_hz=5)
+        t_offset_ms_a = signal_a[0]
+        t_offset_ms_b = signal_b[0]
+        signal_a = resample_ibi(signal_a[1:-1], t_offset_ms=t_offset_ms_a, target_sampling_rate_hz=5)
+        signal_b = resample_ibi(signal_b[1:-1], t_offset_ms=t_offset_ms_b, target_sampling_rate_hz=5)
 
     # fix lengths
     min_length = min(len(signal_a), len(signal_b))
