@@ -147,6 +147,7 @@ val_data_length = tk.IntVar(value=0)
 val_selected_sheet = tk.StringVar(value='- None -')
 val_selected_column_a = tk.StringVar(value='- None -')
 val_selected_column_b = tk.StringVar(value='- None -')
+val_checkbox_data_has_headers = tk.BooleanVar(value=True)
 
 # set up data containers
 dat_plot_data = {
@@ -280,6 +281,14 @@ def on_dropdown_select_column_b_change(value):
     clear_correlation_data()
     PARAMS_CHANGED()  
 
+def on_change_data_has_headers(*args):
+    dat_workbook_data["has_headers"] = val_checkbox_data_has_headers.get()
+    update_column_names()
+    preprocess_data()
+    clear_correlation_data()
+    PARAMS_CHANGED()
+val_checkbox_data_has_headers.trace_add('write', on_change_data_has_headers)
+
 # dropdown update utility
 def update_dropdown_options(dropdown, dropdown_state_var, new_options):
     dropdown.configure(values=new_options)  
@@ -407,10 +416,10 @@ def update_sheet_names():
     update_dropdown_options(dropdown_select_sheet, val_selected_sheet, dat_workbook_data["sheet_names"])
 
 def update_column_names():
-    # initialize column names: column of default/first sheet
+    # get column names
     dat_workbook_data["column_names_a"] = list(xlsx.get_columns(dat_workbook_data["workbook_a"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"]).keys())
     dat_workbook_data["column_names_b"] = list(xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"]).keys())
-    
+
     # update dropdown options
     update_dropdown_options(dropdown_select_column_a, val_selected_column_a, dat_workbook_data["column_names_a"])
     update_dropdown_options(dropdown_select_column_b, val_selected_column_b, dat_workbook_data["column_names_b"])
@@ -428,6 +437,11 @@ def preprocess_data():
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
 
+    # TODO: only for testing
+    if not dat_workbook_data["has_headers"]:
+        dat_physiological_data["raw_signal_a"] = dat_physiological_data["raw_signal_a"][10:]
+        dat_physiological_data["raw_signal_b"] = dat_physiological_data["raw_signal_b"][10:]
+
     # process data
     try:
         # pre process data
@@ -439,6 +453,7 @@ def preprocess_data():
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a
         dat_physiological_data["signal_b"] = signal_b
+
         # update val data length
         val_data_length.set(len(signal_a))
         #set validation state
@@ -458,7 +473,6 @@ def preprocess_data():
 
 
 def load_xlsx_data():
-    # get has headers value
     dat_workbook_data["has_headers"] = True # TODO: implement as checkbox    
     read_xlsx()
     update_sheet_names()
@@ -524,14 +538,16 @@ label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet")
 label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_sheet = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_sheet_change, variable=val_selected_sheet)
 dropdown_select_sheet.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+checkbox_data_has_headers = tk.CTkCheckBox(subgroup_input_data, text='Column headers', variable=val_checkbox_data_has_headers)
+checkbox_data_has_headers.grid(row=4, column=0, sticky="w", padx=10, pady=5)
 label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
-label_select_column_a.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+label_select_column_a.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_a = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_a_change, variable=val_selected_column_a)
-dropdown_select_column_a.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_column_a.grid(row=6, column=0, sticky="w", padx=10, pady=5)
 label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
-label_select_column_b.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+label_select_column_b.grid(row=7, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
-dropdown_select_column_b.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+dropdown_select_column_b.grid(row=8, column=0, sticky="w", padx=10, pady=5)
 error_label_input_data = tk.CTkLabel(subgroup_input_data, text='Data is invalid.', text_color='red') # initially hidden
 
 # DATA TYPE
