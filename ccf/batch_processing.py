@@ -41,8 +41,8 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
             max_lag = params['max_lag']
             absolute_values = params['checkbox_absolute_corr']
             average_windows = params['checkbox_average_windows']
-            flexibility = params['include_flexibility']
-            corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows, include_flexibility=flexibility)
+            flexibility = params['include_flexibility_wxc']
+            corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows, include_flexibility_wxc=flexibility)
             # export
             export_params = {
                 'selected_dyad_dir': dyad_folder,
@@ -111,7 +111,7 @@ def batch_process(params):
             - max_lag_sxc (int): Maximum lag for standard cross-correlation.
             - checkbox_absolute_corr_sxc (bool): If True, use absolute values for standard cross-correlation.
             - checkbox_EDA (bool): If True, indicates that EDA data is being processed.
-            - include_flexibility (bool): If True, include flexibility (measured as fisher z-transformed average wcc and variance) in the analysis.
+            - include_flexibility_wxc (bool): If True, include flexibility (measured as fisher z-transformed average wcc and variance) in the windowed cross-correlation data.
             - include_random_pair (bool): If True, include random pair analysis in the output.
     Returns:
         None
