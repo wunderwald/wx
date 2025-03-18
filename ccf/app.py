@@ -16,7 +16,7 @@ import utils
 
 #init theme
 tk.set_appearance_mode("Light") # options 'System', 'Light', 'Dark'
-tk.set_default_color_theme("dark-blue")
+tk.set_default_color_theme("dark-blue") # options 'blue', 'green', 'dark-blue'
 
 # init window
 app = tk.CTk()  
@@ -153,6 +153,8 @@ val_batch_input_folder = tk.StringVar(value='')
 val_batch_output_folder = tk.StringVar(value='')
 val_batch_processing_is_ready = tk.BooleanVar(value=False)
 val_batch_processing_info_text = tk.StringVar(value='Not ready.')
+val_checkbox_random_pair_analysis = tk.BooleanVar(value=False)
+val_checkbox_stability_z_score = tk.BooleanVar(value=False)
 
 # set up data containers
 dat_plot_data = {
@@ -298,6 +300,14 @@ val_checkbox_data_has_headers.trace_add('write', on_change_data_has_headers)
 def update_dropdown_options(dropdown, dropdown_state_var, new_options):
     dropdown.configure(values=new_options)  
     dropdown_state_var.set(new_options[0])  
+
+# random pair analysis toggle
+def on_change_random_pair_analysis(*args):
+    print("TODO - random pair analysis not implemented yet")
+
+# stability analysis toggle
+def on_change_stability_z_score(*args):
+    print("TODO - stability / zscore not implemented yet")
 
 # ---------------
 # EXPORT HANDLERS
@@ -574,7 +584,7 @@ group_main.pack(pady=10, padx=20)
 # plot group
 group_plot = tk.CTkFrame(group_main)
 group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='n')
-# Create tabs
+# parameter group
 group_params_tabview = tk.CTkTabview(group_main)
 group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
 
@@ -699,7 +709,6 @@ button_export_data = tk.CTkButton(subsubgroup_export_buttons, text='Export XLSX'
 button_export_data.grid(row=1, column=0, padx=10, pady=10)
 button_export_plot = tk.CTkButton(subsubgroup_export_buttons, text='Export Plots', command=export_plot)
 button_export_plot.grid(row=1, column=1, padx=10, pady=10)
-
 subgroup_batch = tk.CTkFrame(tab_export_batch)
 subgroup_batch.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
@@ -707,20 +716,23 @@ label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial"
 label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
 info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
 info_batch.grid(row=1, column=0, padx=10, sticky='w')
-button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Input Folder', command=open_batch_input_folder)
+button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select batch input folder', command=open_batch_input_folder)
 button_batch_input_folder.grid(row=2, column=0, padx=10, pady=10, sticky='w')
 label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_batch_input_folder.grid(row=3, column=0, padx=10, sticky='w')
 label_batch_input_num_subdirs = tk.CTkLabel(subgroup_batch, text="No folder selected.") # row=4, initially hidden
-button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_batch_output_dir_picker)
+button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select output folder', command=open_batch_output_dir_picker)
 button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=6, column=0, padx=10, sticky='w')
-button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=handle_run_batch_button, state="disabled")
-button_batch.grid(row=7, column=0, padx=10, pady=10, sticky='w')
+checkbox_stability_z_score = tk.CTkCheckBox(subgroup_batch, text='Include stability / z-score', variable=val_checkbox_stability_z_score, command=on_change_stability_z_score, state="disabled")
+checkbox_stability_z_score.grid(row=7, column=0, sticky="w", padx=10, pady=10)
+checkbox_random_pair_analysis = tk.CTkCheckBox(subgroup_batch, text='Include random pair analysis', variable=val_checkbox_random_pair_analysis, command=on_change_random_pair_analysis, state="disabled")
+checkbox_random_pair_analysis.grid(row=8, column=0, sticky="w", padx=10, pady=10)
+button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled")
+button_batch.grid(row=9, column=0, padx=10, pady=10, sticky='w')
 info_button_batch = tk.CTkLabel(subgroup_batch, textvariable=val_batch_processing_info_text, font=("Arial", 14, "bold"))
-info_button_batch.grid(row=7, column=1, padx=10, pady=10)
-
+info_button_batch.grid(row=9, column=1, padx=10, pady=10)
 # ---------------------
 # PARAMETER GUI UPDATES
 # ---------------------
