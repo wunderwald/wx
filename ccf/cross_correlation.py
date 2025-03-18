@@ -66,7 +66,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         tau_max = np.argmax(correlations) - \
             max_lag if not average_windows else 0
 
-        # optionally include flexibility analysis
+        # optionally include flexibility
         if include_flexibility:
             # fisher z transform = hyperbolic arctangent of correlation coefficients
             correlations_z_transformed = np.arctanh(correlations)
