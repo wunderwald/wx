@@ -325,7 +325,8 @@ def _export_wxcorr_data(file_path):
         'checkbox_IBI': val_checkbox_IBI.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
-        'wxcorr': dat_correlation_data["wxcorr"]
+        'wxcorr': dat_correlation_data["wxcorr"],
+        'flexibility': val_checkbox_flexibility.get(),
     }
     export_wxcorr_data(file_path, params)
 

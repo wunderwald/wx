@@ -15,6 +15,7 @@ def export_wxcorr_data(file_path, params):
         'Absolute correlation values': params['checkbox_absolute_corr'],
         'Per-window averages': params['checkbox_average_windows'],
         'Input signals resampled to 5hz': params['checkbox_IBI'],
+        'Flexibility analysis included': params['flexibility']
     }
     vectors = {
         'signal_a': params['signal_a'],
@@ -23,6 +24,9 @@ def export_wxcorr_data(file_path, params):
         'max correlation (r_max)': [o['r_max'] for o in params['wxcorr']],
         'lag of max correlation (tau_max)': [o['tau_max'] for o in params['wxcorr']],
     }
+    if params['flexibility']:
+        vectors['avg_z_transformed_corr'] = [o['avg_z_transformed_corr'] for o in params['wxcorr']]
+        vectors['var_z_transformed_corr'] = [o['var_z_transformed_corr'] for o in params['wxcorr']]
     for window_index, window in enumerate(params['wxcorr']):
         vectors[f"w_{window_index}_correlations"] = window['correlations']
         vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
