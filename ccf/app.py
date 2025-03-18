@@ -528,7 +528,9 @@ def open_batch_input_folder():
 
 # dynamically determine ready state
 def batch_processing_is_ready():
-    ready = val_INPUT_DATA_VALID.get() and val_CORRELATION_SETTINGS_VALID.get() and val_CORRELATION_SETTINGS_VALID_SXC.get()
+    data_is_valid = val_INPUT_DATA_VALID.get() and val_CORRELATION_SETTINGS_VALID.get() and val_CORRELATION_SETTINGS_VALID_SXC.get()
+    io_is_ready = val_batch_input_folder.get() and val_batch_output_folder.get()
+    ready = data_is_valid and io_is_ready
     val_batch_processing_is_ready.set(ready)
 val_INPUT_DATA_VALID.trace_add('write', batch_processing_is_ready)
 val_CORRELATION_SETTINGS_VALID.trace_add('write', batch_processing_is_ready)
@@ -816,6 +818,11 @@ val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
 val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
 
+# batch: dynamic button state 
+def update_active_state_run_batch_button():
+    button_batch.configure(state="normal" if (val_batch_processing_is_ready.get() and not val_batch_processing_is_running.get()) else "disabled")
+val_batch_processing_is_running.trace_add('write', update_active_state_run_batch_button)
+val_batch_processing_is_ready.trace_add('write', update_active_state_run_batch_button)
 
 # -------------------------
 # CORRELATION DATA HANDLING
