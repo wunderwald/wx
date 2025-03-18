@@ -142,3 +142,53 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     # Return figure object
     fig.tight_layout()
     return fig
+
+# update windowed xcorr plots
+def update_wxcorr_plots(params):
+    """
+    Updates the windowed cross-correlation plots based on the provided parameters.
+    Args:
+        params (dict): A dictionary containing the following keys:
+            - "signal_a" (array-like): The first signal data.
+            - "signal_b" (array-like): The second signal data.
+            - "window_size" (int): The size of the window for cross-correlation.
+            - "step_size" (int): The step size for moving the window.
+            - "max_lag" (int): The maximum lag to consider in the cross-correlation.
+            - "use_timescale_win_center" (bool): Flag indicating whether window center times or window start indices are used for time axis.
+            - "windowed_xcorr_data" (array-like): The precomputed windowed cross-correlation data.
+    Returns:
+        matplotlib.figure.Figure: The figure object containing the updated plot.
+    """
+    signal_a = params["signal_a"]
+    signal_b = params["signal_b"]
+    window_size = params['window_size']
+    step_size = params['step_size']
+    max_lag = params['max_lag']
+    windowed_xcorr_data = params['windowed_xcorr_data']
+    use_timescale_win_center = params['use_timescale_win_center']
+    
+    # create and store plot figure
+    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=use_timescale_win_center)
+    return fig
+
+# update standard xcorr plots
+def update_sxcorr_plots(params):
+    """
+    Updates the standard cross-correlation plots based on the provided parameters.
+    Args:
+        params (dict): A dictionary containing the following keys:
+            - "signal_a" (array-like): The first signal data.
+            - "signal_b" (array-like): The second signal data.
+            - "xcorr_data" (array-like): The cross-correlation data.
+    Returns:
+        matplotlib.figure.Figure: The figure object containing the updated cross-correlation plot.
+    """
+
+    # read data from data containers and state variabled
+    signal_a = params["signal_a"]
+    signal_b = params["signal_b"]
+    xcorr_data = params["xcorr_data"]
+
+    # create and store plot figure
+    fig = plot_standard_cross_correlation(xcorr_data, signal_a, signal_b)
+    return fig

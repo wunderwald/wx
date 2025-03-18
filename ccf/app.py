@@ -2,7 +2,7 @@ import os
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init
+from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
 from signal_processing import preprocess_dyad
@@ -849,43 +849,26 @@ def update_canvas():
     canvas.draw()
     canvas.get_tk_widget().pack()
 
-# update windowed xcorr plots
-def _update_wxcorr_plots():
-    if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']:
-        return
-
-    # read data from data containers and state variables
-    signal_a = dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b"]
-    window_size = val_window_size.get()
-    step_size = val_step_size.get()
-    max_lag = val_max_lag.get()
-    windowed_xcorr_data = dat_correlation_data["wxcorr"]
-    
-    # create and store plot figure
-    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
-    dat_plot_data["fig"] = fig
-
-# update standard xcorr plots
-def _update_sxcorr_plots():
-    if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']:
-        return
-
-    # read data from data containers and state variabled
-    signal_a = dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b"]
-    xcorr_data = dat_correlation_data["sxcorr"]
-
-    # create and store plot figure
-    fig = plot_standard_cross_correlation(xcorr_data, signal_a, signal_b)
-    dat_plot_data["fig"] = fig
-
 def update_plot(*args):
     is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
     if is_windowed_xcorr:
-        _update_wxcorr_plots()
+        if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']: return
+        dat_plot_data["fig"] = update_wxcorr_plots({
+            'signal_a': dat_physiological_data['signal_a'],
+            'signal_b': dat_physiological_data['signal_b'],
+            'window_size': val_window_size.get(),
+            'step_size': val_step_size.get(),
+            'max_lag': val_max_lag.get(),
+            'use_timescale_win_center': val_checkbox_tscl_center.get(),
+            'windowed_xcorr_data': dat_correlation_data["wxcorr"]
+        })
     else:
-        _update_sxcorr_plots()
+        if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']: return
+        dat_plot_data["fig"] = update_sxcorr_plots({
+            'signal_a': dat_physiological_data['signal_a'],
+            'signal_b': dat_physiological_data['signal_b'],
+            'xcorr_data': dat_correlation_data['sxcorr'],
+        })
 
 # -----------
 # UPDATE LOOP
