@@ -148,6 +148,8 @@ val_selected_sheet = tk.StringVar(value='- None -')
 val_selected_column_a = tk.StringVar(value='- None -')
 val_selected_column_b = tk.StringVar(value='- None -')
 val_checkbox_data_has_headers = tk.BooleanVar(value=True)
+val_batch_input_folder = tk.StringVar(value='')
+val_batch_output_folder = tk.StringVar(value='')
 
 # set up data containers
 dat_plot_data = {
@@ -377,9 +379,9 @@ def export_plot():
     fig.savefig(file_path, dpi=300, format='png')
 
 
-# -------------
-# DATA HANDLING
-# -------------
+# ------------------
+# XLSX DATA HANDLING
+# ------------------
 
 def read_xlsx_files():
     # read data from selected files into workbook objects
@@ -417,6 +419,10 @@ def update_column_names():
     # create columns object from selected sheet
     dat_workbook_data["columns_a"] = xlsx.get_columns(dat_workbook_data["workbook_a"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
     dat_workbook_data["columns_b"] = xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
+
+# ---------------------
+# DATA [PRE-]PROCESSING
+# ---------------------
 
 def preprocess_data():
     if not val_selected_sheet.get() or val_selected_sheet.get() == '- None -':
@@ -458,6 +464,9 @@ def preprocess_data():
         # set validation state
         val_INPUT_DATA_VALID.set(False)
 
+# -------------------------
+# MAIN DATA LOADING ROUTINE
+# -------------------------
 
 def load_xlsx_data():
     read_xlsx_files()
@@ -466,14 +475,10 @@ def load_xlsx_data():
     preprocess_data()
     clear_correlation_data()
 
-def clear_correlation_data():
-    dat_correlation_data["wxcorr"] = []
-    dat_correlation_data["sxcorr"] = []
 
-
-# -----------
-# FILE PICKER
-# -----------
+# ------------
+# FILE PICKERS
+# ------------
 
 def open_dir_picker():
     dir_path = filedialog.askdirectory(
@@ -496,9 +501,14 @@ def open_dir_picker():
     load_xlsx_data()
     PARAMS_CHANGED()    
 
-# ----------------
-# BATCH PROCESSING
-# ----------------
+def open_batch_output_dir_picker():
+    dir_path = filedialog.askdirectory(
+        title="Select Output Directory"
+    )
+    if not dir_path:
+        return
+    val_batch_output_folder.set(dir_path)
+
 def open_batch_input_folder():
     dir_path = filedialog.askdirectory(
         title="Select Batch Input Folder"
@@ -506,19 +516,12 @@ def open_batch_input_folder():
     if not dir_path:
         return
     val_batch_input_folder.set(dir_path)
-val_batch_input_folder = tk.StringVar(value='')
-val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
 
-def open_output_dir_picker():
-    dir_path = filedialog.askdirectory(
-        title="Select Output Directory"
-    )
-    if not dir_path:
-        return
-    val_batch_output_folder.set(dir_path)
-val_batch_output_folder = tk.StringVar(value='')
-val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
+# ----------------
+# BATCH PROCESSING
+# ----------------
 
+# batch process data forwarding
 def run_batch_process():
     params = {
         'batch_input_folder': val_batch_input_folder.get(),
@@ -678,7 +681,7 @@ button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Inpu
 button_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
 label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_batch_input_folder.grid(row=4, column=0, padx=10, pady=10, sticky='w')
-button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_output_dir_picker)
+button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_batch_output_dir_picker)
 button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=6, column=0, padx=10, pady=10, sticky='w')
@@ -717,7 +720,7 @@ def update_input_data_validation_error(*args):
 val_selected_sheet.trace_add('write', update_input_data_validation_error)
 val_INPUT_DATA_VALID.trace_add('write', update_input_data_validation_error)
 
-# windowed xcorr entries
+# windowed xcorr: win size entry
 def update_window_size_entry_on_validation(*args):
     win_size_is_valid = val_WINDOW_SIZE_VALID.get()
     if win_size_is_valid:
@@ -728,6 +731,7 @@ def update_window_size_entry_on_validation(*args):
         error_label_window_size.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_WINDOW_SIZE_VALID.trace_add('write', update_window_size_entry_on_validation)
 
+# windowed xcorr: max lag entry
 def update_max_lag_entry_on_validation(*args):
     max_lag_is_valid = val_MAX_LAG_VALID.get()
     if max_lag_is_valid:
@@ -738,6 +742,7 @@ def update_max_lag_entry_on_validation(*args):
         error_label_max_lag.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_MAX_LAG_VALID.trace_add('write', update_max_lag_entry_on_validation)
 
+# windowed xcorr: step size entry
 def update_step_size_entry_on_validation(*args):
     step_size_is_valid = val_STEP_SIZE_VALID.get()
     if step_size_is_valid:
@@ -785,11 +790,14 @@ def update_vis_settings_group(*args):
         subgroup_vis.grid_forget()
 val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 
+# batch file pickers: dynamic labels
+val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
+val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
 
-# -----------
-# CORRELATION
-# -----------
 
+# -------------------------
+# CORRELATION DATA HANDLING
+# -------------------------
 # update windowed xcorr data
 def _update_wxcorr_data():
     if not val_INPUT_DATA_VALID.get() or not val_CORRELATION_SETTINGS_VALID.get():
@@ -826,6 +834,9 @@ def update_corr():
     else:
         _update_sxcorr_data()
     
+def clear_correlation_data():
+    dat_correlation_data["wxcorr"] = []
+    dat_correlation_data["sxcorr"] = []
 
 # --------
 # PLOTTING
