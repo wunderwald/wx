@@ -2,7 +2,7 @@ import os
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init, update_sxcorr_plots, update_wxcorr_plots
+from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
 from signal_processing import preprocess_dyad
@@ -150,6 +150,8 @@ val_selected_column_b = tk.StringVar(value='- None -')
 val_checkbox_data_has_headers = tk.BooleanVar(value=True)
 val_batch_input_folder = tk.StringVar(value='')
 val_batch_output_folder = tk.StringVar(value='')
+val_batch_processing_is_ready = tk.BooleanVar(value=False)
+val_batch_processing_info_text = tk.StringVar(value='Not ready.')
 
 # set up data containers
 dat_plot_data = {
@@ -426,10 +428,13 @@ def update_column_names():
 
 def preprocess_data():
     if not val_selected_sheet.get() or val_selected_sheet.get() == '- None -':
+        val_INPUT_DATA_VALID.set(False)
         return
     if not val_selected_column_a.get() or val_selected_column_a.get() == '- None -':
+        val_INPUT_DATA_VALID.set(False)
         return
     if not val_selected_column_b.get() or val_selected_column_b.get() == '- None -':
+        val_INPUT_DATA_VALID.set(False)
         return
     # store selected columns as raw data
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
@@ -521,8 +526,21 @@ def open_batch_input_folder():
 # BATCH PROCESSING
 # ----------------
 
+# dynamically determine ready state
+def batch_processing_is_ready(*args):
+    data_is_valid = val_INPUT_DATA_VALID.get() and val_CORRELATION_SETTINGS_VALID.get() and val_CORRELATION_SETTINGS_VALID_SXC.get()
+    io_is_ready = val_batch_input_folder.get() != '' and val_batch_output_folder.get() != ''
+    ready = data_is_valid and io_is_ready
+    val_batch_processing_is_ready.set(ready)
+val_INPUT_DATA_VALID.trace_add('write', batch_processing_is_ready)
+val_CORRELATION_SETTINGS_VALID.trace_add('write', batch_processing_is_ready)
+val_CORRELATION_SETTINGS_VALID_SXC.trace_add('write', batch_processing_is_ready)
+val_batch_input_folder.trace_add('write', batch_processing_is_ready)
+val_batch_output_folder.trace_add('write', batch_processing_is_ready)
+
 # batch process data forwarding
 def run_batch_process():
+    # process batch
     params = {
         'batch_input_folder': val_batch_input_folder.get(),
         'output_dir': val_batch_output_folder.get(),
@@ -540,6 +558,11 @@ def run_batch_process():
         'checkbox_EDA': val_checkbox_EDA.get(),
     }
     batch_process(params)
+
+def handle_run_batch_button():
+    val_batch_processing_is_ready.set(False)
+    run_batch_process()
+    val_batch_processing_is_ready.set(True)
 
 # ---------------
 # MAIN APP LAYOUT
@@ -677,18 +700,20 @@ subgroup_batch.grid(row=5, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial", 20, "bold"))
 label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
-button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Input Folder', command=open_batch_input_folder)
-button_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
-label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
-label_batch_input_folder.grid(row=4, column=0, padx=10, pady=10, sticky='w')
-button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_batch_output_dir_picker)
-button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
-label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
-label_output_dir.grid(row=6, column=0, padx=10, pady=10, sticky='w')
-button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=run_batch_process)
-button_batch.grid(row=7, column=0, padx=10, pady=10, sticky='w')
 info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
-info_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
+info_batch.grid(row=1, column=0, padx=10, pady=10, sticky='w')
+button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Input Folder', command=open_batch_input_folder)
+button_batch_input_folder.grid(row=2, column=0, padx=10, pady=10, sticky='w')
+label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
+label_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
+button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_batch_output_dir_picker)
+button_output_dir_picker.grid(row=4, column=0, padx=10, pady=10, sticky='w')
+label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
+label_output_dir.grid(row=5, column=0, padx=10, pady=10, sticky='w')
+button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=handle_run_batch_button, state="disabled")
+button_batch.grid(row=6, column=0, padx=10, pady=10, sticky='w')
+info_button_batch = tk.CTkLabel(subgroup_batch, textvariable=val_batch_processing_info_text, font=("Arial", 14, "bold"))
+info_button_batch.grid(row=6, column=1, padx=10, pady=10)
 
 # ---------------------
 # PARAMETER GUI UPDATES
@@ -794,6 +819,17 @@ val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
 val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
 
+# batch: dynamic button state 
+def update_active_state_run_batch_button(*args):
+    button_batch.configure(state="normal" if val_batch_processing_is_ready.get() else "disabled")
+val_batch_processing_is_ready.trace_add('write', update_active_state_run_batch_button)
+
+def update_info_run_batch_button(*args):
+    if val_batch_processing_is_ready.get():
+        val_batch_processing_info_text.set("Ready!")
+        return
+    val_batch_processing_info_text.set("Not ready.")
+val_batch_processing_is_ready.trace_add('write', update_info_run_batch_button)
 
 # -------------------------
 # CORRELATION DATA HANDLING
