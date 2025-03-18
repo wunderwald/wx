@@ -3,7 +3,6 @@ import xlsx
 from signal_processing import preprocess_dyad
 from export import export_sxcorr_data, export_wxcorr_data
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
-from concurrent.futures import ThreadPoolExecutor
 
 def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
     # get list of xlsx files in dyad folder
@@ -83,7 +82,7 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
             output_file_path = os.path.join(output_dir, output_file_name)
             export_sxcorr_data(output_file_path, export_params)
     except Exception as e:
-        print(e)
+        print(f"! {dyad_folder}: {e}")
 
 def batch_process(params):
     """
@@ -122,12 +121,4 @@ def batch_process(params):
     # process dyads in folder
     dyad_folders = [f for f in os.listdir(batch_input_folder) if os.path.isdir(os.path.join(batch_input_folder, f))]
     for dyad_folder in dyad_folders:
-        with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(_process_dyad, batch_input_folder, dyad_folder, output_dir, params) for dyad_folder in dyad_folders]
-            for future in futures:
-                try:
-                    future.result()
-                except Exception as e:
-                    print(f"Error processing {dyad_folder}: {e}")
-
-        
+        _process_dyad(batch_input_folder, dyad_folder, output_dir, params)
