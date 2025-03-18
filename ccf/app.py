@@ -544,18 +544,34 @@ def open_dir_picker():
 # ----------------
 # BATCH PROCESSING
 # ----------------
-# TODO: this can probably be moved to another file!
-def batch_process():
-    # open a dir picker to select the directory in which dyad directories ae stored
-    dyad_dir = filedialog.askdirectory(
-        title="Select folder containing all dyad folders"
+def open_batch_input_folder():
+    dir_path = filedialog.askdirectory(
+        title="Select Batch Input Folder"
     )
+    if not dir_path:
+        return
+    val_batch_input_folder.set(dir_path)
+val_batch_input_folder = tk.StringVar(value='')
+val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
+
+def open_output_dir_picker():
+    dir_path = filedialog.askdirectory(
+        title="Select Output Directory"
+    )
+    if not dir_path:
+        return
+    val_output_dir.set(dir_path)
+val_output_dir = tk.StringVar(value='')
+val_output_dir.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_output_dir.get())}"))
+
+
+def batch_process():
+    # get directory in which dyad directories ae stored
+    dyad_dir = val_batch_input_folder.get()
     if not dyad_dir: return
 
-    # open a dir picker to create or select an output directory
-    output_dir = filedialog.askdirectory(
-        title="Select output folder"
-    )
+    # get output directory
+    output_dir = val_output_dir.get()
     if not output_dir: return
 
     # get a list of dyad folders
@@ -587,9 +603,6 @@ def batch_process():
                 raw_signal_b,
                 signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
             )
-
-            # update val data length
-            data_length = len(signal_a)
 
             # make and export correlation data
             if val_checkbox_windowed_xcorr.get():
@@ -638,11 +651,10 @@ def batch_process():
                     'sxcorr': dat_correlation_data["sxcorr"]
                 }
                 __export_sxcorr_data(file_path, params)
-                
+
         except Exception as e:
             print(e)
             continue
-
 
 
 # ---------------
@@ -781,10 +793,18 @@ subgroup_batch.grid(row=5, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial", 20, "bold"))
 label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
-button_batch = tk.CTkButton(subgroup_batch, text='Batch Process', command=batch_process)
-button_batch.grid(row=1, column=0, padx=10, pady=10)
+button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Input Folder', command=open_batch_input_folder)
+button_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
+label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
+label_batch_input_folder.grid(row=4, column=0, padx=10, pady=10, sticky='w')
+button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_output_dir_picker)
+button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
+label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
+label_output_dir.grid(row=6, column=0, padx=10, pady=10, sticky='w')
+button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=batch_process)
+button_batch.grid(row=7, column=0, padx=10, pady=10, sticky='w')
 info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
-info_batch.grid(row=2, column=0, padx=10, pady=10)
+info_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
 
 # ---------------------
 # PARAMETER GUI UPDATES
