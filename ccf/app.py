@@ -727,7 +727,7 @@ button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select output fold
 button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=6, column=0, padx=10, sticky='w')
-checkbox_flexibility = tk.CTkCheckBox(subgroup_batch, text='Include stability / z-score', variable=val_checkbox_flexibility, command=on_change_flexibility, state="disabled")
+checkbox_flexibility = tk.CTkCheckBox(subgroup_batch, text='Include flexibility analysis', variable=val_checkbox_flexibility, command=on_change_flexibility)
 checkbox_flexibility.grid(row=7, column=0, sticky="w", padx=10, pady=10)
 checkbox_random_pair_analysis = tk.CTkCheckBox(subgroup_batch, text='Include random pair analysis', variable=val_checkbox_random_pair, command=on_change_random_pair_analysis, state="disabled")
 checkbox_random_pair_analysis.grid(row=8, column=0, sticky="w", padx=10, pady=10)
@@ -735,6 +735,7 @@ button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=ha
 button_batch.grid(row=9, column=0, padx=10, pady=10, sticky='w')
 info_button_batch = tk.CTkLabel(subgroup_batch, textvariable=val_batch_processing_info_text, font=("Arial", 14, "bold"))
 info_button_batch.grid(row=9, column=1, padx=10, pady=10)
+
 # ---------------------
 # PARAMETER GUI UPDATES
 # ---------------------
