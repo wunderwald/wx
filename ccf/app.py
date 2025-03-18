@@ -151,7 +151,7 @@ val_checkbox_data_has_headers = tk.BooleanVar(value=True)
 val_batch_input_folder = tk.StringVar(value='')
 val_batch_output_folder = tk.StringVar(value='')
 val_batch_processing_is_ready = tk.BooleanVar(value=False)
-val_batch_processing_is_running = tk.BooleanVar(value=False)
+val_batch_processing_info_text = tk.StringVar(value='Not ready.')
 
 # set up data containers
 dat_plot_data = {
@@ -540,10 +540,6 @@ val_batch_output_folder.trace_add('write', batch_processing_is_ready)
 
 # batch process data forwarding
 def run_batch_process():
-    # update ui state
-    val_batch_processing_is_running.set(True)
-    val_batch_processing_is_ready.set(False)
-
     # process batch
     params = {
         'batch_input_folder': val_batch_input_folder.get(),
@@ -563,8 +559,9 @@ def run_batch_process():
     }
     batch_process(params)
 
-    # update ui state
-    val_batch_processing_is_running.set(False)
+def handle_run_batch_button():
+    val_batch_processing_is_ready.set(False)
+    run_batch_process()
     val_batch_processing_is_ready.set(True)
 
 # ---------------
@@ -713,9 +710,9 @@ button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Fold
 button_output_dir_picker.grid(row=4, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=5, column=0, padx=10, pady=10, sticky='w')
-button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=run_batch_process)
+button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=handle_run_batch_button, state="disabled")
 button_batch.grid(row=6, column=0, padx=10, pady=10, sticky='w')
-info_button_batch = tk.CTkLabel(subgroup_batch, text="Not ready.", font=("Arial", 14, "bold"), state="disabled")
+info_button_batch = tk.CTkLabel(subgroup_batch, textvariable=val_batch_processing_info_text, font=("Arial", 14, "bold"))
 info_button_batch.grid(row=6, column=1, padx=10, pady=10)
 
 # ---------------------
@@ -824,19 +821,14 @@ val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.config
 
 # batch: dynamic button state 
 def update_active_state_run_batch_button(*args):
-    button_batch.configure(state="normal" if (val_batch_processing_is_ready.get() and not val_batch_processing_is_running.get()) else "disabled")
-val_batch_processing_is_running.trace_add('write', update_active_state_run_batch_button)
+    button_batch.configure(state="normal" if val_batch_processing_is_ready.get() else "disabled")
 val_batch_processing_is_ready.trace_add('write', update_active_state_run_batch_button)
 
 def update_info_run_batch_button(*args):
-    if val_batch_processing_is_running.get():
-        info_button_batch.configure(text="Processing...")
-        return
     if val_batch_processing_is_ready.get():
-        info_button_batch.configure(text="Ready!")
+        val_batch_processing_info_text.set("Ready!")
         return
-    info_button_batch.configure(text="Not ready.")
-val_batch_processing_is_running.trace_add('write', update_info_run_batch_button)
+    val_batch_processing_info_text.set("Not ready.")
 val_batch_processing_is_ready.trace_add('write', update_info_run_batch_button)
 
 # -------------------------
