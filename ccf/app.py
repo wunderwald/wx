@@ -2,10 +2,12 @@ import os
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init
+from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
 from signal_processing import preprocess_dyad
+from batch_processing import batch_process
+from export import export_sxcorr_data, export_wxcorr_data
 
 # ------------------
 # APP INITIALIZATION
@@ -146,6 +148,8 @@ val_selected_sheet = tk.StringVar(value='- None -')
 val_selected_column_a = tk.StringVar(value='- None -')
 val_selected_column_b = tk.StringVar(value='- None -')
 val_checkbox_data_has_headers = tk.BooleanVar(value=True)
+val_batch_input_folder = tk.StringVar(value='')
+val_batch_output_folder = tk.StringVar(value='')
 
 # set up data containers
 dat_plot_data = {
@@ -295,34 +299,6 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
 # ---------------
 # EXPORT HANDLERS
 # ---------------
-def __export_wxcorr_data(file_path, params):
-    metadata = {
-        'xcorr type': "windowed cross-correlation",
-        'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
-        'Input file A': f"{os.path.basename(params['selected_file_a'])}",
-        'Input file B': f"{os.path.basename(params['selected_file_b'])}",
-        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
-        'Window size': params['window_size'],
-        'Max lag': params['max_lag'],
-        'Step size': params['step_size'],
-        'Window overlap ratio': (params['window_size'] - params['step_size']) / params['window_size'],
-        'Absolute correlation values': params['checkbox_absolute_corr'],
-        'Per-window averages': params['checkbox_average_windows'],
-        'Input signals resampled to 5hz': params['checkbox_IBI'],
-    }
-    vectors = {
-        'signal_a': params['signal_a'],
-        'signal_b': params['signal_b'],
-        'window start index': [o['start_idx'] for o in params['wxcorr']],
-        'max correlation (r_max)': [o['r_max'] for o in params['wxcorr']],
-        'lag of max correlation (tau_max)': [o['tau_max'] for o in params['wxcorr']],
-    }
-    for window_index, window in enumerate(params['wxcorr']):
-        vectors[f"w_{window_index}_correlations"] = window['correlations']
-        vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
-
-    xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
-
 def _export_wxcorr_data(file_path):
     params = {
         'selected_dyad_dir': val_selected_dyad_dir.get(),
@@ -339,26 +315,7 @@ def _export_wxcorr_data(file_path):
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"]
     }
-    __export_wxcorr_data(file_path, params)
-
-def __export_sxcorr_data(file_path, params):
-    metadata = {
-        'xcorr type': "(standard) cross-correlation",
-        'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
-        'Input file A': f"{os.path.basename(params['selected_file_a'])}",
-        'Input file B': f"{os.path.basename(params['selected_file_b'])}",
-        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
-        'Max lag': params['max_lag'],
-        'Absolute correlation values': params['checkbox_absolute_corr'],
-        'Input signals resampled to 5hz': params['checkbox_IBI'],
-    }
-    vectors = {
-        'signal_a': params['signal_a'],
-        'signal_b': params['signal_b'],
-        'lag': params['sxcorr']['lags'],
-        'correlation': params['sxcorr']['corr'],
-    }
-    xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
+    export_wxcorr_data(file_path, params)
 
 def _export_sxcorr_data(file_path):
     params = {
@@ -373,7 +330,7 @@ def _export_sxcorr_data(file_path):
         'signal_b': dat_physiological_data["signal_b"],
         'sxcorr': dat_correlation_data["sxcorr"]
     }
-    __export_sxcorr_data(file_path, params)
+    export_sxcorr_data(file_path, params)
 
 # export XLSX data
 def export_data():
@@ -422,9 +379,9 @@ def export_plot():
     fig.savefig(file_path, dpi=300, format='png')
 
 
-# -------------
-# DATA HANDLING
-# -------------
+# ------------------
+# XLSX DATA HANDLING
+# ------------------
 
 def read_xlsx_files():
     # read data from selected files into workbook objects
@@ -462,6 +419,10 @@ def update_column_names():
     # create columns object from selected sheet
     dat_workbook_data["columns_a"] = xlsx.get_columns(dat_workbook_data["workbook_a"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
     dat_workbook_data["columns_b"] = xlsx.get_columns(dat_workbook_data["workbook_b"], val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
+
+# ---------------------
+# DATA [PRE-]PROCESSING
+# ---------------------
 
 def preprocess_data():
     if not val_selected_sheet.get() or val_selected_sheet.get() == '- None -':
@@ -503,6 +464,9 @@ def preprocess_data():
         # set validation state
         val_INPUT_DATA_VALID.set(False)
 
+# -------------------------
+# MAIN DATA LOADING ROUTINE
+# -------------------------
 
 def load_xlsx_data():
     read_xlsx_files()
@@ -511,14 +475,10 @@ def load_xlsx_data():
     preprocess_data()
     clear_correlation_data()
 
-def clear_correlation_data():
-    dat_correlation_data["wxcorr"] = []
-    dat_correlation_data["sxcorr"] = []
 
-
-# -----------
-# FILE PICKER
-# -----------
+# ------------
+# FILE PICKERS
+# ------------
 
 def open_dir_picker():
     dir_path = filedialog.askdirectory(
@@ -541,9 +501,14 @@ def open_dir_picker():
     load_xlsx_data()
     PARAMS_CHANGED()    
 
-# ----------------
-# BATCH PROCESSING
-# ----------------
+def open_batch_output_dir_picker():
+    dir_path = filedialog.askdirectory(
+        title="Select Output Directory"
+    )
+    if not dir_path:
+        return
+    val_batch_output_folder.set(dir_path)
+
 def open_batch_input_folder():
     dir_path = filedialog.askdirectory(
         title="Select Batch Input Folder"
@@ -551,111 +516,30 @@ def open_batch_input_folder():
     if not dir_path:
         return
     val_batch_input_folder.set(dir_path)
-val_batch_input_folder = tk.StringVar(value='')
-val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
 
-def open_output_dir_picker():
-    dir_path = filedialog.askdirectory(
-        title="Select Output Directory"
-    )
-    if not dir_path:
-        return
-    val_output_dir.set(dir_path)
-val_output_dir = tk.StringVar(value='')
-val_output_dir.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_output_dir.get())}"))
+# ----------------
+# BATCH PROCESSING
+# ----------------
 
-
-def batch_process():
-    # get directory in which dyad directories ae stored
-    dyad_dir = val_batch_input_folder.get()
-    if not dyad_dir: return
-
-    # get output directory
-    output_dir = val_output_dir.get()
-    if not output_dir: return
-
-    # get a list of dyad folders
-    dyad_folders = [f for f in os.listdir(dyad_dir) if os.path.isdir(os.path.join(dyad_dir, f))]
-    for dyad_folder in dyad_folders:
-        # get list of xlsx files in dyad folder
-        xlsx_files = [f for f in os.listdir(os.path.join(dyad_dir, dyad_folder)) if f.endswith('.xlsx')]
-        if len(xlsx_files) < 2:
-            continue
-        # select the two files of the dyad
-        file_path_a = os.path.join(dyad_dir, dyad_folder, xlsx_files[0])
-        file_path_b = os.path.join(dyad_dir, dyad_folder, xlsx_files[1])
-        # read data to workbooks
-        wb_a = xlsx.read_xlsx(file_path_a)
-        wb_b = xlsx.read_xlsx(file_path_b)
-
-        try:
-            # create columns object from selected sheet
-            columns_a = xlsx.get_columns(wb_a, val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
-            columns_b = xlsx.get_columns(wb_b, val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
-
-            # get raw data
-            raw_signal_a = columns_a[dat_workbook_data["selected_column_a"]]
-            raw_signal_b = columns_b[dat_workbook_data["selected_column_b"]]
-
-            # process data
-            signal_a, signal_b = preprocess_dyad(
-                raw_signal_a,
-                raw_signal_b,
-                signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
-            )
-
-            # make and export correlation data
-            if val_checkbox_windowed_xcorr.get():
-                # WXCorr
-                window_size = val_window_size.get()
-                step_size = val_step_size.get()
-                max_lag = val_max_lag.get()
-                absolute_values = val_checkbox_absolute_corr.get()
-                average_windows = val_checkbox_average_windows.get()
-                corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
-                # export
-                params = {
-                    'selected_dyad_dir': dyad_folder,
-                    'selected_file_a': file_path_a,
-                    'selected_file_b': file_path_b,
-                    'checkbox_EDA': val_checkbox_EDA.get(),
-                    'window_size': val_window_size.get(),
-                    'max_lag': val_max_lag.get(),
-                    'step_size': val_step_size.get(),
-                    'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
-                    'checkbox_average_windows': val_checkbox_average_windows.get(),
-                    'checkbox_IBI': val_checkbox_IBI.get(),
-                    'signal_a': signal_a,
-                    'signal_b': signal_b,
-                    'wxcorr': corr_data
-                }
-                output_file_name = f"{dyad_folder}_wxcorr.xlsx"
-                file_path = os.path.join(output_dir, output_file_name)
-                __export_wxcorr_data(file_path, params)
-            else:
-                # Standard XCorr
-                max_lag = val_max_lag_sxc.get()
-                absolute_values = val_checkbox_absolute_corr_sxc.get()
-                corr_data = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
-                # export
-                params = {
-                    'selected_dyad_dir': dyad_folder,
-                    'selected_file_a': file_path_a,
-                    'selected_file_b': file_path_b,
-                    'checkbox_EDA': val_checkbox_EDA.get(),
-                    'max_lag': val_max_lag_sxc.get(),
-                    'checkbox_absolute_corr': val_checkbox_absolute_corr_sxc.get(),
-                    'checkbox_IBI': val_checkbox_IBI.get(),
-                    'signal_a': signal_a,
-                    'signal_b': signal_b,
-                    'sxcorr': dat_correlation_data["sxcorr"]
-                }
-                __export_sxcorr_data(file_path, params)
-
-        except Exception as e:
-            print(e)
-            continue
-
+# batch process data forwarding
+def run_batch_process():
+    params = {
+        'batch_input_folder': val_batch_input_folder.get(),
+        'output_dir': val_batch_output_folder.get(),
+        'selected_sheet': val_selected_sheet.get(), 
+        'workbook_data': dat_workbook_data,
+        'checkbox_windowed_xcorr': val_checkbox_windowed_xcorr.get(),
+        'window_size': val_window_size.get(),
+        'step_size': val_step_size.get(),
+        'max_lag': val_max_lag.get(),
+        'max_lag_sxc': val_max_lag_sxc.get(),
+        'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+        'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
+        'checkbox_average_windows': val_checkbox_average_windows.get(),
+        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_EDA': val_checkbox_EDA.get(),
+    }
+    batch_process(params)
 
 # ---------------
 # MAIN APP LAYOUT
@@ -797,11 +681,11 @@ button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Inpu
 button_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
 label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_batch_input_folder.grid(row=4, column=0, padx=10, pady=10, sticky='w')
-button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_output_dir_picker)
+button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_batch_output_dir_picker)
 button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=6, column=0, padx=10, pady=10, sticky='w')
-button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=batch_process)
+button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=run_batch_process)
 button_batch.grid(row=7, column=0, padx=10, pady=10, sticky='w')
 info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
 info_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
@@ -836,7 +720,7 @@ def update_input_data_validation_error(*args):
 val_selected_sheet.trace_add('write', update_input_data_validation_error)
 val_INPUT_DATA_VALID.trace_add('write', update_input_data_validation_error)
 
-# windowed xcorr entries
+# windowed xcorr: win size entry
 def update_window_size_entry_on_validation(*args):
     win_size_is_valid = val_WINDOW_SIZE_VALID.get()
     if win_size_is_valid:
@@ -847,6 +731,7 @@ def update_window_size_entry_on_validation(*args):
         error_label_window_size.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_WINDOW_SIZE_VALID.trace_add('write', update_window_size_entry_on_validation)
 
+# windowed xcorr: max lag entry
 def update_max_lag_entry_on_validation(*args):
     max_lag_is_valid = val_MAX_LAG_VALID.get()
     if max_lag_is_valid:
@@ -857,6 +742,7 @@ def update_max_lag_entry_on_validation(*args):
         error_label_max_lag.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_MAX_LAG_VALID.trace_add('write', update_max_lag_entry_on_validation)
 
+# windowed xcorr: step size entry
 def update_step_size_entry_on_validation(*args):
     step_size_is_valid = val_STEP_SIZE_VALID.get()
     if step_size_is_valid:
@@ -904,11 +790,14 @@ def update_vis_settings_group(*args):
         subgroup_vis.grid_forget()
 val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 
+# batch file pickers: dynamic labels
+val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
+val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
 
-# -----------
-# CORRELATION
-# -----------
 
+# -------------------------
+# CORRELATION DATA HANDLING
+# -------------------------
 # update windowed xcorr data
 def _update_wxcorr_data():
     if not val_INPUT_DATA_VALID.get() or not val_CORRELATION_SETTINGS_VALID.get():
@@ -945,6 +834,9 @@ def update_corr():
     else:
         _update_sxcorr_data()
     
+def clear_correlation_data():
+    dat_correlation_data["wxcorr"] = []
+    dat_correlation_data["sxcorr"] = []
 
 # --------
 # PLOTTING
@@ -957,43 +849,26 @@ def update_canvas():
     canvas.draw()
     canvas.get_tk_widget().pack()
 
-# update windowed xcorr plots
-def _update_wxcorr_plots():
-    if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']:
-        return
-
-    # read data from data containers and state variables
-    signal_a = dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b"]
-    window_size = val_window_size.get()
-    step_size = val_step_size.get()
-    max_lag = val_max_lag.get()
-    windowed_xcorr_data = dat_correlation_data["wxcorr"]
-    
-    # create and store plot figure
-    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=val_checkbox_tscl_center.get())
-    dat_plot_data["fig"] = fig
-
-# update standard xcorr plots
-def _update_sxcorr_plots():
-    if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']:
-        return
-
-    # read data from data containers and state variabled
-    signal_a = dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b"]
-    xcorr_data = dat_correlation_data["sxcorr"]
-
-    # create and store plot figure
-    fig = plot_standard_cross_correlation(xcorr_data, signal_a, signal_b)
-    dat_plot_data["fig"] = fig
-
 def update_plot(*args):
     is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
     if is_windowed_xcorr:
-        _update_wxcorr_plots()
+        if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']: return
+        dat_plot_data["fig"] = update_wxcorr_plots({
+            'signal_a': dat_physiological_data['signal_a'],
+            'signal_b': dat_physiological_data['signal_b'],
+            'window_size': val_window_size.get(),
+            'step_size': val_step_size.get(),
+            'max_lag': val_max_lag.get(),
+            'use_timescale_win_center': val_checkbox_tscl_center.get(),
+            'windowed_xcorr_data': dat_correlation_data["wxcorr"]
+        })
     else:
-        _update_sxcorr_plots()
+        if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']: return
+        dat_plot_data["fig"] = update_sxcorr_plots({
+            'signal_a': dat_physiological_data['signal_a'],
+            'signal_b': dat_physiological_data['signal_b'],
+            'xcorr_data': dat_correlation_data['sxcorr'],
+        })
 
 # -----------
 # UPDATE LOOP
