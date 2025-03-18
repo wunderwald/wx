@@ -8,6 +8,7 @@ import xlsx
 from signal_processing import preprocess_dyad
 from batch_processing import batch_process
 from export import export_sxcorr_data, export_wxcorr_data
+import utils
 
 # ------------------
 # APP INITIALIZATION
@@ -701,19 +702,20 @@ subgroup_batch.grid(row=5, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial", 20, "bold"))
 label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
 info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
-info_batch.grid(row=1, column=0, padx=10, pady=10, sticky='w')
+info_batch.grid(row=1, column=0, padx=10, sticky='w')
 button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Input Folder', command=open_batch_input_folder)
 button_batch_input_folder.grid(row=2, column=0, padx=10, pady=10, sticky='w')
 label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
-label_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
+label_batch_input_folder.grid(row=3, column=0, padx=10, sticky='w')
+label_batch_input_num_subdirs = tk.CTkLabel(subgroup_batch, text="No folder selected.") # row=4, initially hidden
 button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_batch_output_dir_picker)
-button_output_dir_picker.grid(row=4, column=0, padx=10, pady=10, sticky='w')
+button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
-label_output_dir.grid(row=5, column=0, padx=10, pady=10, sticky='w')
+label_output_dir.grid(row=6, column=0, padx=10, sticky='w')
 button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=handle_run_batch_button, state="disabled")
-button_batch.grid(row=6, column=0, padx=10, pady=10, sticky='w')
+button_batch.grid(row=7, column=0, padx=10, pady=10, sticky='w')
 info_button_batch = tk.CTkLabel(subgroup_batch, textvariable=val_batch_processing_info_text, font=("Arial", 14, "bold"))
-info_button_batch.grid(row=6, column=1, padx=10, pady=10)
+info_button_batch.grid(row=7, column=1, padx=10, pady=10)
 
 # ---------------------
 # PARAMETER GUI UPDATES
@@ -818,6 +820,16 @@ val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 # batch file pickers: dynamic labels
 val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
 val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
+
+def update_batch_input_num_subdirs(*args):
+    input_folder = val_batch_input_folder.get()
+    if input_folder:
+        label_batch_input_num_subdirs.configure(text=f"{utils.count_subdirectories(input_folder)} sub-folders / dyads")
+        label_batch_input_num_subdirs.grid(row=4, column=0, padx=10, sticky='w')
+    else:
+        label_batch_input_num_subdirs.grid_forget()
+
+val_batch_input_folder.trace_add('write', update_batch_input_num_subdirs)
 
 # batch: dynamic button state 
 def update_active_state_run_batch_button(*args):
