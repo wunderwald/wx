@@ -2,7 +2,6 @@ import os
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import numpy as np
 from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
@@ -296,53 +295,85 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
 # ---------------
 # EXPORT HANDLERS
 # ---------------
-
-def _export_wxcorr_data(file_path):
+def __export_wxcorr_data(file_path, params):
     metadata = {
         'xcorr type': "windowed cross-correlation",
-        'Input dyad directory': f"{os.path.basename(val_selected_dyad_dir.get())}",
-        'Input file A': f"{os.path.basename(val_selected_file_a.get())}",
-        'Input file B': f"{os.path.basename(val_selected_file_b.get())}",
-        'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
-        'Window size': val_window_size.get(),
-        'Max lag': val_max_lag.get(),
-        'Step size': val_step_size.get(),
-        'Window overlap ratio': (val_window_size.get() - val_step_size.get()) / val_window_size.get(),
-        'Absolute correlation values': val_checkbox_absolute_corr.get(),
-        'Per-window averages': val_checkbox_average_windows.get(),
-        'Input signals resampled to 5hz': val_checkbox_IBI.get(),
+        'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
+        'Input file A': f"{os.path.basename(params['selected_file_a'])}",
+        'Input file B': f"{os.path.basename(params['selected_file_b'])}",
+        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Window size': params['window_size'],
+        'Max lag': params['max_lag'],
+        'Step size': params['step_size'],
+        'Window overlap ratio': (params['window_size'] - params['step_size']) / params['window_size'],
+        'Absolute correlation values': params['checkbox_absolute_corr'],
+        'Per-window averages': params['checkbox_average_windows'],
+        'Input signals resampled to 5hz': params['checkbox_IBI'],
     }
     vectors = {
-        'signal_a': dat_physiological_data["signal_a"],
-        'signal_b': dat_physiological_data["signal_b"],
-        'window start index': [o['start_idx'] for o in dat_correlation_data["wxcorr"]],
-        'max correlation (r_max)': [o['r_max'] for o in dat_correlation_data["wxcorr"]],
-        'lag of max correlation (tau_max)': [o['tau_max'] for o in dat_correlation_data["wxcorr"]],
+        'signal_a': params['signal_a'],
+        'signal_b': params['signal_b'],
+        'window start index': [o['start_idx'] for o in params['wxcorr']],
+        'max correlation (r_max)': [o['r_max'] for o in params['wxcorr']],
+        'lag of max correlation (tau_max)': [o['tau_max'] for o in params['wxcorr']],
     }
-    for window_index, window in enumerate(dat_correlation_data["wxcorr"]):
+    for window_index, window in enumerate(params['wxcorr']):
         vectors[f"w_{window_index}_correlations"] = window['correlations']
         vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
 
     xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 
-def _export_sxcorr_data(file_path):
-    metadata = {
-        'xcorr type': "(standard) cross-correlation",
-        'Input dyad directory': f"{os.path.basename(val_selected_dyad_dir.get())}",
-        'Input file A': f"{os.path.basename(val_selected_file_a.get())}",
-        'Input file B': f"{os.path.basename(val_selected_file_b.get())}",
-        'Phsyiological data type': 'EDA' if val_checkbox_EDA.get() else 'IBI', 
-        'Max lag': val_max_lag_sxc.get(),
-        'Absolute correlation values': val_checkbox_absolute_corr_sxc.get(),
-        'Input signals resampled to 5hz': val_checkbox_IBI.get(),
-    }
-    vectors = {
+def _export_wxcorr_data(file_path):
+    params = {
+        'selected_dyad_dir': val_selected_dyad_dir.get(),
+        'selected_file_a': val_selected_file_a.get(),
+        'selected_file_b': val_selected_file_b.get(),
+        'checkbox_EDA': val_checkbox_EDA.get(),
+        'window_size': val_window_size.get(),
+        'max_lag': val_max_lag.get(),
+        'step_size': val_step_size.get(),
+        'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+        'checkbox_average_windows': val_checkbox_average_windows.get(),
+        'checkbox_IBI': val_checkbox_IBI.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
-        'lag': dat_correlation_data["sxcorr"]['lags'],
-        'correlation': dat_correlation_data["sxcorr"]['corr'],
+        'wxcorr': dat_correlation_data["wxcorr"]
+    }
+    __export_wxcorr_data(file_path, params)
+
+def __export_sxcorr_data(file_path, params):
+    metadata = {
+        'xcorr type': "(standard) cross-correlation",
+        'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
+        'Input file A': f"{os.path.basename(params['selected_file_a'])}",
+        'Input file B': f"{os.path.basename(params['selected_file_b'])}",
+        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Max lag': params['max_lag'],
+        'Absolute correlation values': params['checkbox_absolute_corr'],
+        'Input signals resampled to 5hz': params['checkbox_IBI'],
+    }
+    vectors = {
+        'signal_a': params['signal_a'],
+        'signal_b': params['signal_b'],
+        'lag': params['sxcorr']['lags'],
+        'correlation': params['sxcorr']['corr'],
     }
     xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
+
+def _export_sxcorr_data(file_path):
+    params = {
+        'selected_dyad_dir': val_selected_dyad_dir.get(),
+        'selected_file_a': val_selected_file_a.get(),
+        'selected_file_b': val_selected_file_b.get(),
+        'checkbox_EDA': val_checkbox_EDA.get(),
+        'max_lag': val_max_lag_sxc.get(),
+        'checkbox_absolute_corr': val_checkbox_absolute_corr_sxc.get(),
+        'checkbox_IBI': val_checkbox_IBI.get(),
+        'signal_a': dat_physiological_data["signal_a"],
+        'signal_b': dat_physiological_data["signal_b"],
+        'sxcorr': dat_correlation_data["sxcorr"]
+    }
+    __export_sxcorr_data(file_path, params)
 
 # export XLSX data
 def export_data():
@@ -395,7 +426,7 @@ def export_plot():
 # DATA HANDLING
 # -------------
 
-def read_xlsx():
+def read_xlsx_files():
     # read data from selected files into workbook objects
     file_path_a = val_selected_file_a.get()
     file_path_b = val_selected_file_b.get()
@@ -474,7 +505,7 @@ def preprocess_data():
 
 
 def load_xlsx_data():
-    read_xlsx()
+    read_xlsx_files()
     update_sheet_names()
     update_column_names()
     preprocess_data()
@@ -509,6 +540,121 @@ def open_dir_picker():
     # process data from xlsx files
     load_xlsx_data()
     PARAMS_CHANGED()    
+
+# ----------------
+# BATCH PROCESSING
+# ----------------
+def open_batch_input_folder():
+    dir_path = filedialog.askdirectory(
+        title="Select Batch Input Folder"
+    )
+    if not dir_path:
+        return
+    val_batch_input_folder.set(dir_path)
+val_batch_input_folder = tk.StringVar(value='')
+val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
+
+def open_output_dir_picker():
+    dir_path = filedialog.askdirectory(
+        title="Select Output Directory"
+    )
+    if not dir_path:
+        return
+    val_output_dir.set(dir_path)
+val_output_dir = tk.StringVar(value='')
+val_output_dir.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_output_dir.get())}"))
+
+
+def batch_process():
+    # get directory in which dyad directories ae stored
+    dyad_dir = val_batch_input_folder.get()
+    if not dyad_dir: return
+
+    # get output directory
+    output_dir = val_output_dir.get()
+    if not output_dir: return
+
+    # get a list of dyad folders
+    dyad_folders = [f for f in os.listdir(dyad_dir) if os.path.isdir(os.path.join(dyad_dir, f))]
+    for dyad_folder in dyad_folders:
+        # get list of xlsx files in dyad folder
+        xlsx_files = [f for f in os.listdir(os.path.join(dyad_dir, dyad_folder)) if f.endswith('.xlsx')]
+        if len(xlsx_files) < 2:
+            continue
+        # select the two files of the dyad
+        file_path_a = os.path.join(dyad_dir, dyad_folder, xlsx_files[0])
+        file_path_b = os.path.join(dyad_dir, dyad_folder, xlsx_files[1])
+        # read data to workbooks
+        wb_a = xlsx.read_xlsx(file_path_a)
+        wb_b = xlsx.read_xlsx(file_path_b)
+
+        try:
+            # create columns object from selected sheet
+            columns_a = xlsx.get_columns(wb_a, val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
+            columns_b = xlsx.get_columns(wb_b, val_selected_sheet.get(), headers=dat_workbook_data["has_headers"])
+
+            # get raw data
+            raw_signal_a = columns_a[dat_workbook_data["selected_column_a"]]
+            raw_signal_b = columns_b[dat_workbook_data["selected_column_b"]]
+
+            # process data
+            signal_a, signal_b = preprocess_dyad(
+                raw_signal_a,
+                raw_signal_b,
+                signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
+            )
+
+            # make and export correlation data
+            if val_checkbox_windowed_xcorr.get():
+                # WXCorr
+                window_size = val_window_size.get()
+                step_size = val_step_size.get()
+                max_lag = val_max_lag.get()
+                absolute_values = val_checkbox_absolute_corr.get()
+                average_windows = val_checkbox_average_windows.get()
+                corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
+                # export
+                params = {
+                    'selected_dyad_dir': dyad_folder,
+                    'selected_file_a': file_path_a,
+                    'selected_file_b': file_path_b,
+                    'checkbox_EDA': val_checkbox_EDA.get(),
+                    'window_size': val_window_size.get(),
+                    'max_lag': val_max_lag.get(),
+                    'step_size': val_step_size.get(),
+                    'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+                    'checkbox_average_windows': val_checkbox_average_windows.get(),
+                    'checkbox_IBI': val_checkbox_IBI.get(),
+                    'signal_a': signal_a,
+                    'signal_b': signal_b,
+                    'wxcorr': corr_data
+                }
+                output_file_name = f"{dyad_folder}_wxcorr.xlsx"
+                file_path = os.path.join(output_dir, output_file_name)
+                __export_wxcorr_data(file_path, params)
+            else:
+                # Standard XCorr
+                max_lag = val_max_lag_sxc.get()
+                absolute_values = val_checkbox_absolute_corr_sxc.get()
+                corr_data = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
+                # export
+                params = {
+                    'selected_dyad_dir': dyad_folder,
+                    'selected_file_a': file_path_a,
+                    'selected_file_b': file_path_b,
+                    'checkbox_EDA': val_checkbox_EDA.get(),
+                    'max_lag': val_max_lag_sxc.get(),
+                    'checkbox_absolute_corr': val_checkbox_absolute_corr_sxc.get(),
+                    'checkbox_IBI': val_checkbox_IBI.get(),
+                    'signal_a': signal_a,
+                    'signal_b': signal_b,
+                    'sxcorr': dat_correlation_data["sxcorr"]
+                }
+                __export_sxcorr_data(file_path, params)
+
+        except Exception as e:
+            print(e)
+            continue
 
 
 # ---------------
@@ -640,6 +786,25 @@ button_export_data = tk.CTkButton(subsubgroup_export_buttons, text='Export XLSX'
 button_export_data.grid(row=1, column=0, padx=10, pady=10)
 button_export_plot = tk.CTkButton(subsubgroup_export_buttons, text='Export Plots', command=export_plot)
 button_export_plot.grid(row=1, column=1, padx=10, pady=10)
+
+# BATCH PROCESSING
+subgroup_batch = tk.CTkFrame(group_parameter_settings)
+subgroup_batch.grid(row=5, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+# subgroup content
+label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial", 20, "bold"))
+label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
+button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select Batch Input Folder', command=open_batch_input_folder)
+button_batch_input_folder.grid(row=3, column=0, padx=10, pady=10, sticky='w')
+label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
+label_batch_input_folder.grid(row=4, column=0, padx=10, pady=10, sticky='w')
+button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select Output Folder', command=open_output_dir_picker)
+button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
+label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
+label_output_dir.grid(row=6, column=0, padx=10, pady=10, sticky='w')
+button_batch = tk.CTkButton(subgroup_batch, text='Run Batch Process', command=batch_process)
+button_batch.grid(row=7, column=0, padx=10, pady=10, sticky='w')
+info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
+info_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
 
 # ---------------------
 # PARAMETER GUI UPDATES
