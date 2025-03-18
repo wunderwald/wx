@@ -515,30 +515,26 @@ def open_output_dir_picker():
     )
     if not dir_path:
         return
-    val_output_dir.set(dir_path)
-val_output_dir = tk.StringVar(value='')
-val_output_dir.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_output_dir.get())}"))
+    val_batch_output_folder.set(dir_path)
+val_batch_output_folder = tk.StringVar(value='')
+val_batch_output_folder.trace_add('write', lambda *args: label_output_dir.configure(text=f"Selected: {os.path.basename(val_batch_output_folder.get())}"))
 
 def run_batch_process():
     params = {
-        'input_folder': val_batch_input_folder.get(),
-        'output_folder': val_output_dir.get(),
+        'batch_input_folder': val_batch_input_folder.get(),
+        'output_dir': val_batch_output_folder.get(),
+        'selected_sheet': val_selected_sheet.get(), 
+        'workbook_data': dat_workbook_data,
+        'checkbox_windowed_xcorr': val_checkbox_windowed_xcorr.get(),
         'window_size': val_window_size.get(),
         'step_size': val_step_size.get(),
         'max_lag': val_max_lag.get(),
         'max_lag_sxc': val_max_lag_sxc.get(),
-        'absolute_corr': val_checkbox_absolute_corr.get(),
-        'absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
-        'average_windows': val_checkbox_average_windows.get(),
-        'is_ibi': val_checkbox_IBI.get(),
-        'is_eda': val_checkbox_EDA.get(),
-        'use_tscl_index': val_checkbox_tscl_index.get(),
-        'use_tscl_center': val_checkbox_tscl_center.get(),
-        'has_headers': val_checkbox_data_has_headers.get(),
-        'selected_sheet': val_selected_sheet.get(),
-        'selected_column_a': val_selected_column_a.get(),
-        'selected_column_b': val_selected_column_b.get(),
-        'is_windowed_xcorr': val_checkbox_windowed_xcorr.get()
+        'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+        'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
+        'checkbox_average_windows': val_checkbox_average_windows.get(),
+        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_EDA': val_checkbox_EDA.get(),
     }
     batch_process(params)
 
