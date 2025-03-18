@@ -1,6 +1,7 @@
 import numpy as np
 
-def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False):
+
+def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False, include_flexibility=False):
     """
     Compute windowed cross-correlation between two time series.
 
@@ -12,6 +13,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         max_lag (int): Maximum lag to compute cross-correlation.
         absolute (bool): Calculate abs of correlation values.
         average_windows (bool): Calculate per-window averages (for consistency, results will be stored for each lag).
+        include_flexibility (bool): Include flexibility analysis in output data. If true, for each window, fisher z-transformed average correlation and variance are calculated.
 
     Returns:
         results (list of dict): A list containing the results for each window. 
@@ -21,6 +23,8 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
                 - 'r_max': Peak cross-correlation value in the window.
                 - 'tau_max': Lag at which the peak correlation occurs.
                 - 'correlations': Array of cross-correlation values for all lags.
+                - 'avg_z_transformed_corr': average of fisher z-transformed correlation values in window (if include_flexibility is True).
+                - 'var_z_transformed_corr': variance of fisher z-transformed correlation values in window (if include_flexibility is True).
     """
     n = len(x)
     results = []
@@ -47,7 +51,8 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
                 corr = np.mean(x_window[lag:] * y_window[:-lag])
             else:
                 corr = np.mean(x_window * y_window)
-            if absolute: corr = np.abs(corr)
+            if absolute:
+                corr = np.abs(corr)
             correlations.append(corr)
 
         # optionally average correlation values in window
@@ -58,18 +63,32 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         # Find the peak correlation and its corresponding lag
         correlations = np.array(correlations)
         r_max = np.max(correlations)
-        tau_max = np.argmax(correlations) - max_lag if not average_windows else 0
+        tau_max = np.argmax(correlations) - \
+            max_lag if not average_windows else 0
 
-        # Store results for this window
-        results.append({
+        # optionally include flexibility
+        if include_flexibility:
+            # fisher z transform = hyperbolic arctangent of correlation coefficients
+            correlations_z_transformed = np.arctanh(correlations)
+            avg_z_transformed_corr = np.mean(correlations_z_transformed)
+            var_z_transformed_corr = np.var(correlations_z_transformed)
+
+        result = {
             'start_idx': start,
-            'center_idx': start + window_size//2,
+            'center_idx': start + window_size // 2,
             'r_max': r_max,
             'tau_max': tau_max,
             'correlations': correlations
-        })
+        }
+        if include_flexibility:
+            result.update({
+                'avg_z_transformed_corr': avg_z_transformed_corr,
+                'var_z_transformed_corr': var_z_transformed_corr
+            })
+        results.append(result)
 
     return results
+
 
 def standard_cross_correlation(x, y, max_lag, absolute=False):
     """
@@ -85,7 +104,7 @@ def standard_cross_correlation(x, y, max_lag, absolute=False):
         correlations (np.ndarray): Array of cross-correlation values for all lags.
     """
     n = len(x)
-    
+
     # Ensure inputs are numpy arrays
     x = np.asarray(x)
     y = np.asarray(y)
@@ -104,7 +123,8 @@ def standard_cross_correlation(x, y, max_lag, absolute=False):
             corr = np.mean(x[lag:] * y[:-lag])
         else:
             corr = np.mean(x * y)
-        if absolute: corr = np.abs(corr)
+        if absolute:
+            corr = np.abs(corr)
         correlations.append(corr)
         lags.append(lag)
 
