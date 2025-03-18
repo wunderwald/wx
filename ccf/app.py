@@ -305,9 +305,8 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
 def on_change_random_pair_analysis(*args):
     print("TODO - random pair analysis not implemented yet")
 
-# stability analysis toggle
-def on_change_flexibility(*args):
-    print("TODO - stability / zscore not implemented yet")
+# flexibility analysis toggle
+def on_change_flexibility(*args): return
 
 # ---------------
 # EXPORT HANDLERS
