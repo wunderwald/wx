@@ -574,22 +574,19 @@ group_main.pack(pady=10, padx=20)
 # plot group
 group_plot = tk.CTkFrame(group_main)
 group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='n')
-# parameter group
-group_parameter_settings = tk.CTkFrame(group_main)
-group_parameter_settings.grid(row=0, column=1, pady=10, padx=20)
+# Create tabs
+group_params_tabview = tk.CTkTabview(group_main)
+group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
 
 
 # -------------------
 # GUI PARAMETER GROUP
 # -------------------
-# Create tabs
-tabview = tk.CTkTabview(group_parameter_settings)
-tabview.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 
 # Add tabs
-tab_input_data = tabview.add("Input Data & Data Type")
-tab_correlation = tabview.add("Correlation & Visualisation")
-tab_export_batch = tabview.add("Export & Batch")
+tab_input_data = group_params_tabview.add("Input Data")
+tab_correlation = group_params_tabview.add("Correlation & Visualisation")
+tab_export_batch = group_params_tabview.add("Export & Batch")
 
 # INPUT DATA & DATA TYPE
 subgroup_input_data = tk.CTkFrame(tab_input_data)
