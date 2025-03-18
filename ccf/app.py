@@ -582,8 +582,17 @@ group_parameter_settings.grid(row=0, column=1, pady=10, padx=20)
 # -------------------
 # GUI PARAMETER GROUP
 # -------------------
-# INPUT DATA
-subgroup_input_data = tk.CTkFrame(group_parameter_settings)
+# Create tabs
+tabview = tk.CTkTabview(group_parameter_settings)
+tabview.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+
+# Add tabs
+tab_input_data = tabview.add("Input Data & Data Type")
+tab_correlation = tabview.add("Correlation & Visualisation")
+tab_export_batch = tabview.add("Export & Batch")
+
+# INPUT DATA & DATA TYPE
+subgroup_input_data = tk.CTkFrame(tab_input_data)
 subgroup_input_data.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_input_data = tk.CTkLabel(subgroup_input_data, text="Input Data", font=("Arial", 20, "bold"))
@@ -608,8 +617,7 @@ dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -
 dropdown_select_column_b.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 error_label_input_data = tk.CTkLabel(subgroup_input_data, text='Data is invalid.', text_color='red') # initially hidden
 
-# DATA TYPE
-subgroup_data_type = tk.CTkFrame(group_parameter_settings)
+subgroup_data_type = tk.CTkFrame(tab_input_data)
 subgroup_data_type.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_data_type = tk.CTkLabel(subgroup_data_type, text="Data Type", font=("Arial", 20, "bold"))
@@ -619,9 +627,9 @@ checkbox_is_ibi_data.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 checkbox_is_eda_data = tk.CTkCheckBox(subgroup_data_type, text='EDA', variable=val_checkbox_EDA, command=on_is_eda_change)
 checkbox_is_eda_data.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 
-# CORRELATION
-subgroup_corr_settings = tk.CTkFrame(group_parameter_settings)
-subgroup_corr_settings.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+# CORRELATION & VISUALISATION
+subgroup_corr_settings = tk.CTkFrame(tab_correlation)
+subgroup_corr_settings.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_corr_settings = tk.CTkLabel(subgroup_corr_settings, text="Correlation Settings", font=("Arial", 20, "bold"))
 label_corr_settings.grid(row=0, column=0, columnspan=2, pady=20, padx=10, sticky='w')
@@ -668,8 +676,8 @@ checkbox_absolute_corr_sxc = tk.CTkCheckBox(subgroup_standard_xcorr_parameters, 
 checkbox_absolute_corr_sxc.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
 # VISUALISATION
-subgroup_vis = tk.CTkFrame(group_parameter_settings)
-subgroup_vis.grid(row=3, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+subgroup_vis = tk.CTkFrame(tab_correlation)
+subgroup_vis.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_vis_settings = tk.CTkLabel(subgroup_vis, text="Visualisation", font=("Arial", 20, "bold"))
 label_vis_settings.grid(row=0, column=0, columnspan=2, pady=10, padx=10, sticky='w')
@@ -681,9 +689,9 @@ checkbox_use_tscl_index.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 checkbox_use_tscl_center = tk.CTkCheckBox(subgroup_vis, text='Window Center Time', variable=val_checkbox_tscl_center, command=on_use_tscl_center_change)
 checkbox_use_tscl_center.grid(row=2, column=1, sticky="w", padx=10, pady=5)
 
-# EXPORT
-subgroup_export = tk.CTkFrame(group_parameter_settings)
-subgroup_export.grid(row=4, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+# EXPORT & BATCH
+subgroup_export = tk.CTkFrame(tab_export_batch)
+subgroup_export.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_corr_settings = tk.CTkLabel(subgroup_export, text="Export", font=("Arial", 20, "bold"))
 label_corr_settings.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
@@ -695,9 +703,8 @@ button_export_data.grid(row=1, column=0, padx=10, pady=10)
 button_export_plot = tk.CTkButton(subsubgroup_export_buttons, text='Export Plots', command=export_plot)
 button_export_plot.grid(row=1, column=1, padx=10, pady=10)
 
-# BATCH PROCESSING
-subgroup_batch = tk.CTkFrame(group_parameter_settings)
-subgroup_batch.grid(row=5, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+subgroup_batch = tk.CTkFrame(tab_export_batch)
+subgroup_batch.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
 label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial", 20, "bold"))
 label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
