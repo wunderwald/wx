@@ -84,6 +84,10 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
     except Exception as e:
         print(f"! {dyad_folder}: {e}")
 
+def random_pair_analysis(params):
+    # TODO: run random pair analysis
+    pass
+
 def batch_process(params):
     """
     Processes a batch of dyad data files, performs cross-correlation analysis, and exports the results.
@@ -106,6 +110,8 @@ def batch_process(params):
             - max_lag_sxc (int): Maximum lag for standard cross-correlation.
             - checkbox_absolute_corr_sxc (bool): If True, use absolute values for standard cross-correlation.
             - checkbox_EDA (bool): If True, indicates that EDA data is being processed.
+            - include_flexibility (bool): If True, include flexibility (measured as fisher z-transformed average wcc and variance) in the analysis.
+            - include_random_pair (bool): If True, include random pair analysis in the output.
     Returns:
         None
     """
@@ -122,3 +128,7 @@ def batch_process(params):
     dyad_folders = [f for f in os.listdir(batch_input_folder) if os.path.isdir(os.path.join(batch_input_folder, f))]
     for dyad_folder in dyad_folders:
         _process_dyad(batch_input_folder, dyad_folder, output_dir, params)
+
+    # random pair analysis
+    if params['include_random_pair']:
+        random_pair_analysis(params)

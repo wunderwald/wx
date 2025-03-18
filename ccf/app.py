@@ -154,7 +154,7 @@ val_batch_output_folder = tk.StringVar(value='')
 val_batch_processing_is_ready = tk.BooleanVar(value=False)
 val_batch_processing_info_text = tk.StringVar(value='Not ready.')
 val_checkbox_random_pair_analysis = tk.BooleanVar(value=False)
-val_checkbox_stability_z_score = tk.BooleanVar(value=False)
+val_checkbox_flexibility = tk.BooleanVar(value=False)
 
 # set up data containers
 dat_plot_data = {
@@ -306,7 +306,7 @@ def on_change_random_pair_analysis(*args):
     print("TODO - random pair analysis not implemented yet")
 
 # stability analysis toggle
-def on_change_stability_z_score(*args):
+def on_change_flexibility(*args):
     print("TODO - stability / zscore not implemented yet")
 
 # ---------------
@@ -567,6 +567,8 @@ def run_batch_process():
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_IBI': val_checkbox_IBI.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
+        'include_flexibility': val_checkbox_flexibility.get(),
+        'include_random_pair': val_checkbox_random_pair.get(),
     }
     batch_process(params)
 
@@ -725,8 +727,8 @@ button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select output fold
 button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=6, column=0, padx=10, sticky='w')
-checkbox_stability_z_score = tk.CTkCheckBox(subgroup_batch, text='Include stability / z-score', variable=val_checkbox_stability_z_score, command=on_change_stability_z_score, state="disabled")
-checkbox_stability_z_score.grid(row=7, column=0, sticky="w", padx=10, pady=10)
+checkbox_flexibility = tk.CTkCheckBox(subgroup_batch, text='Include stability / z-score', variable=val_checkbox_flexibility, command=on_change_flexibility, state="disabled")
+checkbox_flexibility.grid(row=7, column=0, sticky="w", padx=10, pady=10)
 checkbox_random_pair_analysis = tk.CTkCheckBox(subgroup_batch, text='Include random pair analysis', variable=val_checkbox_random_pair_analysis, command=on_change_random_pair_analysis, state="disabled")
 checkbox_random_pair_analysis.grid(row=8, column=0, sticky="w", padx=10, pady=10)
 button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled")
