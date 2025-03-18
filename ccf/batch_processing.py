@@ -41,7 +41,8 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
             max_lag = params['max_lag']
             absolute_values = params['checkbox_absolute_corr']
             average_windows = params['checkbox_average_windows']
-            corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
+            flexibility = params['include_flexibility']
+            corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows, include_flexibility=flexibility)
             # export
             export_params = {
                 'selected_dyad_dir': dyad_folder,

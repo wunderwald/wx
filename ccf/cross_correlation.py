@@ -1,6 +1,6 @@
 import numpy as np
 
-def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False):
+def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False, include_flexibility=False):
     """
     Compute windowed cross-correlation between two time series.
 
@@ -12,7 +12,8 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         max_lag (int): Maximum lag to compute cross-correlation.
         absolute (bool): Calculate abs of correlation values.
         average_windows (bool): Calculate per-window averages (for consistency, results will be stored for each lag).
-
+        include_flexibility (bool): Include flexibility analysis in output data. If true, for each window, fisher z-transformed average correlation and variance are calculated.
+        
     Returns:
         results (list of dict): A list containing the results for each window. 
             Each result is a dictionary with keys:
@@ -21,6 +22,8 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
                 - 'r_max': Peak cross-correlation value in the window.
                 - 'tau_max': Lag at which the peak correlation occurs.
                 - 'correlations': Array of cross-correlation values for all lags.
+                - 'avg_corr_z-transformed': Fisher z-transformed average correlation value in window (if include_flexibility is True).
+                - 'var_z-transformed': Fisher z-transformed variance of correlation values in window (if include_flexibility is True).
     """
     n = len(x)
     results = []
