@@ -2,7 +2,7 @@ import os
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, plot_init, update_sxcorr_plots, update_wxcorr_plots
+from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
 from signal_processing import preprocess_dyad
@@ -150,6 +150,8 @@ val_selected_column_b = tk.StringVar(value='- None -')
 val_checkbox_data_has_headers = tk.BooleanVar(value=True)
 val_batch_input_folder = tk.StringVar(value='')
 val_batch_output_folder = tk.StringVar(value='')
+val_batch_processing_is_ready = tk.BooleanVar(value=False) # TODO
+val_batch_processing_is_running = tk.BooleanVar(value=False) # TODO
 
 # set up data containers
 dat_plot_data = {
@@ -426,10 +428,13 @@ def update_column_names():
 
 def preprocess_data():
     if not val_selected_sheet.get() or val_selected_sheet.get() == '- None -':
+        val_INPUT_DATA_VALID.set(False)
         return
     if not val_selected_column_a.get() or val_selected_column_a.get() == '- None -':
+        val_INPUT_DATA_VALID.set(False)
         return
     if not val_selected_column_b.get() or val_selected_column_b.get() == '- None -':
+        val_INPUT_DATA_VALID.set(False)
         return
     # store selected columns as raw data
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
@@ -521,8 +526,21 @@ def open_batch_input_folder():
 # BATCH PROCESSING
 # ----------------
 
+# dynamically determine ready state
+def batch_processing_is_ready():
+    ready = val_INPUT_DATA_VALID.get() and val_CORRELATION_SETTINGS_VALID.get() and val_CORRELATION_SETTINGS_VALID_SXC.get()
+    val_batch_processing_is_ready.set(ready)
+val_INPUT_DATA_VALID.trace_add('write', batch_processing_is_ready)
+val_CORRELATION_SETTINGS_VALID.trace_add('write', batch_processing_is_ready)
+val_CORRELATION_SETTINGS_VALID_SXC.trace_add('write', batch_processing_is_ready)
+
 # batch process data forwarding
 def run_batch_process():
+    # update ui state
+    val_batch_processing_is_running.set(True)
+    val_batch_processing_is_ready.set(False)
+
+    # process batch
     params = {
         'batch_input_folder': val_batch_input_folder.get(),
         'output_dir': val_batch_output_folder.get(),
@@ -540,6 +558,10 @@ def run_batch_process():
         'checkbox_EDA': val_checkbox_EDA.get(),
     }
     batch_process(params)
+
+    # update ui state
+    val_batch_processing_is_running.set(False)
+    val_batch_processing_is_ready.set(True)
 
 # ---------------
 # MAIN APP LAYOUT
