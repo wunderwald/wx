@@ -302,8 +302,7 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
     dropdown_state_var.set(new_options[0])  
 
 # random pair analysis toggle
-def on_change_random_pair_analysis(*args):
-    print("TODO - random pair analysis not implemented yet")
+def on_change_random_pair_analysis(*args): return
 
 # flexibility analysis toggle
 def on_change_flexibility(*args): return
@@ -327,6 +326,7 @@ def _export_wxcorr_data(file_path):
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
         'flexibility': val_checkbox_flexibility.get(),
+        'random_pair': val_checkbox_random_pair.get(),  # TODO implement export
     }
     export_wxcorr_data(file_path, params)
 

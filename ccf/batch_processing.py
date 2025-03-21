@@ -3,16 +3,39 @@ import xlsx
 from signal_processing import preprocess_dyad
 from export import export_sxcorr_data, export_wxcorr_data
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
+import random
 
-def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
-    # get list of xlsx files in dyad folder
-    xlsx_files = [f for f in os.listdir(os.path.join(batch_input_folder, dyad_folder)) if f.endswith('.xlsx')]
-    if len(xlsx_files) < 2:
-        print(f"! {dyad_folder}-  ")
-        return
-    # select the two files of the dyad
-    file_path_a = os.path.join(batch_input_folder, dyad_folder, xlsx_files[0])
-    file_path_b = os.path.join(batch_input_folder, dyad_folder, xlsx_files[1])
+def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
+    """
+    Processes dyadic data from Excel files, performs cross-correlation analysis, and optionally exports the results.
+    Args:
+        file_path_a (str): Path to the first Excel file.
+        file_path_b (str): Path to the second Excel file.
+        output_dir (str): Directory where the output files will be saved.
+        params (dict): Dictionary of parameters for processing and analysis.
+            - 'selected_sheet' (str): Name of the sheet to be selected from the Excel files.
+            - 'workbook_data' (dict): Dictionary containing workbook data parameters.
+                - 'has_headers' (bool): Indicates if the workbook has headers.
+                - 'selected_column_a' (str): Name of the column to be selected from the first Excel file.
+                - 'selected_column_b' (str): Name of the column to be selected from the second Excel file.
+            - 'checkbox_IBI' (bool): Indicates if the signal type is IBI_MS.
+            - 'checkbox_windowed_xcorr' (bool): Indicates if windowed cross-correlation should be performed.
+            - 'window_size' (int): Size of the window for windowed cross-correlation.
+            - 'step_size' (int): Step size for windowed cross-correlation.
+            - 'max_lag' (int): Maximum lag for windowed cross-correlation.
+            - 'checkbox_absolute_corr' (bool): Indicates if absolute values should be used for correlation.
+            - 'checkbox_average_windows' (bool): Indicates if windows should be averaged.
+            - 'include_flexibility_wxc' (bool): Indicates if flexibility should be included in windowed cross-correlation.
+            - 'max_lag_sxc' (int): Maximum lag for standard cross-correlation.
+            - 'checkbox_absolute_corr_sxc' (bool): Indicates if absolute values should be used for standard cross-correlation.
+            - 'checkbox_EDA' (bool): Indicates if the signal type is EDA.
+        export (bool, optional): If True, the results will be exported to an Excel file. Defaults to True.
+    Returns:
+        dict: Correlation data resulting from the analysis.
+    Raises:
+        Exception: If an error occurs during processing, it will be printed.
+    """
+    
     # read data to workbooks
     wb_a = xlsx.read_xlsx(file_path_a)
     wb_b = xlsx.read_xlsx(file_path_b)
@@ -45,9 +68,9 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
             corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows, include_flexibility_wxc=flexibility)
             # export
             export_params = {
-                'selected_dyad_dir': dyad_folder,
-                'selected_file_a': file_path_a,
-                'selected_file_b': file_path_b,
+                'selected_dyad_dir': dyad_dir,
+                'input_file_a': file_path_a,
+                'input_file_b': file_path_b,
                 'checkbox_EDA': params['checkbox_EDA'],
                 'window_size': params['window_size'],
                 'max_lag': params['max_lag'],
@@ -59,9 +82,13 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
                 'signal_b': signal_b,
                 'wxcorr': corr_data
             }
-            output_file_name = f"{dyad_folder}_wxcorr.xlsx"
-            output_file_path = os.path.join(output_dir, output_file_name)
-            export_wxcorr_data(output_file_path, export_params)
+            
+            # export / return data
+            if export:
+                output_file_name = f"{os.path.basename(file_path_a).split('.')[0]}_{os.path.basename(file_path_b).split('.')[0]}_wxcorr.xlsx"
+                output_file_path = os.path.join(output_dir, output_file_name)
+                export_wxcorr_data(output_file_path, export_params)
+            return corr_data
         else:
             # Standard XCorr
             max_lag = params['max_lag_sxc']
@@ -69,9 +96,9 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
             corr_data = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
             # export
             export_params = {
-                'selected_dyad_dir': dyad_folder,
-                'selected_file_a': file_path_a,
-                'selected_file_b': file_path_b,
+                'selected_dyad_dir': dyad_dir,
+                'input_file_a': file_path_a,
+                'input_file_b': file_path_b,
                 'checkbox_EDA': params['checkbox_EDA'],
                 'max_lag': params['max_lag_sxc'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr_sxc'],
@@ -80,14 +107,30 @@ def _process_dyad(batch_input_folder, dyad_folder, output_dir, params):
                 'signal_b': signal_b,
                 'sxcorr': corr_data
             }
-            output_file_path = os.path.join(output_dir, output_file_name)
-            export_sxcorr_data(output_file_path, export_params)
+            # export / return data
+            if export:
+                output_file_name = f"{os.path.basename(file_path_a).split('.')[0]}_{os.path.basename(file_path_b).split('.')[0]}_sxcorr.xlsx"
+                output_file_path = os.path.join(output_dir, output_file_name)
+                export_sxcorr_data(output_file_path, export_params)
+            return corr_data
     except Exception as e:
-        print(f"! {dyad_folder}: {e}")
+        print(f"! {os.path.basename(file_path_a)}_{os.path.basename(file_path_b)}: {e}")
 
-def random_pair_analysis(params):
-    # TODO: run random pair analysis
-    pass
+def random_pair_analysis(params, input_dir, output_dir, random_pair_count=1000):
+    # get input data
+    dyad_folders = [f for f in os.listdir(input_dir) if os.path.isdir(os.path.join(input_dir, f))]
+    xlsx_file_paths = [os.path.join(input_dir, dyad_folder, f) 
+                       for dyad_folder in dyad_folders 
+                       for f in os.listdir(os.path.join(input_dir, dyad_folder)) 
+                       if f.endswith('.xlsx')]
+    # make random_pair_count random pairs of xlsx files
+    random_pairs = []
+    for _ in range(random_pair_count):
+        pair = random.sample(xlsx_file_paths, 2)
+        random_pairs.append(pair)
+
+    #
+    
 
 def batch_process(params):
     """
@@ -128,8 +171,13 @@ def batch_process(params):
     # process dyads in folder
     dyad_folders = [f for f in os.listdir(batch_input_folder) if os.path.isdir(os.path.join(batch_input_folder, f))]
     for dyad_folder in dyad_folders:
-        _process_dyad(batch_input_folder, dyad_folder, output_dir, params)
+        dyad_path = os.path.join(batch_input_folder, dyad_folder)
+        xlsx_files = [f for f in os.listdir(dyad_path) if f.endswith('.xlsx')]
+        if len(xlsx_files) >= 2:
+            file_path_a = os.path.join(dyad_path, xlsx_files[0])
+            file_path_b = os.path.join(dyad_path, xlsx_files[1])
+            _process_dyad(file_path_a, file_path_b, output_dir, params, dyad_dir=dyad_path)
 
     # random pair analysis
     if params['include_random_pair']:
-        random_pair_analysis(params)
+        random_pair_analysis(params, batch_input_folder, output_dir)
