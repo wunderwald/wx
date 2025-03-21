@@ -6,6 +6,7 @@ from cross_correlation import windowed_cross_correlation, standard_cross_correla
 import random
 import numpy as np
 from datetime import datetime
+from scipy.stats import ttest_ind
 
 def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
     """
@@ -134,20 +135,48 @@ def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): #
         pair = random.sample(xlsx_file_paths, 2)
         random_pairs.append(pair)
 
+    # read correlation type
+    is_windowed_corr = params['checkbox_windowed_xcorr']
+
     # process random pairs
-    correlations_rp = []
+    all_correlations_rp = []
     for pair in random_pairs:
         file_path_a, file_path_b = pair
         corr_data = _process_dyad(file_path_a, file_path_b, output_dir, params, export=False)
         if not corr_data: continue
-        
-        correlations_rp.append(corr_data)
+        if is_windowed_corr:
+            all_correlations_rp.append([val for d in corr_data for val in d['correlations']])
+        else:
+            all_correlations_rp.append(corr_data['corr'])
 
     # calculate averages of all correlations
-    average_correlations_rp = [np.mean(corr.flatten()) for corr in correlations_rp]
-    print(average_correlations_rp)
+    average_correlations_rp = [np.mean(c) for c in all_correlations_rp]
 
-    # read 
+    # process all real dyads
+    all_correlations_real = []
+    for dyad_folder in dyad_folders:
+        dyad_path = os.path.join(input_dir, dyad_folder)
+        xlsx_files = [f for f in os.listdir(dyad_path) if f.endswith('.xlsx')]
+        if len(xlsx_files) >= 2:
+            file_path_a = os.path.join(dyad_path, xlsx_files[0])
+            file_path_b = os.path.join(dyad_path, xlsx_files[1])
+            corr_data = _process_dyad(file_path_a, file_path_b, output_dir, params, export=False)
+            if not corr_data: continue
+            if is_windowed_corr:
+                all_correlations_real.append([val for d in corr_data for val in d['correlations']])
+            else:
+                all_correlations_real.append(corr_data['corr'])
+
+    # calculate averages of all real dyad correlations
+    average_correlations_real = [np.mean(c) for c in all_correlations_real]
+
+    # run Welch's t-test
+    t_stat, p_value = ttest_ind(average_correlations_rp, average_correlations_real, equal_var=False)
+
+    # print results
+    print(f"Welch's t-test results: t-statistic = {t_stat}, p-value = {p_value}")
+
+    return t_stat, p_value
 
 
 def batch_process(params):
