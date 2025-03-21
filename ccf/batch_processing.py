@@ -4,6 +4,7 @@ from signal_processing import preprocess_dyad
 from export import export_sxcorr_data, export_wxcorr_data
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import random
+import numpy as np
 
 def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
     """
@@ -25,7 +26,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             - 'max_lag' (int): Maximum lag for windowed cross-correlation.
             - 'checkbox_absolute_corr' (bool): Indicates if absolute values should be used for correlation.
             - 'checkbox_average_windows' (bool): Indicates if windows should be averaged.
-            - 'include_flexibility_wxc' (bool): Indicates if flexibility should be included in windowed cross-correlation.
+            - 'include_flexibility' (bool): Indicates if flexibility should be included in windowed cross-correlation.
             - 'max_lag_sxc' (int): Maximum lag for standard cross-correlation.
             - 'checkbox_absolute_corr_sxc' (bool): Indicates if absolute values should be used for standard cross-correlation.
             - 'checkbox_EDA' (bool): Indicates if the signal type is EDA.
@@ -64,8 +65,8 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             max_lag = params['max_lag']
             absolute_values = params['checkbox_absolute_corr']
             average_windows = params['checkbox_average_windows']
-            flexibility = params['include_flexibility_wxc']
-            corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows, include_flexibility_wxc=flexibility)
+            flexibility = params['include_flexibility']
+            corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows, include_flexibility=flexibility)
             # export
             export_params = {
                 'selected_dyad_dir': dyad_dir,
@@ -78,6 +79,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'checkbox_absolute_corr': params['checkbox_absolute_corr'],
                 'checkbox_average_windows': params['checkbox_average_windows'],
                 'checkbox_IBI': params['checkbox_IBI'],
+                'flexibility': params['include_flexibility'],
                 'signal_a': signal_a,
                 'signal_b': signal_b,
                 'wxcorr': corr_data
@@ -103,6 +105,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'max_lag': params['max_lag_sxc'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr_sxc'],
                 'checkbox_IBI': params['checkbox_IBI'],
+                'flexibility': params['include_flexibility'],
                 'signal_a': signal_a,
                 'signal_b': signal_b,
                 'sxcorr': corr_data
@@ -114,9 +117,10 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 export_sxcorr_data(output_file_path, export_params)
             return corr_data
     except Exception as e:
-        print(f"! {os.path.basename(file_path_a)}_{os.path.basename(file_path_b)}: {e}")
+        print(f"! {os.path.basename(file_path_a)}, {os.path.basename(file_path_b)}: {e}")
+        raise(e)
 
-def random_pair_analysis(params, input_dir, output_dir, random_pair_count=1000):
+def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): # tot set n=1000
     # get input data
     dyad_folders = [f for f in os.listdir(input_dir) if os.path.isdir(os.path.join(input_dir, f))]
     xlsx_file_paths = [os.path.join(input_dir, dyad_folder, f) 
@@ -129,8 +133,21 @@ def random_pair_analysis(params, input_dir, output_dir, random_pair_count=1000):
         pair = random.sample(xlsx_file_paths, 2)
         random_pairs.append(pair)
 
-    #
-    
+    # process random pairs
+    correlations = []
+    for pair in random_pairs:
+        file_path_a, file_path_b = pair
+        corr_data = _process_dyad(file_path_a, file_path_b, output_dir, params, export=False)
+        if not corr_data: continue
+        correlations.append(corr_data)
+    correlations_rp = np.array(correlations)
+
+    # calculate averages of all correlations
+    average_correlations_rp = [np.mean(corr.flatten()) for corr in correlations_rp]
+    print(average_correlations_rp)
+
+    # read 
+
 
 def batch_process(params):
     """
@@ -154,7 +171,7 @@ def batch_process(params):
             - max_lag_sxc (int): Maximum lag for standard cross-correlation.
             - checkbox_absolute_corr_sxc (bool): If True, use absolute values for standard cross-correlation.
             - checkbox_EDA (bool): If True, indicates that EDA data is being processed.
-            - include_flexibility_wxc (bool): If True, include flexibility (measured as fisher z-transformed average wcc and variance) in the windowed cross-correlation data.
+            - include_flexibility (bool): If True, include flexibility (measured as fisher z-transformed average wcc and variance) in the windowed cross-correlation data.
             - include_random_pair (bool): If True, include random pair analysis in the output.
     Returns:
         None
