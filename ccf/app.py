@@ -302,8 +302,7 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
     dropdown_state_var.set(new_options[0])  
 
 # random pair analysis toggle
-def on_change_random_pair_analysis(*args):
-    print("TODO - random pair analysis not implemented yet")
+def on_change_random_pair_analysis(*args): return
 
 # flexibility analysis toggle
 def on_change_flexibility(*args): return
@@ -314,8 +313,8 @@ def on_change_flexibility(*args): return
 def _export_wxcorr_data(file_path):
     params = {
         'selected_dyad_dir': val_selected_dyad_dir.get(),
-        'selected_file_a': val_selected_file_a.get(),
-        'selected_file_b': val_selected_file_b.get(),
+        'input_file_a': val_selected_file_a.get(),
+        'input_file_b': val_selected_file_b.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
         'window_size': val_window_size.get(),
         'max_lag': val_max_lag.get(),
@@ -327,14 +326,15 @@ def _export_wxcorr_data(file_path):
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
         'flexibility': val_checkbox_flexibility.get(),
+        'random_pair': val_checkbox_random_pair.get(),  # TODO implement export
     }
     export_wxcorr_data(file_path, params)
 
 def _export_sxcorr_data(file_path):
     params = {
         'selected_dyad_dir': val_selected_dyad_dir.get(),
-        'selected_file_a': val_selected_file_a.get(),
-        'selected_file_b': val_selected_file_b.get(),
+        'input_file_a': val_selected_file_a.get(),
+        'input_file_b': val_selected_file_b.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
         'max_lag': val_max_lag_sxc.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr_sxc.get(),
@@ -567,7 +567,7 @@ def run_batch_process():
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_IBI': val_checkbox_IBI.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
-        'include_flexibility_wxc': val_checkbox_flexibility.get(),
+        'include_flexibility': val_checkbox_flexibility.get(),
         'include_random_pair': val_checkbox_random_pair.get(),
     }
     batch_process(params)
@@ -730,7 +730,7 @@ button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=6, column=0, padx=10, sticky='w')
 
-checkbox_random_pair_analysis = tk.CTkCheckBox(subgroup_batch, text='Include random pair analysis', variable=val_checkbox_random_pair, command=on_change_random_pair_analysis, state="disabled")
+checkbox_random_pair_analysis = tk.CTkCheckBox(subgroup_batch, text='Include random pair analysis', variable=val_checkbox_random_pair, command=on_change_random_pair_analysis)
 checkbox_random_pair_analysis.grid(row=8, column=0, sticky="w", padx=10, pady=10)
 button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled")
 button_batch.grid(row=9, column=0, padx=10, pady=10, sticky='w')

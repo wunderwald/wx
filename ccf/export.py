@@ -5,8 +5,8 @@ def export_wxcorr_data(file_path, params):
     metadata = {
         'xcorr type': "windowed cross-correlation",
         'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
-        'Input file A': f"{os.path.basename(params['selected_file_a'])}",
-        'Input file B': f"{os.path.basename(params['selected_file_b'])}",
+        'Input file A': f"{os.path.basename(params['input_file_a'])}",
+        'Input file B': f"{os.path.basename(params['input_file_b'])}",
         'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
         'Window size': params['window_size'],
         'Max lag': params['max_lag'],
@@ -37,8 +37,8 @@ def export_sxcorr_data(file_path, params):
     metadata = {
         'xcorr type': "(standard) cross-correlation",
         'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
-        'Input file A': f"{os.path.basename(params['selected_file_a'])}",
-        'Input file B': f"{os.path.basename(params['selected_file_b'])}",
+        'Input file A': f"{os.path.basename(params['input_file_a'])}",
+        'Input file B': f"{os.path.basename(params['input_file_b'])}",
         'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
         'Max lag': params['max_lag'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
