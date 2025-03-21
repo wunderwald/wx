@@ -135,13 +135,13 @@ def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): #
         random_pairs.append(pair)
 
     # process random pairs
-    correlations = []
+    correlations_rp = []
     for pair in random_pairs:
         file_path_a, file_path_b = pair
         corr_data = _process_dyad(file_path_a, file_path_b, output_dir, params, export=False)
         if not corr_data: continue
-        correlations.append(corr_data)
-    correlations_rp = np.array(correlations)
+        
+        correlations_rp.append(corr_data)
 
     # calculate averages of all correlations
     average_correlations_rp = [np.mean(corr.flatten()) for corr in correlations_rp]

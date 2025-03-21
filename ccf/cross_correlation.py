@@ -101,7 +101,9 @@ def standard_cross_correlation(x, y, max_lag, absolute=False):
         absolute (bool): Calculate abs of correlation values.
 
     Returns:
-        correlations (np.ndarray): Array of cross-correlation values for all lags.
+        dict: A dictionary containing:
+            - 'corr' (np.ndarray): Array of cross-correlation values for all lags.
+            - 'lags' (np.ndarray): Array of lag values.
     """
     n = len(x)
 
