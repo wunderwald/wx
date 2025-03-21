@@ -341,7 +341,8 @@ def _export_sxcorr_data(file_path):
         'checkbox_IBI': val_checkbox_IBI.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
-        'sxcorr': dat_correlation_data["sxcorr"]
+        'sxcorr': dat_correlation_data["sxcorr"],
+        'random_pair': val_checkbox_random_pair.get(),  # TODO implement export
     }
     export_sxcorr_data(file_path, params)
 
