@@ -7,7 +7,7 @@ from cross_correlation import windowed_cross_correlation, standard_cross_correla
 import xlsx
 from signal_processing import preprocess_dyad
 from batch_processing import batch_process, random_pair_analysis
-from export import export_sxcorr_data, export_wxcorr_data
+from export import export_sxcorr_data, export_wxcorr_data, export_random_pair_data
 import utils
 
 # ------------------
@@ -644,12 +644,17 @@ def run_random_pair():
         input_dir=val_random_pair_input_folder.get(),
     )
 
-    print(f"t-statistic: {t_stat}, p-value: {p_value}")
-    print(f"Average correlation (random pairs): {avg_corr_rp}")
-    print(f"Average correlation (real pairs): {avg_corr_real}")
-
+    # export data
     output_file = val_random_pair_output_file.get()
-    # TODO: export 
+    export_random_pair_data(
+        file_path=output_file,
+        params=params,
+        input_dir=val_random_pair_input_folder.get(),
+        t_stat=t_stat,
+        p_value=p_value,
+        avg_corr_rp=avg_corr_rp,
+        avg_corr_real=avg_corr_real,
+    )
 
 def handle_run_random_pair_button():
     val_random_pair_is_ready.set(False)

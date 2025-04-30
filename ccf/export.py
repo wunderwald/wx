@@ -51,3 +51,38 @@ def export_sxcorr_data(file_path, params):
         'correlation': params['sxcorr']['corr'],
     }
     xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
+
+def export_random_pair_data(file_path, params, input_dir, t_stat, p_value, avg_corr_rp, avg_corr_real):
+    # collect metadata
+    is_windowed_xcorr = params['checkbox_windowed_xcorr']
+    metadata = {
+        'xcorr type': "windowed cross-correlation",
+        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Window size': params['window_size'],
+        'Max lag': params['max_lag'],
+        'Step size': params['step_size'],
+        'Absolute correlation values': params['checkbox_absolute_corr'],
+    } if is_windowed_xcorr else {
+        'xcorr type': "(standard) cross-correlation",
+        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Max lag': params['max_lag'],
+        'Absolute correlation values': params['checkbox_absolute_corr'],
+        'Input signals resampled to 5hz': params['checkbox_IBI'],
+    }
+    metadata['Input dyad directory'] = f"{input_dir}"
+
+    # collect single-value data
+    single_values = {
+        't-statistic': t_stat,
+        'p-value': p_value,
+        **metadata
+    }
+
+    # collect vector data
+    vectors = {
+        'random pair correlation': avg_corr_rp,
+        'real pair correlation': avg_corr_real,
+    }
+
+    # write to xlsx
+    xlsx.write_xlsx(vectors=vectors, single_values=single_values, output_path=file_path)
