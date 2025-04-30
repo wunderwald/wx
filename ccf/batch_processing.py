@@ -126,8 +126,7 @@ def random_pair_analysis(params, input_dir, random_pair_count=100):
     """
     Perform analysis on random pairs and real dyad correlations.
     Args:
-        params (dict): A dictionary of parameters, including:
-            - 'checkbox_windowed_xcorr' (bool): Indicates whether to use windowed cross-correlation.
+        params (dict): A dictionary of parameters, see batch_process function for details.
         input_dir (str): Path to the input directory containing dyad folders with Excel files.
         random_pair_count (int, optional): Number of random pairs to generate. Defaults to 100.
     Returns:

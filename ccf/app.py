@@ -637,6 +637,7 @@ def run_random_pair():
         'include_flexibility': val_checkbox_flexibility.get(),
     }
 
+    # run random pair analysis
     t_stat, p_value, avg_corr_rp, avg_corr_real = random_pair_analysis(
         params=params,
         random_pair_count=val_rp_n.get(),
