@@ -153,8 +153,10 @@ val_checkbox_data_has_headers = tk.BooleanVar(value=True)
 val_batch_input_folder = tk.StringVar(value='')
 val_batch_output_folder = tk.StringVar(value='')
 val_batch_processing_is_ready = tk.BooleanVar(value=False)
-val_batch_processing_info_text = tk.StringVar(value='Not ready.')
-val_checkbox_random_pair = tk.BooleanVar(value=False)
+val_rp_n_input = tk.StringVar(value="100")  
+val_rp_n = tk.IntVar(value=100)
+val_random_pair_input_folder = tk.StringVar(value='')
+val_random_pair_output_file = tk.StringVar(value='')
 
 # set up data containers
 dat_plot_data = {
@@ -301,11 +303,18 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
     dropdown.configure(values=new_options)  
     dropdown_state_var.set(new_options[0])  
 
-# random pair analysis toggle
-def on_change_random_pair_analysis(*args): return
-
 # flexibility analysis toggle
 def on_change_flexibility(*args): return
+
+# random pair N input change
+def on_rp_n_input_change(name, index, mode):
+    new_str_val = val_rp_n_input.get()
+    if new_str_val == '':
+        val_rp_n.set(0)
+    else:
+        new_val = int(new_str_val)
+        if new_val < 0: new_val = 0
+        val_rp_n.set(new_val)
 
 # ---------------
 # EXPORT HANDLERS
@@ -326,7 +335,6 @@ def _export_wxcorr_data(file_path):
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
         'flexibility': val_checkbox_flexibility.get(),
-        'random_pair': val_checkbox_random_pair.get(),  # TODO implement export
     }
     export_wxcorr_data(file_path, params)
 
@@ -342,7 +350,6 @@ def _export_sxcorr_data(file_path):
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'sxcorr': dat_correlation_data["sxcorr"],
-        'random_pair': val_checkbox_random_pair.get(),  # TODO implement export
     }
     export_sxcorr_data(file_path, params)
 
@@ -534,6 +541,22 @@ def open_batch_input_folder():
         return
     val_batch_input_folder.set(dir_path)
 
+def open_random_pair_input_dir_picker():
+    dir_path = filedialog.askdirectory(title="Select Input Folder")
+    if not dir_path:
+        return
+    val_random_pair_input_folder.set(dir_path)
+
+def open_random_pair_output_file_picker():
+    file_path = filedialog.asksaveasfilename(
+        title="Save As",
+        defaultextension=".xlsx",
+        filetypes=(("XLSX files", "*.xlsx"),)
+    )
+    if not file_path:
+        return
+    val_random_pair_output_file.set(file_path)
+
 # ----------------
 # BATCH PROCESSING
 # ----------------
@@ -569,7 +592,6 @@ def run_batch_process():
         'checkbox_IBI': val_checkbox_IBI.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
         'include_flexibility': val_checkbox_flexibility.get(),
-        'include_random_pair': val_checkbox_random_pair.get(),
     }
     batch_process(params)
 
@@ -599,7 +621,7 @@ group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
 # Add tabs
 tab_input_data = group_params_tabview.add("Input Data")
 tab_correlation = group_params_tabview.add("Correlation & Visualisation")
-tab_export_batch = group_params_tabview.add("Export & Batch")
+tab_export_batch = group_params_tabview.add("Export, Batch & RP")
 
 # INPUT DATA & DATA TYPE
 subgroup_input_data = tk.CTkFrame(tab_input_data)
@@ -702,41 +724,60 @@ checkbox_use_tscl_center = tk.CTkCheckBox(subgroup_vis, text='Window Center Time
 checkbox_use_tscl_center.grid(row=2, column=1, sticky="w", padx=10, pady=5)
 
 # EXPORT & BATCH
+# subgroup export
 subgroup_export = tk.CTkFrame(tab_export_batch)
 subgroup_export.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
-# subgroup content
 label_corr_settings = tk.CTkLabel(subgroup_export, text="Export", font=("Arial", 20, "bold"))
 label_corr_settings.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
 subsubgroup_export_buttons = tk.CTkFrame(subgroup_export)
 subsubgroup_export_buttons.grid(row=1, column=0, columnspan=2, padx=0, pady=0)
-# sub-subgroup buttons content
+# sub-subgroup buttons
 button_export_data = tk.CTkButton(subsubgroup_export_buttons, text='Export XLSX', command=export_data)
 button_export_data.grid(row=1, column=0, padx=10, pady=10)
 button_export_plot = tk.CTkButton(subsubgroup_export_buttons, text='Export Plots', command=export_plot)
 button_export_plot.grid(row=1, column=1, padx=10, pady=10)
+# subgroup batch
 subgroup_batch = tk.CTkFrame(tab_export_batch)
 subgroup_batch.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
-# subgroup content
 label_batch = tk.CTkLabel(subgroup_batch, text="Batch Processing", font=("Arial", 20, "bold"))
 label_batch.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
 info_batch = tk.CTkLabel(subgroup_batch, text="Applies the same settings to multiple dyads.")
-info_batch.grid(row=1, column=0, padx=10, sticky='w')
-button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select batch input folder', command=open_batch_input_folder)
+info_batch.grid(row=1, column=0, padx=10, sticky='w', columnspan=2)
+button_batch_input_folder = tk.CTkButton(subgroup_batch, text='Select input folder', command=open_batch_input_folder)
 button_batch_input_folder.grid(row=2, column=0, padx=10, pady=10, sticky='w')
 label_batch_input_folder = tk.CTkLabel(subgroup_batch, text="No folder selected.")
-label_batch_input_folder.grid(row=3, column=0, padx=10, sticky='w')
+label_batch_input_folder.grid(row=2, column=1, padx=10, sticky='w')
 label_batch_input_num_subdirs = tk.CTkLabel(subgroup_batch, text="No folder selected.") # row=4, initially hidden
 button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select output folder', command=open_batch_output_dir_picker)
-button_output_dir_picker.grid(row=5, column=0, padx=10, pady=10, sticky='w')
+button_output_dir_picker.grid(row=3, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
-label_output_dir.grid(row=6, column=0, padx=10, sticky='w')
+label_output_dir.grid(row=3, column=1, padx=10, sticky='w')
+button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled") #TODO: remove batch from export
+button_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
+#subgroup random pair
+handle_run_random_pair_button = lambda: print("Random pair analysis not implemented yet.") #TODO: implement random pair analysis
+subgroup_random_pair = tk.CTkFrame(tab_export_batch)
+subgroup_random_pair.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+label_random_pair = tk.CTkLabel(subgroup_random_pair, text="Random Pair Analysis", font=("Arial", 20, "bold"))
+label_random_pair.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
+button_random_pair_input_folder = tk.CTkButton(subgroup_random_pair, text='Select Input Folder', command=open_random_pair_input_dir_picker)
+button_random_pair_input_folder.grid(row=2, column=0, padx=10, pady=10, sticky='w')
+label_random_pair_input_folder = tk.CTkLabel(subgroup_random_pair, text="No folder selected.")
+label_random_pair_input_folder.grid(row=2, column=1, padx=10, sticky='w')
+button_random_pair_output_file = tk.CTkButton(subgroup_random_pair, text='Select Output File', command=open_random_pair_output_file_picker)
+button_random_pair_output_file.grid(row=3, column=0, padx=10, pady=10, sticky='w')
+label_random_pair_output_file = tk.CTkLabel(subgroup_random_pair, text="No file selected.")
+label_random_pair_output_file.grid(row=3, column=1, padx=10, sticky='w')
+label_rp_n = tk.CTkLabel(subgroup_random_pair, text="N")
+label_rp_n.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+entry_rp_n = tk.CTkEntry(subgroup_random_pair, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_rp_n_input, border_color='#777777')
+entry_rp_n.grid(row=4, column=1, sticky="w", padx=10, pady=5)
+button_random_pair = tk.CTkButton(subgroup_random_pair, text='Run rp analysis', command=handle_run_random_pair_button, state="disabled") 
+button_random_pair.grid(row=8, column=0, padx=10, pady=10, sticky='w')
 
-checkbox_random_pair_analysis = tk.CTkCheckBox(subgroup_batch, text='Include random pair analysis', variable=val_checkbox_random_pair, command=on_change_random_pair_analysis)
-checkbox_random_pair_analysis.grid(row=8, column=0, sticky="w", padx=10, pady=10)
-button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled")
-button_batch.grid(row=9, column=0, padx=10, pady=10, sticky='w')
-info_button_batch = tk.CTkLabel(subgroup_batch, textvariable=val_batch_processing_info_text, font=("Arial", 14, "bold"))
-info_button_batch.grid(row=9, column=1, padx=10, pady=10)
+
+
+
 
 # ---------------------
 # PARAMETER GUI UPDATES
@@ -857,12 +898,12 @@ def update_active_state_run_batch_button(*args):
     button_batch.configure(state="normal" if val_batch_processing_is_ready.get() else "disabled")
 val_batch_processing_is_ready.trace_add('write', update_active_state_run_batch_button)
 
-def update_info_run_batch_button(*args):
-    if val_batch_processing_is_ready.get():
-        val_batch_processing_info_text.set("Ready!")
-        return
-    val_batch_processing_info_text.set("Not ready.")
-val_batch_processing_is_ready.trace_add('write', update_info_run_batch_button)
+# random pair analysis: input chenge
+val_rp_n_input.trace_add("write", on_rp_n_input_change)
+
+# random pair file pickers: dynamic labels
+val_random_pair_input_folder.trace_add('write', lambda *args: label_random_pair_input_folder.configure(text=f"Selected: {os.path.basename(val_random_pair_input_folder.get())}" if val_random_pair_input_folder.get() else "No folder selected."))
+val_random_pair_output_file.trace_add('write', lambda *args: label_random_pair_output_file.configure(text=f"Selected: {os.path.basename(val_random_pair_output_file.get())}" if val_random_pair_output_file.get() else "No file selected."))
 
 # -------------------------
 # CORRELATION DATA HANDLING
