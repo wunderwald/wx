@@ -4,3 +4,4 @@
 *.xlsx
 /papers
 .vscode
+*.DS_Store
