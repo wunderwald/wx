@@ -122,7 +122,22 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
         print(f"! {os.path.basename(file_path_a)}, {os.path.basename(file_path_b)}: {e}")
         raise(e)
 
-def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): # tot set n=1000
+def random_pair_analysis(params, input_dir, random_pair_count=100): 
+    """
+    Perform analysis on random pairs and real dyad correlations.
+    Args:
+        params (dict): A dictionary of parameters, including:
+            - 'checkbox_windowed_xcorr' (bool): Indicates whether to use windowed cross-correlation.
+        input_dir (str): Path to the input directory containing dyad folders with Excel files.
+        random_pair_count (int, optional): Number of random pairs to generate. Defaults to 100.
+    Returns:
+        tuple: A tuple containing:
+            - t_stat (float): The t-statistic from Welch's t-test.
+            - p_value (float): The p-value from Welch's t-test.
+            - average_correlations_rp (list): List of average correlations for random pairs.
+            - average_correlations_real (list): List of average correlations for real dyads.
+    """
+
     # get input data
     dyad_folders = [f for f in os.listdir(input_dir) if os.path.isdir(os.path.join(input_dir, f))]
     xlsx_file_paths = [os.path.join(input_dir, dyad_folder, f) 
@@ -142,7 +157,7 @@ def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): #
     all_correlations_rp = []
     for pair in random_pairs:
         file_path_a, file_path_b = pair
-        corr_data = _process_dyad(file_path_a, file_path_b, output_dir, params, export=False)
+        corr_data = _process_dyad(file_path_a, file_path_b, None, params, export=False)
         if not corr_data: continue
         if is_windowed_corr:
             all_correlations_rp.append([val for d in corr_data for val in d['correlations']])
@@ -160,7 +175,13 @@ def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): #
         if len(xlsx_files) >= 2:
             file_path_a = os.path.join(dyad_path, xlsx_files[0])
             file_path_b = os.path.join(dyad_path, xlsx_files[1])
-            corr_data = _process_dyad(file_path_a, file_path_b, output_dir, params, export=False)
+            corr_data = _process_dyad(
+                file_path_a=file_path_a, 
+                file_path_b=file_path_b, 
+                output_dir=None, 
+                params=params, 
+                export=False
+            )
             if not corr_data: continue
             if is_windowed_corr:
                 all_correlations_real.append([val for d in corr_data for val in d['correlations']])
@@ -173,10 +194,7 @@ def random_pair_analysis(params, input_dir, output_dir, random_pair_count=50): #
     # run Welch's t-test
     t_stat, p_value = ttest_ind(average_correlations_rp, average_correlations_real, equal_var=False)
 
-    # print results
-    print(f"Welch's t-test results: t-statistic = {t_stat}, p-value = {p_value}")
-
-    return t_stat, p_value
+    return t_stat, p_value, average_correlations_rp, average_correlations_real
 
 
 def batch_process(params):
@@ -202,7 +220,6 @@ def batch_process(params):
             - checkbox_absolute_corr_sxc (bool): If True, use absolute values for standard cross-correlation.
             - checkbox_EDA (bool): If True, indicates that EDA data is being processed.
             - include_flexibility (bool): If True, include flexibility (measured as fisher z-transformed average wcc and variance) in the windowed cross-correlation data.
-            - include_random_pair (bool): If True, include random pair analysis in the output.
     Returns:
         None
     """
@@ -224,7 +241,3 @@ def batch_process(params):
             file_path_a = os.path.join(dyad_path, xlsx_files[0])
             file_path_b = os.path.join(dyad_path, xlsx_files[1])
             _process_dyad(file_path_a, file_path_b, output_dir, params, dyad_dir=dyad_path)
-
-    # random pair analysis
-    if params['include_random_pair']:
-        random_pair_analysis(params, batch_input_folder, output_dir)
