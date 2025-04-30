@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False, include_flexibility=False):
+def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False):
     """
     Compute windowed cross-correlation between two time series.
 
@@ -13,7 +13,6 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         max_lag (int): Maximum lag to compute cross-correlation.
         absolute (bool): Calculate abs of correlation values.
         average_windows (bool): Calculate per-window averages (for consistency, results will be stored for each lag).
-        include_flexibility (bool): Include flexibility analysis in output data. If true, for each window, fisher z-transformed average correlation and variance are calculated.
 
     Returns:
         results (list of dict): A list containing the results for each window. 
@@ -23,8 +22,8 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
                 - 'r_max': Peak cross-correlation value in the window.
                 - 'tau_max': Lag at which the peak correlation occurs.
                 - 'correlations': Array of cross-correlation values for all lags.
-                - 'avg_z_transformed_corr': average of fisher z-transformed correlation values in window (if include_flexibility is True).
-                - 'var_z_transformed_corr': variance of fisher z-transformed correlation values in window (if include_flexibility is True).
+                - 'avg_z_transformed_corr': average of fisher z-transformed correlation values in window
+                - 'var_z_transformed_corr': variance of fisher z-transformed correlation values in window
     """
     n = len(x)
     results = []
@@ -66,26 +65,21 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         tau_max = np.argmax(correlations) - \
             max_lag if not average_windows else 0
 
-        # optionally include flexibility
-        if include_flexibility:
-            # fisher z transform = hyperbolic arctangent of correlation coefficients
-            correlations_z_transformed = np.arctanh(correlations)
-            avg_z_transformed_corr = np.mean(correlations_z_transformed)
-            var_z_transformed_corr = np.var(correlations_z_transformed)
+        # per window avg and var of z-transformed correlations (->flexibility)
+        correlations_z_transformed = np.arctanh(correlations)
+        avg_z_transformed_corr = np.mean(correlations_z_transformed)
+        var_z_transformed_corr = np.var(correlations_z_transformed)
 
         result = {
             'start_idx': start,
             'center_idx': start + window_size // 2,
             'r_max': r_max,
             'tau_max': tau_max,
-            'correlations': correlations
-        }
-        if include_flexibility:
-            result.update({
-                'avg_z_transformed_corr': avg_z_transformed_corr,
+            'correlations': correlations,
+            'avg_z_transformed_corr': avg_z_transformed_corr,
                 'var_z_transformed_corr': var_z_transformed_corr
-            })
-        results.append(result)
+        }
+
 
     return results
 
