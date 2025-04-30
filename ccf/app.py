@@ -157,6 +157,7 @@ val_rp_n_input = tk.StringVar(value="100")
 val_rp_n = tk.IntVar(value=100)
 val_random_pair_input_folder = tk.StringVar(value='')
 val_random_pair_output_file = tk.StringVar(value='')
+val_random_pair_is_ready = tk.BooleanVar(value=False)
 
 # set up data containers
 dat_plot_data = {
@@ -600,6 +601,34 @@ def handle_run_batch_button():
     run_batch_process()
     val_batch_processing_is_ready.set(True)
 
+# --------------------
+# RANDOM PAIR ANALYSIS
+# --------------------
+
+# dynamically determine ready state
+def random_pair_is_ready(*args):
+    data_is_valid = val_INPUT_DATA_VALID.get() and val_CORRELATION_SETTINGS_VALID.get() and val_CORRELATION_SETTINGS_VALID_SXC.get()
+    io_is_ready = val_random_pair_input_folder.get() != '' and val_random_pair_output_file.get() != ''
+    ready = data_is_valid and io_is_ready
+    val_random_pair_is_ready.set(ready)
+val_INPUT_DATA_VALID.trace_add('write', random_pair_is_ready)
+val_CORRELATION_SETTINGS_VALID.trace_add('write', random_pair_is_ready)
+val_CORRELATION_SETTINGS_VALID_SXC.trace_add('write', random_pair_is_ready)
+val_random_pair_input_folder.trace_add('write', random_pair_is_ready)
+val_random_pair_output_file.trace_add('write', random_pair_is_ready)
+
+# batch process data forwarding
+def run_random_pair():
+    # process batch
+    # TODO
+    print("Random pair processing not implemented yet.")
+    return
+
+def handle_run_random_pair_button():
+    val_random_pair_is_ready.set(False)
+    run_random_pair()
+    val_random_pair_is_ready.set(True)
+
 # ---------------
 # MAIN APP LAYOUT
 # ---------------
@@ -755,7 +784,6 @@ label_output_dir.grid(row=3, column=1, padx=10, sticky='w')
 button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled") #TODO: remove batch from export
 button_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
 #subgroup random pair
-handle_run_random_pair_button = lambda: print("Random pair analysis not implemented yet.") #TODO: implement random pair analysis
 subgroup_random_pair = tk.CTkFrame(tab_export_batch)
 subgroup_random_pair.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 label_random_pair = tk.CTkLabel(subgroup_random_pair, text="Random Pair Analysis", font=("Arial", 20, "bold"))
@@ -904,6 +932,11 @@ val_rp_n_input.trace_add("write", on_rp_n_input_change)
 # random pair file pickers: dynamic labels
 val_random_pair_input_folder.trace_add('write', lambda *args: label_random_pair_input_folder.configure(text=f"Selected: {os.path.basename(val_random_pair_input_folder.get())}" if val_random_pair_input_folder.get() else "No folder selected."))
 val_random_pair_output_file.trace_add('write', lambda *args: label_random_pair_output_file.configure(text=f"Selected: {os.path.basename(val_random_pair_output_file.get())}" if val_random_pair_output_file.get() else "No file selected."))
+
+# random pair: dynamic button state 
+def update_active_state_random_pair_button(*args):
+    button_random_pair.configure(state="normal" if val_random_pair_is_ready.get() else "disabled")
+val_random_pair_is_ready.trace_add('write', update_active_state_random_pair_button)
 
 # -------------------------
 # CORRELATION DATA HANDLING
