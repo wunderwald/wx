@@ -6,7 +6,7 @@ from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 import xlsx
 from signal_processing import preprocess_dyad
-from batch_processing import batch_process
+from batch_processing import batch_process, random_pair_analysis
 from export import export_sxcorr_data, export_wxcorr_data
 import utils
 
@@ -619,10 +619,36 @@ val_random_pair_output_file.trace_add('write', random_pair_is_ready)
 
 # batch process data forwarding
 def run_random_pair():
-    # process batch
-    # TODO
-    print("Random pair processing not implemented yet.")
-    return
+    params = {
+        'batch_input_folder': val_batch_input_folder.get(),
+        'output_dir': val_batch_output_folder.get(),
+        'selected_sheet': val_selected_sheet.get(), 
+        'workbook_data': dat_workbook_data,
+        'checkbox_windowed_xcorr': val_checkbox_windowed_xcorr.get(),
+        'window_size': val_window_size.get(),
+        'step_size': val_step_size.get(),
+        'max_lag': val_max_lag.get(),
+        'max_lag_sxc': val_max_lag_sxc.get(),
+        'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+        'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
+        'checkbox_average_windows': val_checkbox_average_windows.get(),
+        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_EDA': val_checkbox_EDA.get(),
+        'include_flexibility': val_checkbox_flexibility.get(),
+    }
+
+    t_stat, p_value, avg_corr_rp, avg_corr_real = random_pair_analysis(
+        params=params,
+        random_pair_count=val_rp_n.get(),
+        input_dir=val_random_pair_input_folder.get(),
+    )
+
+    print(f"t-statistic: {t_stat}, p-value: {p_value}")
+    print(f"Average correlation (random pairs): {avg_corr_rp}")
+    print(f"Average correlation (real pairs): {avg_corr_real}")
+
+    output_file = val_random_pair_output_file.get()
+    # TODO: export 
 
 def handle_run_random_pair_button():
     val_random_pair_is_ready.set(False)
@@ -788,11 +814,11 @@ subgroup_random_pair = tk.CTkFrame(tab_export_batch)
 subgroup_random_pair.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 label_random_pair = tk.CTkLabel(subgroup_random_pair, text="Random Pair Analysis", font=("Arial", 20, "bold"))
 label_random_pair.grid(row=0, column=0, sticky='w', padx=10, columnspan=2, pady=10)
-button_random_pair_input_folder = tk.CTkButton(subgroup_random_pair, text='Select Input Folder', command=open_random_pair_input_dir_picker)
+button_random_pair_input_folder = tk.CTkButton(subgroup_random_pair, text='Select input folder', command=open_random_pair_input_dir_picker)
 button_random_pair_input_folder.grid(row=2, column=0, padx=10, pady=10, sticky='w')
 label_random_pair_input_folder = tk.CTkLabel(subgroup_random_pair, text="No folder selected.")
 label_random_pair_input_folder.grid(row=2, column=1, padx=10, sticky='w')
-button_random_pair_output_file = tk.CTkButton(subgroup_random_pair, text='Select Output File', command=open_random_pair_output_file_picker)
+button_random_pair_output_file = tk.CTkButton(subgroup_random_pair, text='Select output file', command=open_random_pair_output_file_picker)
 button_random_pair_output_file.grid(row=3, column=0, padx=10, pady=10, sticky='w')
 label_random_pair_output_file = tk.CTkLabel(subgroup_random_pair, text="No file selected.")
 label_random_pair_output_file.grid(row=3, column=1, padx=10, sticky='w')
