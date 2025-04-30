@@ -463,6 +463,7 @@ def preprocess_data():
             dat_physiological_data["raw_signal_b"],
             signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
         )
+
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a
         dat_physiological_data["signal_b"] = signal_b
@@ -473,6 +474,7 @@ def preprocess_data():
         val_INPUT_DATA_VALID.set(True)
 
     except Exception as e:
+        print(f"Error processing data: {e}")
         # if data cant be processed: clear plots and physiological data
         # reset physiological data
         dat_physiological_data["signal_a"] = []

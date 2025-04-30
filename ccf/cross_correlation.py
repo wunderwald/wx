@@ -67,6 +67,8 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
 
         # per window avg and var of z-transformed correlations (->flexibility)
         correlations_z_transformed = np.arctanh(correlations)
+        correlations_z_transformed[np.isinf(correlations_z_transformed)] = 0
+        correlations_z_transformed[np.isnan(correlations_z_transformed)] = 0
         avg_z_transformed_corr = np.mean(correlations_z_transformed)
         var_z_transformed_corr = np.var(correlations_z_transformed)
 
@@ -77,8 +79,11 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
             'tau_max': tau_max,
             'correlations': correlations,
             'avg_z_transformed_corr': avg_z_transformed_corr,
-                'var_z_transformed_corr': var_z_transformed_corr
+            'var_z_transformed_corr': var_z_transformed_corr
         }
+
+        # Append the result to the list
+        results.append(result)
 
 
     return results
