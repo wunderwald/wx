@@ -139,7 +139,6 @@ val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG_SXC)
 val_checkbox_average_windows = tk.BooleanVar(value=False)
-val_checkbox_flexibility = tk.BooleanVar(value=True)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
 val_selected_dyad_dir = tk.StringVar(value='')
@@ -304,9 +303,6 @@ def update_dropdown_options(dropdown, dropdown_state_var, new_options):
     dropdown.configure(values=new_options)  
     dropdown_state_var.set(new_options[0])  
 
-# flexibility analysis toggle
-def on_change_flexibility(*args): return
-
 # random pair N input change
 def on_rp_n_input_change(name, index, mode):
     new_str_val = val_rp_n_input.get()
@@ -335,7 +331,6 @@ def _export_wxcorr_data(file_path):
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
-        'flexibility': val_checkbox_flexibility.get(),
     }
     export_wxcorr_data(file_path, params)
 
@@ -592,7 +587,6 @@ def run_batch_process():
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_IBI': val_checkbox_IBI.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
-        'include_flexibility': val_checkbox_flexibility.get(),
     }
     batch_process(params)
 
@@ -634,7 +628,6 @@ def run_random_pair():
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_IBI': val_checkbox_IBI.get(),
         'checkbox_EDA': val_checkbox_EDA.get(),
-        'include_flexibility': val_checkbox_flexibility.get(),
     }
 
     # run random pair analysis
@@ -754,8 +747,6 @@ checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text
 checkbox_absolute_corr.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 checkbox_average_windows = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Average Values in Windows', variable=val_checkbox_average_windows, command=on_average_windows_change)
 checkbox_average_windows.grid(row=10, column=0, sticky="w", padx=10, pady=5)
-checkbox_flexibility = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Include flexibility metrics', variable=val_checkbox_flexibility, command=on_change_flexibility)
-checkbox_flexibility.grid(row=11, column=0, sticky="w", padx=10, pady=5)
 
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(subgroup_corr_settings)
@@ -985,7 +976,6 @@ def _update_wxcorr_data():
     max_lag = val_max_lag.get()
     absolute_values = val_checkbox_absolute_corr.get()
     average_windows = val_checkbox_average_windows.get()
-    include_flexibility = val_checkbox_flexibility.get()
 
     # update correlation data
     dat_correlation_data['wxcorr'] = windowed_cross_correlation(
@@ -996,7 +986,6 @@ def _update_wxcorr_data():
         max_lag=max_lag, 
         absolute=absolute_values, 
         average_windows=average_windows,
-        include_flexibility=include_flexibility
     )
 
 # uodate standard xcorr data
