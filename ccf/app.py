@@ -6,7 +6,7 @@ from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
-from dfa import dfa
+from dfa import dfa, dfa_wxcorr
 from signal_processing import preprocess_dyad
 from batch_processing import batch_process, random_pair_analysis
 from export import export_sxcorr_data, export_wxcorr_data, export_random_pair_data
