@@ -183,7 +183,9 @@ dat_physiological_data = {
 }
 dat_correlation_data = {
     'wxcorr': [],
-    'sxcorr': []
+    'sxcorr': [],
+    'dfa_alpha_sxcorr': None,
+    'dfa_alpha_per_lag_wxcorr': None,
 }
 
 # ---------
@@ -332,6 +334,7 @@ def _export_wxcorr_data(file_path):
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
+        'dfa_alpha_per_lag_wxcorr': dat_correlation_data['dfa_alpha_per_lag_wxcorr'],
     }
     export_wxcorr_data(file_path, params)
 
@@ -996,6 +999,11 @@ def _update_wxcorr_data():
         absolute=absolute_values, 
         average_windows=average_windows,
     )
+
+    # update laggeddfa data
+    dfa_data = dfa_wxcorr(dat_correlation_data['wxcorr'], order=1)
+    dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
+    dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = dfa_alpha_per_lag
 
 # uodate standard xcorr data
 def _update_sxcorr_data():
