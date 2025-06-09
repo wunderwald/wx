@@ -117,11 +117,14 @@ def _make_window_sizes(data, order=1):
     N = len(data)
     
     if N < 100:
-        raise ValueError("Data length must be at least 100 samples for reliable DFA.")
+        print("ERROR: Data length must be at least 100 samples for reliable DFA.")
+        print(f"Current data length: {N} samples.")
+        return [-1]
     
     max_window = int(0.1 * N)  # Max window size is 10% of data length
     if max_window < order + 1:
-        raise ValueError(f"Data length ({N}) is too short for the specified order ({order}). Minimum required length is {order + 1}.")
+        print(f"ERROR: Data length ({N}) is too short for the specified order ({order}). Minimum required length is {order + 1}.")
+        return [-1]
     
     window_sizes = np.logspace(np.log10(10), np.log10(max_window), num=10).astype(int)
     

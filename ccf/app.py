@@ -457,6 +457,11 @@ def preprocess_data():
     dat_physiological_data["raw_signal_a"] = dat_workbook_data["columns_a"][dat_workbook_data["selected_column_a"]]
     dat_physiological_data["raw_signal_b"] = dat_workbook_data["columns_b"][dat_workbook_data["selected_column_b"]]
 
+    # validate signals before processing
+    if not (utils.is_numeric_array(dat_physiological_data["raw_signal_a"]) and utils.is_numeric_array(dat_physiological_data["raw_signal_b"])):
+        val_INPUT_DATA_VALID.set(False)
+        return
+
     # process data
     try:
         # pre process dyad: remove first and last sample & resample (IBI only), align signals
@@ -476,7 +481,7 @@ def preprocess_data():
         val_INPUT_DATA_VALID.set(True)
 
     except Exception as e:
-        print(f"Error processing data: {e}")
+        print(f"Data is invalid [{e}]")
         # if data cant be processed: clear plots and physiological data
         # reset physiological data
         dat_physiological_data["signal_a"] = []
@@ -808,7 +813,7 @@ button_output_dir_picker = tk.CTkButton(subgroup_batch, text='Select output fold
 button_output_dir_picker.grid(row=3, column=0, padx=10, pady=10, sticky='w')
 label_output_dir = tk.CTkLabel(subgroup_batch, text="No folder selected.")
 label_output_dir.grid(row=3, column=1, padx=10, sticky='w')
-button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled") #TODO: remove batch from export
+button_batch = tk.CTkButton(subgroup_batch, text='Run batch process', command=handle_run_batch_button, state="disabled") 
 button_batch.grid(row=8, column=0, padx=10, pady=10, sticky='w')
 #subgroup random pair
 subgroup_random_pair = tk.CTkFrame(tab_export_batch)
@@ -1005,7 +1010,7 @@ def _update_sxcorr_data():
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
 
     # calculate dfa
-    A, F = dfa(dat_correlation_data['sxcorr'], order=1)
+    A, F = dfa(dat_correlation_data['sxcorr']['corr'], order=1)
     dat_correlation_data['dfa_alpha_sxcorr'] = A[0]
 
 # update correlation data
