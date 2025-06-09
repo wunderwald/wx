@@ -157,7 +157,7 @@ def dfa(data, order=1):
     window_sizes = _make_window_sizes(data, order)
     return _detrended_fluctuation_analysis(data, window_sizes, order)
 
-def dfa_wxcorr(wxcorr_data, order=1):
+def dfa_wxcorr(wxcorr_data, max_lag, order=1):
     """
     Performs Detrended Fluctuation Analysis (DFA) on cross-correlation data for each lag.
     Args:
@@ -165,6 +165,7 @@ def dfa_wxcorr(wxcorr_data, order=1):
             Each dictionary should have the keys:
                 - 'lags': list or array of lag values.
                 - 'correlations': list or array of correlation values corresponding to each lag.
+        max_lag (int): The maximum lag value of wxcorr windows (lags in windows go from -max_lag to +max_lag).
         order (int, optional): The order of the polynomial for detrending in DFA. Default is 1 (linear detrending).
     Returns:
         list of dict: A list where each element is a dictionary with keys:
@@ -178,11 +179,11 @@ def dfa_wxcorr(wxcorr_data, order=1):
         return np.array([-1]), np.array([-1])
     
     # extract horizontal lines of wxcorr plot (lists of correlation values per in-window lag)
-    lags = wxcorr_data[0]['lags']
+    lags = range(-max_lag, max_lag + 1)
     correlations_per_lag = {lag: [] for lag in lags}
     for window in wxcorr_data:
-        for lag, corr in zip(window['lags'], window['correlations']):
-            correlations_per_lag[lag].append(corr)
+        for i, correlation in enumerate(window['correlations']):
+            correlations_per_lag[i-max_lag].append(correlation)
     
     # for each correlation line, perform DFA
     dfa_per_lag = []

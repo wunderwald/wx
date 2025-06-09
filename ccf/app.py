@@ -1001,7 +1001,7 @@ def _update_wxcorr_data():
     )
 
     # update laggeddfa data
-    dfa_data = dfa_wxcorr(dat_correlation_data['wxcorr'], order=1)
+    dfa_data = dfa_wxcorr(dat_correlation_data['wxcorr'], max_lag, order=1)
     dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
     dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = dfa_alpha_per_lag
 
