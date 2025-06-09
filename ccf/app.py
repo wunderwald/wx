@@ -1,14 +1,15 @@
 import os
+import xlsx
+import utils
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
-import xlsx
+from dfa import dfa
 from signal_processing import preprocess_dyad
 from batch_processing import batch_process, random_pair_analysis
 from export import export_sxcorr_data, export_wxcorr_data, export_random_pair_data
-import utils
 
 # ------------------
 # APP INITIALIZATION
@@ -346,6 +347,7 @@ def _export_sxcorr_data(file_path):
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'sxcorr': dat_correlation_data["sxcorr"],
+        'dfa_alpha': dat_correlation_data['dfa_alpha_sxcorr'],
     }
     export_sxcorr_data(file_path, params)
 
@@ -1001,6 +1003,10 @@ def _update_sxcorr_data():
     max_lag = val_max_lag_sxc.get()
     absolute_values = val_checkbox_absolute_corr_sxc.get()
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
+
+    # calculate dfa
+    A, F = dfa(dat_correlation_data['sxcorr'], order=1)
+    dat_correlation_data['dfa_alpha_sxcorr'] = A[0]
 
 # update correlation data
 def update_corr():

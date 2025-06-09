@@ -38,6 +38,7 @@ def export_sxcorr_data(file_path, params):
         'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
         'Max lag': params['max_lag'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
+        'Alpha (DFA scaling exponent)': params['dfa_alpha']
     }
     vectors = {
         'signal_a': params['signal_a'],
