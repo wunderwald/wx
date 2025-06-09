@@ -5,7 +5,7 @@ def _remove_invalid_IBI(ibi_ms):
     return [sample for sample in ibi_ms if sample >= 100 and sample < 1000]
 
 def _remove_invalid_EDA(eda):
-    print("!! EDA filter not implemented yet.")
+    print("!! EDA filter not implemented yet.") # TODO: Implement EDA filter
     return [sample for sample in eda if sample >= 0]
 
 def resample_ibi(ibi_ms, t_offset_ms=0, target_sampling_rate_hz=5, scale_output=False):  
