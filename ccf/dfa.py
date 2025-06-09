@@ -169,11 +169,10 @@ def dfa_wxcorr(wxcorr_data, order=1):
     Returns:
         list of dict: A list where each element is a dictionary with keys:
             - 'lag': The lag value.
-            - 'A': The DFA scaling exponent for the correlation series at this lag.
-            - 'F': The fluctuation function values from DFA for this lag.
+            - 'A': ndarray [alpha, intercept] where `alpha` is the scaling exponent for this lag.
+            - 'F': ndarray of Fluctuation function values for each window in `window_sizes` for this lag.
         If `wxcorr_data` is empty or None, returns (np.array([-1]), np.array([-1])).
     """
-    
     
     if not wxcorr_data:
         return np.array([-1]), np.array([-1])
