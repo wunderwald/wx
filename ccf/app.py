@@ -1001,9 +1001,12 @@ def _update_wxcorr_data():
     )
 
     # update laggeddfa data
-    dfa_data = dfa_wxcorr(dat_correlation_data['wxcorr'], max_lag, order=1)
-    dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
-    dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = dfa_alpha_per_lag
+    try:
+        dfa_data = dfa_wxcorr(dat_correlation_data['wxcorr'], max_lag, order=1)
+        dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
+        dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = dfa_alpha_per_lag
+    except ValueError as e:
+        print("TODO: handle dfa update error in wxcorr update", e) # TODO
 
 # uodate standard xcorr data
 def _update_sxcorr_data():
