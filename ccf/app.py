@@ -21,7 +21,7 @@ tk.set_default_color_theme("dark-blue") # options 'blue', 'green', 'dark-blue'
 
 # init window
 app = tk.CTk()  
-app.title("ccf")
+app.title("wx")
 
 # Get the screen width and height
 screen_width = app.winfo_screenwidth()
