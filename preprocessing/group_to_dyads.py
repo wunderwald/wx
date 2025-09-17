@@ -25,9 +25,9 @@ def parse_filename(filename):
 def find_dict_by_field(dicts, field, value):
     return next((d for d in dicts if d.get(field) == value), None)
 
-# --------
-# I/O DATA
-# --------
+# ----------------------------------------
+# I/O DATA - SET INPUT & OUTPUT PATHS HERE
+# ----------------------------------------
 # group data directory: one subdirectory per subject with files per condition
 # [path relative to script location]
 INPUT_DIR_GROUP = Path('../data/groups/3003')
