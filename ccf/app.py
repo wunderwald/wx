@@ -358,7 +358,7 @@ def _export_sxcorr_data(file_path):
 def export_data():
     # create initial output file name
     selected_dir = val_selected_dyad_dir.get()
-    filename_init = f"xc_data_{os.path.basename(selected_dir)}" if selected_dir else "xc_data"
+    filename_init = f"wx_data_{os.path.basename(selected_dir)}" if selected_dir else "wx_data"
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
         title="Save As",
@@ -384,7 +384,7 @@ def export_plot():
     
     # create initial output file name
     selected_dir = val_selected_dyad_dir.get()
-    filename_init = f"xc_plot_{os.path.basename(selected_dir)}" if selected_dir else "xc_plot"
+    filename_init = f"wx_plot_{os.path.basename(selected_dir)}" if selected_dir else "wx_plot"
 
     # get filename using file picker
     file_path = filedialog.asksaveasfilename(
