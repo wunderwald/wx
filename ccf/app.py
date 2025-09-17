@@ -849,7 +849,8 @@ button_random_pair.grid(row=8, column=0, padx=10, pady=10, sticky='w')
 # directory picker
 def update_dir_picker_label(*args):
     dir_path = val_selected_dyad_dir.get()
-    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"Selected: {os.path.basename(dir_path)} [{os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}]")
+    # label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"Selected: {os.path.basename(dir_path)} [{os.path.basename(val_selected_file_a.get())}, {os.path.basename(val_selected_file_b.get())}]")
+    label_dir_picker.configure(text='No folder selected.' if dir_path == '' else f"Selected: {os.path.basename(dir_path)}")
 val_selected_dyad_dir.trace_add('write', update_dir_picker_label)
 val_selected_file_a.trace_add('write', update_dir_picker_label)
 val_selected_file_b.trace_add('write', update_dir_picker_label)
