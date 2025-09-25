@@ -6,7 +6,7 @@ from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
-from dfa import dfa, dfa_wxcorr
+from dfa import dfa, dfa_wxcorr, dfa_wxcorr_window_averages
 from signal_processing import preprocess_dyad
 from batch_processing import batch_process, random_pair_analysis
 from export import export_sxcorr_data, export_wxcorr_data, export_random_pair_data
@@ -186,6 +186,7 @@ dat_correlation_data = {
     'sxcorr': [],
     'dfa_alpha_sxcorr': None,
     'dfa_alpha_per_lag_wxcorr': None,
+    'dfa_alpha_window_averages_wxcorr': None,
 }
 
 # ---------
@@ -334,7 +335,8 @@ def _export_wxcorr_data(file_path):
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
-        'dfa_alpha_per_lag_wxcorr': dat_correlation_data['dfa_alpha_per_lag_wxcorr'],
+        'dfa_alpha_window_averages_wxcorr': dat_correlation_data['dfa_alpha_window_averages_wxcorr']
+        # 'dfa_alpha_per_lag_wxcorr': dat_correlation_data['dfa_alpha_per_lag_wxcorr'],
     }
     export_wxcorr_data(file_path, params)
 
@@ -1007,6 +1009,15 @@ def _update_wxcorr_data():
         dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
         dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = dfa_alpha_per_lag
     except ValueError as e:
+        dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = None
+        print("TODO: handle dfa update error in wxcorr update", e) # TODO
+
+    # update dfa of window averages
+    try:
+        dfa_alpha_per_window = dfa_wxcorr_window_averages(dat_correlation_data['wxcorr'], max_lag, order=1)
+        dat_correlation_data['dfa_alpha_window_averages_wxcorr'] = dfa_alpha_per_window
+    except ValueError as e:
+        dat_correlation_data['dfa_alpha_window_averages_wxcorr'] = None
         print("TODO: handle dfa update error in wxcorr update", e) # TODO
 
 # uodate standard xcorr data

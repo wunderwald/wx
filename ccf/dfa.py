@@ -157,6 +157,20 @@ def dfa(data, order=1):
     window_sizes = _make_window_sizes(data, order)
     return _detrended_fluctuation_analysis(data, window_sizes, order)
 
+def dfa_wxcorr_window_averages(wxcorr_data, max_lag, order=1):
+    if not wxcorr_data:
+        return np.array([-1]), np.array([-1])
+    
+    # calculate correlation averages per window
+    per_window_averages = []
+    for window in wxcorr_data:
+        avg_corr = np.mean(window['correlations'])
+        per_window_averages.append(avg_corr)
+
+    A, F = dfa(per_window_averages,  order)
+
+    return A[0]
+
 def dfa_wxcorr(wxcorr_data, max_lag, order=1):
     """
     Performs Detrended Fluctuation Analysis (DFA) on cross-correlation data for each lag.

@@ -8,6 +8,8 @@ import numpy as np
 from datetime import datetime
 from scipy.stats import ttest_ind
 
+# TODO add DFA to batch processing
+
 def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
     """
     Processes dyadic data from Excel files, performs cross-correlation analysis, and optionally exports the results.
