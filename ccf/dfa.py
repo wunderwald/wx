@@ -147,9 +147,8 @@ def dfa(data, order=1):
     A : ndarray
         [alpha, intercept] where `alpha` is the scaling exponent:
         - α ≈ 0.5: White noise (uncorrelated).
-        - 0.5 < α < 1: Long-range correlations.
         - α ≈ 1: Pink noise (1/f dynamics).
-        - α > 1: Non-stationary or strongly trending data.
+        - α ≈ 1.5: Non-stationary or strongly trending data.
     F : ndarray
         Fluctuation function values for each window in `window_sizes`.    
     """
