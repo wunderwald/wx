@@ -1003,7 +1003,7 @@ def _update_wxcorr_data():
         average_windows=average_windows,
     )
 
-    # update laggeddfa data
+    # update lagged dfa data
     try:
         dfa_data = dfa_wxcorr(dat_correlation_data['wxcorr'], max_lag, order=1)
         dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
@@ -1018,7 +1018,6 @@ def _update_wxcorr_data():
         dat_correlation_data['dfa_alpha_window_averages_wxcorr'] = dfa_alpha_per_window
     except ValueError as e:
         dat_correlation_data['dfa_alpha_window_averages_wxcorr'] = None
-        print("TODO: handle dfa update error in wxcorr update", e) # TODO
 
 # uodate standard xcorr data
 def _update_sxcorr_data():

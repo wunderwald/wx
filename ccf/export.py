@@ -28,12 +28,12 @@ def export_wxcorr_data(file_path, params):
         vectors[f"w_{window_index}_correlations"] = window['correlations']
         vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
     # DFA per lag
-    # if 'dfa_alpha_per_lag_wxcorr' in params: 
-    #     vectors['dfa_lags'] = [d['lag'] for d in params['dfa_alpha_per_lag_wxcorr']]
-    #     vectors['dfa_alpha'] = [d['alpha'] for d in params['dfa_alpha_per_lag_wxcorr']]
-    # else: 
-    #     vectors['dfa_lags'] = ['-']
-    #     vectors['dfa_alpha'] = ['-']
+    if 'dfa_alpha_per_lag_wxcorr' in params: 
+        vectors['dfa_lags'] = [d['lag'] for d in params['dfa_alpha_per_lag_wxcorr']]
+        vectors['dfa_alpha'] = [d['alpha'] for d in params['dfa_alpha_per_lag_wxcorr']]
+    else: 
+        vectors['dfa_lags'] = ['-']
+        vectors['dfa_alpha'] = ['-']
 
     xlsx.write_xlsx(vectors=vectors, single_values=metadata, output_path=file_path)
 

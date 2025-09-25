@@ -7,8 +7,7 @@ import random
 import numpy as np
 from datetime import datetime
 from scipy.stats import ttest_ind
-
-# TODO add DFA to batch processing
+from dfa import dfa_wxcorr
 
 def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
     """
@@ -69,6 +68,17 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             absolute_values = params['checkbox_absolute_corr']
             average_windows = params['checkbox_average_windows']
             corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
+            
+            # dfa per lag (per horizontal line)
+            dfa_corr_data = None
+            try:
+                dfa_data = dfa_wxcorr(corr_data, max_lag, order=1)
+                dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
+                dfa_corr_data = dfa_alpha_per_lag
+            except ValueError as e:
+                dfa_corr_data = None
+                print("TODO: handle dfa update error in wxcorr update", e) # TODO
+
             # export
             export_params = {
                 'selected_dyad_dir': dyad_dir,
@@ -83,7 +93,8 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'checkbox_IBI': params['checkbox_IBI'],
                 'signal_a': signal_a,
                 'signal_b': signal_b,
-                'wxcorr': corr_data
+                'wxcorr': corr_data,
+                'dfa_alpha_per_lag_wxcorr': dfa_corr_data
             }
             
             # export / return data
