@@ -99,7 +99,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             
             # export / return data
             if export:
-                output_file_name = f"wx_{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime("%Y%m%d%H%M%S")}_wxcorr.xlsx"
+                output_file_name = f"wx_{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_wxcorr.xlsx"
                 output_file_path = os.path.join(output_dir, output_file_name)
                 export_wxcorr_data(output_file_path, export_params)
             return corr_data
@@ -123,7 +123,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             }
             # export / return data
             if export:
-                output_file_name = f"{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime("%Y%m%d%H%M%S")}_sxcorr.xlsx"
+                output_file_name = f"{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_sxcorr.xlsx"
                 output_file_path = os.path.join(output_dir, output_file_name)
                 export_sxcorr_data(output_file_path, export_params)
             return corr_data
