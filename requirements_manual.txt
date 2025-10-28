@@ -1,0 +1,4 @@
+openpyxl
+customtkinter
+scipy
+matplotlib
