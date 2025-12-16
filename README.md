@@ -16,7 +16,7 @@ The software is in the subdirectory 'src'. After downloading, follow these steps
 
 # Tools
 
-+Pre-processing: apply normalisation and resampling to data
++ Pre-processing: apply normalisation and resampling to data
 + Inspection: view (resampled) input data
 + Parameter tuning: refine parameters through immediate visual feedback 
 + Batch processing: set parameters once, run wx for a whole database
