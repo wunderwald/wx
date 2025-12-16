@@ -216,6 +216,8 @@ dat_workbook_data = {
 dat_physiological_data = {
     'signal_a': [],
     'signal_b': [],
+    'signal_a_z_scored': [],
+    'signal_b_z_scored': [],
     'raw_signal_a': [],
     'raw_signal_b': []
 }
@@ -554,7 +556,8 @@ def preprocess_data():
     # process data
     try:
         # pre process dyad: remove first and last sample & resample (IBI only), align signals
-        signal_a, signal_b = preprocess_dyad(
+        signal_a, signal_b, signal_a_z_scored, signal_b_z_scored \
+            = preprocess_dyad(
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
             signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
@@ -563,6 +566,8 @@ def preprocess_data():
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a
         dat_physiological_data["signal_b"] = signal_b
+        dat_physiological_data["signal_a_z_scored"] = signal_a_z_scored
+        dat_physiological_data["signal_b_z_scored"] = signal_b_z_scored
 
         # update val data length
         val_data_length.set(len(signal_a))
@@ -575,6 +580,8 @@ def preprocess_data():
         # reset physiological data
         dat_physiological_data["signal_a"] = []
         dat_physiological_data["signal_b"] = []
+        dat_physiological_data["signal_a_z_scored"] = []
+        dat_physiological_data["signal_b_z_scored"] = []
         dat_physiological_data["raw_signal_a"] = []
         dat_physiological_data["raw_signal_b"] = []
         # reset plot
