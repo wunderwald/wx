@@ -1,6 +1,6 @@
 .vscode
-.DS_Store
 .venv
+.DS_Store
 *.pyc
 */__pycache__
 *.xlsx
