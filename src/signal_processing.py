@@ -98,4 +98,8 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
     signal_a = signal_a[:min_length]
     signal_b = signal_b[:min_length]
 
-    return signal_a, signal_b
+    # apply z-score
+    signal_a_z_scored = standardize(signal_a)
+    signal_b_z_scored = standardize(signal_b)
+
+    return signal_a, signal_b, signal_a_z_scored, signal_b_z_scored 
