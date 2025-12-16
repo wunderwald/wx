@@ -5,9 +5,9 @@ Visual feedback system for parameter settings in windowed cross-correlation, opt
 
 # Setup
 
-The software is in the subdirectory 'wx'. After downloading, follow these steps:
+The software is in the subdirectory 'src'. After downloading, follow these steps:
 
-+ switch into ./wx
++ switch into ./src
 + create a virtual environment
 + install the requirements using requirements.txt
 + run the app: python3 -m app.py
