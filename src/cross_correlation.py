@@ -13,6 +13,9 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
         max_lag (int): Maximum lag to compute cross-correlation.
         absolute (bool): Calculate abs of correlation values.
         average_windows (bool): Calculate per-window averages (for consistency, results will be stored for each lag).
+        use_lag_filter (bool): Apply lag filter to limit lag range.
+        lag_filter_min (int): Minimum lag for filter (inclusive).
+        lag_filter_max (int): Maximum lag for filter (inclusive).
 
     Returns:
         results (list of dict): A list containing the results for each window. 

@@ -215,6 +215,9 @@ def update_wxcorr_plots(params):
             - "max_lag" (int): The maximum lag to consider in the cross-correlation.
             - "use_timescale_win_center" (bool): Flag indicating whether window center times or window start indices are used for time axis.
             - "windowed_xcorr_data" (array-like): The precomputed windowed cross-correlation data.
+            - "use_lag_filter" (bool): Apply lag filter to limit lag range.
+            - "lag_filter_min" (int): Minimum lag for filter (inclusive).
+            - "lag_filter_max" (int): Maximum lag for filter (inclusive).
     Returns:
         matplotlib.figure.Figure: The figure object containing the updated plot.
     """
