@@ -143,7 +143,12 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     fig.tight_layout()
     return fig
 
-def plot_preprocessed_signals(signal_a, signal_b):
+def make_plot_titles_preproc(dyad_folder, filename_a, filename_b, column_a, column_b, is_resampled):
+    title_a = f"Data in column {column_a} of {filename_a} [in folder {dyad_folder}]{" - resampled to 5hz" if is_resampled else ""}"
+    title_b = f"Data in column {column_b} of {filename_b} [in folder {dyad_folder}]{" - resampled to 5hz" if is_resampled else ""}"
+    return {'a': title_a, 'b': title_b}
+
+def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
     # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
     gs = gridspec.GridSpec(2, 1)
@@ -151,7 +156,7 @@ def plot_preprocessed_signals(signal_a, signal_b):
     # Plot signal_a
     ax1 = fig.add_subplot(gs[0])
     ax1.plot(signal_a, color='blue')
-    ax1.set_title('signal_a')
+    ax1.set_title(plot_titles['a'])
     ax1.set_xlabel('Index')
     ax1.set_ylabel('Value')
     ax1.grid()
@@ -159,7 +164,7 @@ def plot_preprocessed_signals(signal_a, signal_b):
     # Plot signal_b
     ax2 = fig.add_subplot(gs[1])
     ax2.plot(signal_b, color='purple')
-    ax2.set_title('signal_b')
+    ax2.set_title(plot_titles['b'])
     ax2.set_xlabel('Index')
     ax2.set_ylabel('Value')
     ax2.grid()
@@ -219,9 +224,23 @@ def update_sxcorr_plots(params):
 
 # update preprocessing preview plots
 def update_preproc_plots(params):
-    # extract data
+    """
+    Updates the preprocessing preview plots based on the provided parameters.
+    Args:
+        params (dict): A dictionary containing the following keys:
+            - "signal_a" (array-like): The first signal data.
+            - "signal_b" (array-like): The second signal data.
+            - "dyad_folder" (str): Path to the dyad folder.
+            - "filename_a" (str): Filename associated with signal_a.
+            - "filename_b" (str): Filename associated with signal_b.
+            - "column_a" (str): Column name for signal_a.
+            - "column_b" (str): Column name for signal_b.
+            - "is_resampled" (bool): Flag indicating whether signals have been resampled (to 5hz).
+    Returns:
+        matplotlib.figure.Figure: The figure object containing the updated plot.
+    """
     signal_a = params["signal_a"]
     signal_b = params["signal_b"]
-    # create figure
-    fig = plot_preprocessed_signals(signal_a, signal_b)
+    plot_titles = make_plot_titles_preproc(params["dyad_folder"], params["filename_a"], params["filename_b"], params["column_a"], params["column_b"], params["is_resampled"])
+    fig = plot_preprocessed_signals(signal_a, signal_b, plot_titles)
     return fig

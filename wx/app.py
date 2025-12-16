@@ -257,12 +257,14 @@ def on_is_ibi_change():
     new_val = val_checkbox_IBI.get()
     val_checkbox_EDA.set(not new_val)
     preprocess_data()
+    clear_correlation_data()
     PARAMS_CHANGED()
 
 def on_is_eda_change():
     new_val = val_checkbox_EDA.get()
     val_checkbox_IBI.set(not new_val)
     preprocess_data()
+    clear_correlation_data()
     PARAMS_CHANGED()
 
 def on_use_tscl_index_change():
@@ -1083,11 +1085,16 @@ def update_plot(*args):
     # update preprocessing preview
     if plot_type == "preprocess_preview":
         if not val_INPUT_DATA_VALID.get(): return
-        # TODO: show filenames, selected col and so on
         # plot data
         dat_plot_data["fig"] = update_preproc_plots({
             'signal_a': dat_physiological_data['signal_a'],
             'signal_b': dat_physiological_data['signal_b'],
+            'dyad_folder': os.path.basename(val_selected_dyad_dir.get()),
+            'filename_a': os.path.basename(val_selected_file_a.get()),
+            'filename_b': os.path.basename(val_selected_file_b.get()),
+            'column_a': val_selected_column_a.get(),
+            'column_b': val_selected_column_b.get(),
+            'is_resampled': val_checkbox_IBI.get()
         })
         return
     
