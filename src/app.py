@@ -572,7 +572,7 @@ def preprocess_data():
             = preprocess_dyad(
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
-            signal_type='IBI_MS' if val_checkbox_eb.get() else 'EDA'
+            signal_type='event-based' if val_checkbox_eb.get() else 'fixed-rate'
         )
 
         # store physiological data
