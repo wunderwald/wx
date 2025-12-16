@@ -1168,6 +1168,9 @@ def update_plot(*args):
             'step_size': val_step_size.get(),
             'max_lag': val_max_lag.get(),
             'use_timescale_win_center': val_checkbox_tscl_center.get(),
+            'use_lag_filter': checkbox_lag_filter.get(),
+            'lag_filter_min': val_lag_filter_min.get(),
+            'lag_filter_max': val_lag_filter_max.get(),
             'windowed_xcorr_data': dat_correlation_data["wxcorr"]
         })
         return
