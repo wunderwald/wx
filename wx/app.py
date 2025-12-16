@@ -1090,6 +1090,7 @@ def update_plot(*args):
             'signal_a': dat_physiological_data['signal_a'],
             'signal_b': dat_physiological_data['signal_b'],
             'dyad_folder': os.path.basename(val_selected_dyad_dir.get()),
+            'selected_sheet': val_selected_sheet.get(),
             'filename_a': os.path.basename(val_selected_file_a.get()),
             'filename_b': os.path.basename(val_selected_file_b.get()),
             'column_a': val_selected_column_a.get(),
