@@ -178,6 +178,7 @@ val_lag_filter_max = tk.IntVar(value=INIT_MAX_LAG)
 val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
 val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
+val_checkbox_standardise = tk.BooleanVar(value=False)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
 val_selected_dyad_dir = tk.StringVar(value='')
@@ -216,8 +217,8 @@ dat_workbook_data = {
 dat_physiological_data = {
     'signal_a': [],
     'signal_b': [],
-    'signal_a_z_scored': [],
-    'signal_b_z_scored': [],
+    'signal_a_std': [],
+    'signal_b_std': [],
     'raw_signal_a': [],
     'raw_signal_b': []
 }
@@ -334,6 +335,11 @@ def on_is_eda_change():
     clear_correlation_data()
     PARAMS_CHANGED()
 
+def on_standardise_change():
+    new_val = val_checkbox_standardise.get()
+    clear_correlation_data()
+    PARAMS_CHANGED()
+
 def on_use_tscl_index_change():
     new_val = val_checkbox_tscl_index.get()
     val_checkbox_tscl_center.set(not new_val)
@@ -421,6 +427,9 @@ def _export_wxcorr_data(file_path):
         'checkbox_IBI': val_checkbox_IBI.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
+        'signal_a_std': dat_physiological_data["signal_a_std"],
+        'signal_b_std': dat_physiological_data["signal_b_std"],
+        'is_standardised': val_checkbox_standardise.get(),
         'wxcorr': dat_correlation_data["wxcorr"],
         'dfa_alpha_window_averages_wxcorr': dat_correlation_data['dfa_alpha_window_averages_wxcorr']
     }
@@ -437,6 +446,9 @@ def _export_sxcorr_data(file_path):
         'checkbox_IBI': val_checkbox_IBI.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
+        'signal_a_std': dat_physiological_data["signal_a_std"],
+        'signal_b_std': dat_physiological_data["signal_b_std"],
+        'is_standardised': val_checkbox_standardise.get(),
         'sxcorr': dat_correlation_data["sxcorr"],
         'dfa_alpha': dat_correlation_data['dfa_alpha_sxcorr'],
     }
@@ -556,7 +568,7 @@ def preprocess_data():
     # process data
     try:
         # pre process dyad: remove first and last sample & resample (IBI only), align signals
-        signal_a, signal_b, signal_a_z_scored, signal_b_z_scored \
+        signal_a, signal_b, signal_a_std, signal_b_std \
             = preprocess_dyad(
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
@@ -566,8 +578,8 @@ def preprocess_data():
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a
         dat_physiological_data["signal_b"] = signal_b
-        dat_physiological_data["signal_a_z_scored"] = signal_a_z_scored
-        dat_physiological_data["signal_b_z_scored"] = signal_b_z_scored
+        dat_physiological_data["signal_a_std"] = signal_a_std
+        dat_physiological_data["signal_b_std"] = signal_b_std
 
         # update val data length
         val_data_length.set(len(signal_a))
@@ -580,8 +592,8 @@ def preprocess_data():
         # reset physiological data
         dat_physiological_data["signal_a"] = []
         dat_physiological_data["signal_b"] = []
-        dat_physiological_data["signal_a_z_scored"] = []
-        dat_physiological_data["signal_b_z_scored"] = []
+        dat_physiological_data["signal_a_std"] = []
+        dat_physiological_data["signal_b_std"] = []
         dat_physiological_data["raw_signal_a"] = []
         dat_physiological_data["raw_signal_b"] = []
         # reset plot
@@ -818,6 +830,8 @@ checkbox_is_ibi_data = tk.CTkCheckBox(subgroup_data_type, text='IBI', variable=v
 checkbox_is_ibi_data.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 checkbox_is_eda_data = tk.CTkCheckBox(subgroup_data_type, text='EDA', variable=val_checkbox_EDA, command=on_is_eda_change)
 checkbox_is_eda_data.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+checkbox_standardise = tk.CTkCheckBox(subgroup_data_type, text='IBI', variable=val_checkbox_standardise, command=on_standardise_change)
+checkbox_standardise.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
 # CORRELATION & VISUALISATION
 subgroup_corr_settings = tk.CTkFrame(tab_correlation)
@@ -1114,6 +1128,9 @@ def _update_wxcorr_data():
     # read data from data containers and state variables
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
+    signal_a_std = dat_physiological_data["signal_a_std"]
+    signal_b_std = dat_physiological_data["signal_b_std"]
+    use_standardised_signals = val_checkbox_standardise.get()
     window_size = val_window_size.get()
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
@@ -1125,8 +1142,8 @@ def _update_wxcorr_data():
 
     # update correlation data
     dat_correlation_data['wxcorr'] = windowed_cross_correlation(
-        signal_a, 
-        signal_b, 
+        signal_a_std if use_standardised_signals else signal_a, 
+        signal_b_std if use_standardised_signals else signal_b, 
         window_size=window_size, 
         step_size=step_size, 
         max_lag=max_lag, 
@@ -1159,8 +1176,9 @@ def _update_sxcorr_data():
         return
 
     # read data from data containers and state variabled
-    signal_a = dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b"]
+    use_standardised_signals = val_checkbox_standardise.get()
+    signal_a = dat_physiological_data["signal_a_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
     max_lag = val_max_lag_sxc.get()
     absolute_values = val_checkbox_absolute_corr_sxc.get()
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
@@ -1202,6 +1220,11 @@ def update_plot(*args):
         is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
         plot_type = "windowed_xcorr" if is_windowed_xcorr else "standard_xcorr"
     
+    # select data based on standardisation selection
+    use_standardised = val_checkbox_standardise.get()
+    signal_a = dat_physiological_data['signal_a_std'] if use_standardised else dat_physiological_data['signal_a']
+    signal_b = dat_physiological_data['signal_b_std'] if use_standardised else dat_physiological_data['signal_b']
+
     # update preprocessing preview
     if plot_type == "preprocess_preview":
         # reset plot if data is invalid
@@ -1210,8 +1233,8 @@ def update_plot(*args):
             return
         # plot data
         dat_plot_data["fig"] = update_preproc_plots({
-            'signal_a': dat_physiological_data['signal_a'],
-            'signal_b': dat_physiological_data['signal_b'],
+            'signal_a': signal_a,
+            'signal_b': signal_b,
             'dyad_folder': os.path.basename(val_selected_dyad_dir.get()),
             'selected_sheet': val_selected_sheet.get(),
             'filename_a': os.path.basename(val_selected_file_a.get()),
@@ -1226,8 +1249,8 @@ def update_plot(*args):
     if plot_type == "windowed_xcorr":
         if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']: return
         dat_plot_data["fig"] = update_wxcorr_plots({
-            'signal_a': dat_physiological_data['signal_a'],
-            'signal_b': dat_physiological_data['signal_b'],
+            'signal_a': signal_a,
+            'signal_b': signal_b,
             'window_size': val_window_size.get(),
             'step_size': val_step_size.get(),
             'max_lag': val_max_lag.get(),
@@ -1243,8 +1266,8 @@ def update_plot(*args):
     if plot_type == "standard_xcorr":
         if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']: return
         dat_plot_data["fig"] = update_sxcorr_plots({
-            'signal_a': dat_physiological_data['signal_a'],
-            'signal_b': dat_physiological_data['signal_b'],
+            'signal_a': signal_a,
+            'signal_b': signal_b,
             'xcorr_data': dat_correlation_data['sxcorr'],
         })
         return
