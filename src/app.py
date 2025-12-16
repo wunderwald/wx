@@ -105,6 +105,7 @@ def check_wx_correlation_settings():
     max_lag_is_valid = check_max_lag()
     correlation_settings_valid = window_size_is_valid and step_size_is_valid and max_lag_is_valid
     val_CORRELATION_SETTINGS_VALID.set(correlation_settings_valid)
+    # TODO check stuff regarding filter
     PARAMS_CHANGED()
     return correlation_settings_valid
 
@@ -254,22 +255,16 @@ def on_min_lag_input_change(name, index, mode):
     new_str_val = val_lag_filter_min_input.get()
     if new_str_val == '' or new_str_val == '-':
         val_lag_filter_min.set(None)
-    else:
-        try:
-            val_lag_filter_min.set(int(new_str_val))
-        except ValueError:
-            pass
+    val_lag_filter_min.set(int(new_str_val))
+    check_wx_correlation_settings()
 val_lag_filter_min_input.trace_add("write", on_min_lag_input_change)
 
 def on_max_lag_filter_input_change(name, index, mode):
     new_str_val = val_lag_filter_max_input.get()
     if new_str_val == '':
         val_lag_filter_max.set(None)
-    else:
-        try:
-            val_lag_filter_max.set(int(new_str_val))
-        except ValueError:
-            pass
+    val_lag_filter_max.set(int(new_str_val))
+    check_wx_correlation_settings()
 val_lag_filter_max_input.trace_add("write", on_max_lag_filter_input_change)
 
 def on_max_lag_change_update_filter(*args):
@@ -278,6 +273,7 @@ def on_max_lag_change_update_filter(*args):
     val_lag_filter_max.set(new_max_lag)
     val_lag_filter_min_input.set(str(-new_max_lag))
     val_lag_filter_max_input.set(str(new_max_lag))
+    check_wx_correlation_settings()
 val_max_lag.trace_add('write', on_max_lag_change_update_filter)
 
 # checkbox callbacks
@@ -323,7 +319,7 @@ def on_average_windows_change():
 
 def on_lag_filter_checkbox_change():
     new_val = val_checkbox_lag_filter.get()
-    PARAMS_CHANGED()
+    check_wx_correlation_settings()
 
 # dropdown callbacks
 def on_dropdown_select_sheet_change(value):
