@@ -1080,7 +1080,7 @@ def update_plot(*args):
     
     # update preprocessing preview
     if plot_type == "preprocess_preview":
-        # TODO
+        if not val_INPUT_DATA_VALID.get(): return
         return
     
     # update windowed xcorr plot
