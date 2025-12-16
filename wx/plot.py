@@ -159,8 +159,8 @@ def make_plot_titles_preproc(dyad_folder, selected_sheet, filename_a, filename_b
     Returns:
         dict: Dictionary with keys 'a' and 'b' containing formatted title strings for each signal.
     """
-    title_a = f"Data in column {column_a} of sheet {selected_sheet} of {filename_a} [in folder {dyad_folder}]{" - resampled to 5hz" if is_resampled else ""}"
-    title_b = f"Data in column {column_b} of sheet {selected_sheet} of {filename_b} [in folder {dyad_folder}]{" - resampled to 5hz" if is_resampled else ""}"
+    title_a = f"Data in column '{column_a}' of sheet '{selected_sheet}' of '{filename_a}' [in folder '{dyad_folder}']{" - resampled to 5hz" if is_resampled else ""}"
+    title_b = f"Data in column '{column_b}' of sheet '{selected_sheet}' of '{filename_b}' [in folder '{dyad_folder}']{" - resampled to 5hz" if is_resampled else ""}"
     return {'a': title_a, 'b': title_b}
 
 def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
