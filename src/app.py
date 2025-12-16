@@ -1059,6 +1059,9 @@ def _update_wxcorr_data():
     max_lag = val_max_lag.get()
     absolute_values = val_checkbox_absolute_corr.get()
     average_windows = val_checkbox_average_windows.get()
+    use_lag_filter = val_checkbox_lag_filter.get()
+    lag_filter_min = val_lag_filter_min.get()
+    lag_filter_max = val_lag_filter_max.get()
 
     # update correlation data
     dat_correlation_data['wxcorr'] = windowed_cross_correlation(
@@ -1069,6 +1072,9 @@ def _update_wxcorr_data():
         max_lag=max_lag, 
         absolute=absolute_values, 
         average_windows=average_windows,
+        use_lag_filter=use_lag_filter,
+        lag_filter_min=lag_filter_min,
+        lag_filter_max=lag_filter_max
     )
 
     # update lagged dfa data
