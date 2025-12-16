@@ -1,7 +1,8 @@
+.vscode
+.DS_Store
 .venv
 *.pyc
 */__pycache__
 *.xlsx
 /papers
-.vscode
-*.DS_Store
+/data
