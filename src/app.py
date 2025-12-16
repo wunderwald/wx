@@ -142,6 +142,11 @@ val_window_size = tk.IntVar(value=INIT_WINDOW_SIZE)
 val_step_size = tk.IntVar(value=INIT_STEP_SIZE)
 val_max_lag = tk.IntVar(value=INIT_MAX_LAG)
 val_max_lag_sxc = tk.IntVar(value=INIT_MAX_LAG_SXC)
+val_checkbox_lag_filter = tk.BooleanVar(value=False)
+val_lag_filter_min = tk.IntVar(value=-INIT_MAX_LAG)
+val_lag_filter_max = tk.IntVar(value=INIT_MAX_LAG)
+val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
+val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
@@ -244,6 +249,37 @@ def on_max_lag_input_change_sxc(name, index, mode):
     check_sx_correlation_settings()
 val_max_lag_input_sxc.trace_add("write", on_max_lag_input_change_sxc)
 
+# lag filter callbacks
+def on_min_lag_input_change(name, index, mode):
+    new_str_val = val_lag_filter_min_input.get()
+    if new_str_val == '' or new_str_val == '-':
+        val_lag_filter_min.set(None)
+    else:
+        try:
+            val_lag_filter_min.set(int(new_str_val))
+        except ValueError:
+            pass
+val_lag_filter_min_input.trace_add("write", on_min_lag_input_change)
+
+def on_max_lag_filter_input_change(name, index, mode):
+    new_str_val = val_lag_filter_max_input.get()
+    if new_str_val == '':
+        val_lag_filter_max.set(None)
+    else:
+        try:
+            val_lag_filter_max.set(int(new_str_val))
+        except ValueError:
+            pass
+val_lag_filter_max_input.trace_add("write", on_max_lag_filter_input_change)
+
+def on_max_lag_change_update_filter(*args):
+    new_max_lag = val_max_lag.get()
+    val_lag_filter_min.set(-new_max_lag)
+    val_lag_filter_max.set(new_max_lag)
+    val_lag_filter_min_input.set(str(-new_max_lag))
+    val_lag_filter_max_input.set(str(new_max_lag))
+val_max_lag.trace_add('write', on_max_lag_change_update_filter)
+
 # checkbox callbacks
 def on_absolute_corr_change():
     new_val = val_checkbox_absolute_corr.get()
@@ -283,6 +319,10 @@ def on_windowed_xcorr_change():
 
 def on_average_windows_change():
     new_val = val_checkbox_average_windows.get()
+    PARAMS_CHANGED()
+
+def on_lag_filter_checkbox_change():
+    new_val = val_checkbox_lag_filter.get()
     PARAMS_CHANGED()
 
 # dropdown callbacks
@@ -771,10 +811,14 @@ label_step_size.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 entry_step_size = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_step_size_input, border_color='#777777')
 entry_step_size.grid(row=5, column=1, sticky="w", padx=10, pady=5)
 error_label_step_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Step Size must be in range [1, window_size]', text_color='red') # initially hidden
+checkbox_lag_filter = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Filter Range of Lags', variable=val_checkbox_lag_filter)
+checkbox_lag_filter.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+entry_lag_filter_min = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_lag_filter_min_input, border_color='#777777')
+entry_lag_filter_max = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_lag_filter_max_input, border_color='#777777')
 checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr, command=on_absolute_corr_change)
-checkbox_absolute_corr.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+checkbox_absolute_corr.grid(row=10, column=0, sticky="w", padx=10, pady=5)
 checkbox_average_windows = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Average Values in Windows', variable=val_checkbox_average_windows, command=on_average_windows_change)
-checkbox_average_windows.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+checkbox_average_windows.grid(row=11, column=0, sticky="w", padx=10, pady=5)
 
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(subgroup_corr_settings)
@@ -921,6 +965,16 @@ def update_step_size_entry_on_validation(*args):
         entry_step_size.configure(border_color='red')  
         error_label_step_size.grid(row=6, column=0, columnspan=2, sticky="w", padx=10, pady=0)
 val_STEP_SIZE_VALID.trace_add('write', update_step_size_entry_on_validation)
+
+# lag filter min/max - hide/show based on checkbox
+def update_lag_filter_visibility(*args):
+    if val_checkbox_lag_filter.get():
+        entry_lag_filter_min.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+        entry_lag_filter_max.grid(row=7, column=1, sticky="w", padx=10, pady=5)
+    else:
+        entry_lag_filter_min.grid_forget()
+        entry_lag_filter_max.grid_forget()
+val_checkbox_lag_filter.trace_add('write', update_lag_filter_visibility)
 
 # standard xcorr entries
 def update_max_lag_entry_on_validation_sxc(*args):
