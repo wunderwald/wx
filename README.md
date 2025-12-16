@@ -1,11 +1,18 @@
 # wx
 by [Moritz Wunderwald](mailto:code@moritzwunderwald.de), 2025
 
-GUI tool for computing windowed cross-correlation for IBI and EDA data
+Visual feedback system for parameter settings in windowed cross-correlation, optimized for IBI and EDA data. Validate data, set parameters, run batches and rp analysis.
 
 # Setup
 
-👩‍💻 coming soon
+The software is in the subdirectory 'wx'. After downloading, follow these steps:
+
++ switch into ./wx
++ create a virtual environment
++ install the requirements using requirements.txt
++ run the app: python3 -m app.py
+
+👩‍💻 ... adding more detail soon
 
 # References
 
