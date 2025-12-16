@@ -1,7 +1,7 @@
 # wx
 by [Moritz Wunderwald](mailto:code@moritzwunderwald.de), 2025
 
-Visual feedback system for parameter settings in windowed cross-correlation, optimized for IBI and EDA data. Validate data, set parameters, run batches and rp analysis.
+Interactive visual toolbox for working with windowed cross-correlation, optimized for IBI and EDA data. Validate data, tune parameters, run batches and further analysis.
 
 # Setup
 
