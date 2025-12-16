@@ -14,6 +14,16 @@ The software is in the subdirectory 'src'. After downloading, follow these steps
 
 👩‍💻 ... adding more detail soon
 
+# Tools
+
++ Inspection: view (resampled) input data
++ Parameter tuning: refine parameters through immediate visual feedback 
++ Batch processing: set parameters once, run wx for a whole database
++ Lag filter: investigate leader-follower behaviour
++ Random pair analysis: compare data to large rp sets
+
+👩‍💻 ... adding more detail soon
+
 # References
 
 ## Windowed Cross-Correlation
