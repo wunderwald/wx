@@ -20,7 +20,7 @@ def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=False):
+def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None, use_win_center_tscl=False):
     """
     Create and return a figure plotting the wxc_data of the windowed cross-correlation.
 
@@ -46,6 +46,13 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     # gs = gridspec.GridSpec(4, 1, height_ratios=[5, 1, 1, 1])
     gs = gridspec.GridSpec(4, 1, height_ratios=[8, 1, 1, 1])
 
+    # get lag range (filtered or unfiltered) for y-axis
+    _min_lag = -max_lag
+    _max_lag = max_lag
+    if use_lag_filter and not (lag_filter_min is None or lag_filter_max is None):
+        _min_lag = min(lag_filter_min, lag_filter_max)
+        _max_lag = max(lag_filter_min, lag_filter_max)
+
     # Create a heatmap of correlations
     ax1 = fig.add_subplot(gs[0])
     heatmap_data = np.array([res['correlations'] for res in wxc_data])
@@ -53,9 +60,8 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
-        extent=[0, len(wxc_data) * step_size, -max_lag, max_lag] if not use_win_center_tscl
-          # else [max_lag, (len(wxc_data)-1) * step_size + max_lag, -max_lag, max_lag]
-          else [window_size // 2, (len(wxc_data)-1) * step_size + window_size // 2, -max_lag, max_lag]
+        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag] if not use_win_center_tscl
+          else [window_size // 2, (len(wxc_data)-1) * step_size + window_size // 2, _min_lag, _max_lag]
     )
     fig.colorbar(im, ax=ax1, label='Correlation')
     ax1.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')
@@ -219,9 +225,12 @@ def update_wxcorr_plots(params):
     max_lag = params['max_lag']
     windowed_xcorr_data = params['windowed_xcorr_data']
     use_timescale_win_center = params['use_timescale_win_center']
+    use_lag_filter = params['use_lag_filter']
+    lag_filter_min = params['lag_filter_min']
+    lag_filter_max = params['lag_filter_max']
     
     # create and store plot figure
-    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_win_center_tscl=use_timescale_win_center)
+    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=use_lag_filter, lag_filter_min=lag_filter_min, lag_filter_max=lag_filter_max, use_win_center_tscl=use_timescale_win_center)
     return fig
 
 # update standard xcorr plots

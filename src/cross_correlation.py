@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=False, average_windows=False):
+def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None, absolute=False, average_windows=False):
     """
     Compute windowed cross-correlation between two time series.
 
@@ -32,6 +32,15 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
     x = np.asarray(x)
     y = np.asarray(y)
 
+    # set lag range: filtered or unfiltered
+    _min_lag = -max_lag
+    _max_lag = max_lag
+    lag_range = range(_min_lag, _max_lag + 1)
+    if use_lag_filter and not (lag_filter_min is None or lag_filter_max is None):
+        _min_lag = min(lag_filter_min, lag_filter_max)
+        _max_lag = max(lag_filter_min, lag_filter_max)
+        lag_range = range(_min_lag, _max_lag + 1)
+
     for start in range(0, n - window_size + 1, step_size):
         # Extract the windowed segments
         x_window = x[start:start + window_size]
@@ -43,7 +52,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
 
         # Compute cross-correlation for lags in the range [-max_lag, max_lag]
         correlations = []
-        for lag in range(-max_lag, max_lag + 1):
+        for lag in lag_range:
             if lag < 0:
                 corr = np.mean(x_window[:lag] * y_window[-lag:])
             elif lag > 0:
@@ -62,8 +71,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
         # Find the peak correlation and its corresponding lag
         correlations = np.array(correlations)
         r_max = np.max(correlations)
-        tau_max = np.argmax(correlations) - \
-            max_lag if not average_windows else 0
+        tau_max = np.argmax(correlations) + _min_lag if not average_windows else 0
 
         # per window avg and var of z-transformed correlations (->flexibility)
         correlations_z_transformed = np.arctanh(correlations)
@@ -87,7 +95,6 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, absolute=F
 
 
     return results
-
 
 def standard_cross_correlation(x, y, max_lag, absolute=False):
     """
