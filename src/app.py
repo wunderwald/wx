@@ -99,13 +99,37 @@ def check_max_lag():
     val_MAX_LAG_VALID.set(max_lag_is_valid)
     return max_lag_is_valid
 
+def check_lag_filter_in_range():
+    lf_min = val_lag_filter_min.get()
+    lf_max = val_lag_filter_max.get()
+    max_lag = val_MAX_LAG_VALID.get()
+    return (lf_min >= -max_lag) and (lf_min <= max_lag) and (lf_max >= -max_lag) and (lf_max <= max_lag)
+
+def check_lag_filter_sorted():
+    lf_min = val_lag_filter_min.get()
+    lf_max = val_lag_filter_max.get()
+    return lf_max > lf_min
+
+def check_lag_filter_exists():
+    lf_min = val_lag_filter_min.get()
+    lf_max = val_lag_filter_max.get()
+    is_none = lf_min is None or lf_max is None
+    is_empty = lf_min == '' or lf_min == ' ' or lf_max ==  '' or lf_max == ' '
+    return not is_none and not is_empty
+
+def check_lag_filter():
+    # filter is valid if disabled
+    if not checkbox_lag_filter.get(): return True
+    # otherwise it should be sorted, existing, in range
+    return check_lag_filter_exists() and check_lag_filter_sorted() and check_lag_filter_in_range()
+
 def check_wx_correlation_settings():
     window_size_is_valid = check_window_size()
     step_size_is_valid = check_step_size()
     max_lag_is_valid = check_max_lag()
-    correlation_settings_valid = window_size_is_valid and step_size_is_valid and max_lag_is_valid
+    lag_filter_is_valid = check_lag_filter()
+    correlation_settings_valid = window_size_is_valid and step_size_is_valid and max_lag_is_valid and lag_filter_is_valid
     val_CORRELATION_SETTINGS_VALID.set(correlation_settings_valid)
-    # TODO check stuff regarding filter
     PARAMS_CHANGED()
     return correlation_settings_valid
 
