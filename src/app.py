@@ -161,8 +161,8 @@ def check_sx_correlation_settings():
 # set up app state variables 
 val_checkbox_absolute_corr = tk.BooleanVar(value=False)
 val_checkbox_absolute_corr_sxc = tk.BooleanVar(value=False)
-val_checkbox_IBI = tk.BooleanVar(value=True)
-val_checkbox_EDA = tk.BooleanVar(value=False)
+val_checkbox_eb = tk.BooleanVar(value=True)
+val_checkbox_fr = tk.BooleanVar(value=False)
 val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
 val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
@@ -321,16 +321,16 @@ def on_absolute_corr_change_sxc():
     new_val = val_checkbox_absolute_corr_sxc.get()
     PARAMS_CHANGED()
 
-def on_is_ibi_change():
-    new_val = val_checkbox_IBI.get()
-    val_checkbox_EDA.set(not new_val)
+def on_is_eb_change(): # eb (event-based) vs fr (fixed-rate)
+    new_val = val_checkbox_eb.get()
+    val_checkbox_fr.set(not new_val)
     preprocess_data()
     clear_correlation_data()
     PARAMS_CHANGED()
 
-def on_is_eda_change():
-    new_val = val_checkbox_EDA.get()
-    val_checkbox_IBI.set(not new_val)
+def on_is_fr_change(): # eb (event-based) vs fr (fixed-rate)
+    new_val = val_checkbox_fr.get()
+    val_checkbox_eb.set(not new_val)
     preprocess_data()
     clear_correlation_data()
     PARAMS_CHANGED()
@@ -415,7 +415,7 @@ def _export_wxcorr_data(file_path):
         'selected_dyad_dir': val_selected_dyad_dir.get(),
         'input_file_a': val_selected_file_a.get(),
         'input_file_b': val_selected_file_b.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_EDA': val_checkbox_fr.get(),
         'window_size': val_window_size.get(),
         'max_lag': val_max_lag.get(),
         'step_size': val_step_size.get(),
@@ -424,7 +424,7 @@ def _export_wxcorr_data(file_path):
         'lag_filter_max': val_lag_filter_max.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'signal_a_std': dat_physiological_data["signal_a_std"],
@@ -440,10 +440,10 @@ def _export_sxcorr_data(file_path):
         'selected_dyad_dir': val_selected_dyad_dir.get(),
         'input_file_a': val_selected_file_a.get(),
         'input_file_b': val_selected_file_b.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_EDA': val_checkbox_fr.get(),
         'max_lag': val_max_lag_sxc.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr_sxc.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
         'signal_a_std': dat_physiological_data["signal_a_std"],
@@ -572,7 +572,7 @@ def preprocess_data():
             = preprocess_dyad(
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
-            signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
+            signal_type='IBI_MS' if val_checkbox_eb.get() else 'EDA'
         )
 
         # store physiological data
@@ -702,8 +702,8 @@ def run_batch_process():
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
+        'checkbox_fr': val_checkbox_fr.get(),
     }
     batch_process(params)
 
@@ -743,8 +743,8 @@ def run_random_pair():
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
+        'checkbox_fr': val_checkbox_fr.get(),
     }
 
     # run random pair analysis
@@ -809,7 +809,7 @@ label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet", font=
 label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_sheet = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_sheet_change, variable=val_selected_sheet)
 dropdown_select_sheet.grid(row=4, column=0, sticky="w", padx=10, pady=5)
-checkbox_data_has_headers = tk.CTkCheckBox(subgroup_input_data, text='Column headers', variable=val_checkbox_data_has_headers)
+checkbox_data_has_headers = tk.CTkCheckBox(subgroup_input_data, text='columns have headers', variable=val_checkbox_data_has_headers)
 checkbox_data_has_headers.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column A", font=("Arial", 14, "bold"))
 label_select_column_a.grid(row=6, column=0, sticky="w", padx=10, pady=5)
@@ -826,10 +826,10 @@ subgroup_data_type.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady
 # subgroup content
 label_data_type = tk.CTkLabel(subgroup_data_type, text="Pre-Process", font=("Arial", 20, "bold"))
 label_data_type.grid(row=0, column=0, columnspan=2, pady=20, padx=10, sticky='w')
-checkbox_is_ibi_data = tk.CTkCheckBox(subgroup_data_type, text='event-based', variable=val_checkbox_IBI, command=on_is_ibi_change)
-checkbox_is_ibi_data.grid(row=4, column=0, sticky="w", padx=10, pady=5)
-checkbox_is_eda_data = tk.CTkCheckBox(subgroup_data_type, text='fixed-rate', variable=val_checkbox_EDA, command=on_is_eda_change)
-checkbox_is_eda_data.grid(row=4, column=1, sticky="w", padx=10, pady=5)
+checkbox_is_eb_data = tk.CTkCheckBox(subgroup_data_type, text='event-based', variable=val_checkbox_eb, command=on_is_eb_change)
+checkbox_is_eb_data.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+checkbox_is_fr_data = tk.CTkCheckBox(subgroup_data_type, text='fixed-rate', variable=val_checkbox_fr, command=on_is_fr_change)
+checkbox_is_fr_data.grid(row=4, column=1, sticky="w", padx=10, pady=5)
 label_select_data_type = tk.CTkLabel(subgroup_data_type, text=f"Event-based data will be resampled to 5hz.")
 label_select_data_type.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 checkbox_standardise = tk.CTkCheckBox(subgroup_data_type, text='standardise', variable=val_checkbox_standardise, command=on_standardise_change)
@@ -1245,7 +1245,7 @@ def update_plot(*args):
             'filename_b': os.path.basename(val_selected_file_b.get()),
             'column_a': val_selected_column_a.get(),
             'column_b': val_selected_column_b.get(),
-            'is_resampled': val_checkbox_IBI.get()
+            'is_resampled': val_checkbox_eb.get()
         })
         return
     

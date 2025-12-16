@@ -22,7 +22,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 - 'has_headers' (bool): Indicates if the workbook has headers.
                 - 'selected_column_a' (str): Name of the column to be selected from the first Excel file.
                 - 'selected_column_b' (str): Name of the column to be selected from the second Excel file.
-            - 'checkbox_IBI' (bool): Indicates if the signal type is IBI_MS.
+            - 'checkbox_eb' (bool): Indicates if the signal type is event-based (not fixed rate).
             - 'checkbox_windowed_xcorr' (bool): Indicates if windowed cross-correlation should be performed.
             - 'window_size' (int): Size of the window for windowed cross-correlation.
             - 'step_size' (int): Step size for windowed cross-correlation.
@@ -31,7 +31,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             - 'checkbox_average_windows' (bool): Indicates if windows should be averaged.
             - 'max_lag_sxc' (int): Maximum lag for standard cross-correlation.
             - 'checkbox_absolute_corr_sxc' (bool): Indicates if absolute values should be used for standard cross-correlation.
-            - 'checkbox_EDA' (bool): Indicates if the signal type is EDA.
+            - 'checkbox_fr' (bool): Indicates if the signal type is fixed-rate.
         export (bool, optional): If True, the results will be exported to an Excel file. Defaults to True.
     Returns:
         dict: Correlation data resulting from the analysis.
@@ -56,7 +56,7 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
         signal_a, signal_b = preprocess_dyad(
             raw_signal_a,
             raw_signal_b,
-            signal_type='IBI_MS' if params['checkbox_IBI'] else 'EDA'
+            signal_type='eb_MS' if params['checkbox_eb'] else 'fr'
         )
 
         # make and export correlation data
@@ -84,13 +84,13 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'selected_dyad_dir': dyad_dir,
                 'input_file_a': file_path_a,
                 'input_file_b': file_path_b,
-                'checkbox_EDA': params['checkbox_EDA'],
+                'checkbox_fr': params['checkbox_fr'],
                 'window_size': params['window_size'],
                 'max_lag': params['max_lag'],
                 'step_size': params['step_size'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr'],
                 'checkbox_average_windows': params['checkbox_average_windows'],
-                'checkbox_IBI': params['checkbox_IBI'],
+                'checkbox_eb': params['checkbox_eb'],
                 'signal_a': signal_a,
                 'signal_b': signal_b,
                 'wxcorr': corr_data,
@@ -113,10 +113,10 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'selected_dyad_dir': dyad_dir,
                 'input_file_a': file_path_a,
                 'input_file_b': file_path_b,
-                'checkbox_EDA': params['checkbox_EDA'],
+                'checkbox_fr': params['checkbox_fr'],
                 'max_lag': params['max_lag_sxc'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr_sxc'],
-                'checkbox_IBI': params['checkbox_IBI'],
+                'checkbox_eb': params['checkbox_eb'],
                 'signal_a': signal_a,
                 'signal_b': signal_b,
                 'sxcorr': corr_data
@@ -217,7 +217,7 @@ def batch_process(params):
                 - has_headers (bool): Indicates if the Excel sheets have headers.
                 - selected_column_a (str): Column name for the first signal.
                 - selected_column_b (str): Column name for the second signal.
-            - checkbox_IBI (bool): If True, process data as 'IBI_MS', otherwise as 'EDA'.
+            - checkbox_eb (bool): If True, process data as 'eb_MS', otherwise as 'fr'.
             - checkbox_windowed_xcorr (bool): If True, perform windowed cross-correlation, otherwise standard cross-correlation.
             - window_size (int): Size of the window for windowed cross-correlation.
             - step_size (int): Step size for windowed cross-correlation.
@@ -226,7 +226,7 @@ def batch_process(params):
             - checkbox_average_windows (bool): If True, average the windows for windowed cross-correlation.
             - max_lag_sxc (int): Maximum lag for standard cross-correlation.
             - checkbox_absolute_corr_sxc (bool): If True, use absolute values for standard cross-correlation.
-            - checkbox_EDA (bool): If True, indicates that EDA data is being processed.
+            - checkbox_fr (bool): If True, indicates that fr data is being processed.
     Returns:
         None
     """
