@@ -161,8 +161,8 @@ def check_sx_correlation_settings():
 # set up app state variables 
 val_checkbox_absolute_corr = tk.BooleanVar(value=False)
 val_checkbox_absolute_corr_sxc = tk.BooleanVar(value=False)
-val_checkbox_IBI = tk.BooleanVar(value=True)
-val_checkbox_EDA = tk.BooleanVar(value=False)
+val_checkbox_eb = tk.BooleanVar(value=True)
+val_checkbox_fr = tk.BooleanVar(value=False)
 val_checkbox_windowed_xcorr = tk.BooleanVar(value=True)
 val_window_size_input = tk.StringVar(value=INIT_WINDOW_SIZE)
 val_step_size_input = tk.StringVar(value=INIT_STEP_SIZE)
@@ -178,6 +178,7 @@ val_lag_filter_max = tk.IntVar(value=INIT_MAX_LAG)
 val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
 val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
+val_checkbox_standardise = tk.BooleanVar(value=False)
 val_checkbox_tscl_index = tk.BooleanVar(value=True)
 val_checkbox_tscl_center = tk.BooleanVar(value=False)
 val_selected_dyad_dir = tk.StringVar(value='')
@@ -216,6 +217,8 @@ dat_workbook_data = {
 dat_physiological_data = {
     'signal_a': [],
     'signal_b': [],
+    'signal_a_std': [],
+    'signal_b_std': [],
     'raw_signal_a': [],
     'raw_signal_b': []
 }
@@ -318,17 +321,22 @@ def on_absolute_corr_change_sxc():
     new_val = val_checkbox_absolute_corr_sxc.get()
     PARAMS_CHANGED()
 
-def on_is_ibi_change():
-    new_val = val_checkbox_IBI.get()
-    val_checkbox_EDA.set(not new_val)
+def on_is_eb_change(): # eb (event-based) vs fr (fixed-rate)
+    new_val = val_checkbox_eb.get()
+    val_checkbox_fr.set(not new_val)
     preprocess_data()
     clear_correlation_data()
     PARAMS_CHANGED()
 
-def on_is_eda_change():
-    new_val = val_checkbox_EDA.get()
-    val_checkbox_IBI.set(not new_val)
+def on_is_fr_change(): # eb (event-based) vs fr (fixed-rate)
+    new_val = val_checkbox_fr.get()
+    val_checkbox_eb.set(not new_val)
     preprocess_data()
+    clear_correlation_data()
+    PARAMS_CHANGED()
+
+def on_standardise_change():
+    new_val = val_checkbox_standardise.get()
     clear_correlation_data()
     PARAMS_CHANGED()
 
@@ -407,7 +415,7 @@ def _export_wxcorr_data(file_path):
         'selected_dyad_dir': val_selected_dyad_dir.get(),
         'input_file_a': val_selected_file_a.get(),
         'input_file_b': val_selected_file_b.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_EDA': val_checkbox_fr.get(),
         'window_size': val_window_size.get(),
         'max_lag': val_max_lag.get(),
         'step_size': val_step_size.get(),
@@ -416,9 +424,13 @@ def _export_wxcorr_data(file_path):
         'lag_filter_max': val_lag_filter_max.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
+        'checkbox_fr': val_checkbox_fr.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
+        'signal_a_std': dat_physiological_data["signal_a_std"],
+        'signal_b_std': dat_physiological_data["signal_b_std"],
+        'is_standardised': val_checkbox_standardise.get(),
         'wxcorr': dat_correlation_data["wxcorr"],
         'dfa_alpha_window_averages_wxcorr': dat_correlation_data['dfa_alpha_window_averages_wxcorr']
     }
@@ -429,12 +441,16 @@ def _export_sxcorr_data(file_path):
         'selected_dyad_dir': val_selected_dyad_dir.get(),
         'input_file_a': val_selected_file_a.get(),
         'input_file_b': val_selected_file_b.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_fr': val_checkbox_fr.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
         'max_lag': val_max_lag_sxc.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr_sxc.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
         'signal_a': dat_physiological_data["signal_a"],
         'signal_b': dat_physiological_data["signal_b"],
+        'signal_a_std': dat_physiological_data["signal_a_std"],
+        'signal_b_std': dat_physiological_data["signal_b_std"],
+        'is_standardised': val_checkbox_standardise.get(),
         'sxcorr': dat_correlation_data["sxcorr"],
         'dfa_alpha': dat_correlation_data['dfa_alpha_sxcorr'],
     }
@@ -554,15 +570,18 @@ def preprocess_data():
     # process data
     try:
         # pre process dyad: remove first and last sample & resample (IBI only), align signals
-        signal_a, signal_b = preprocess_dyad(
+        signal_a, signal_b, signal_a_std, signal_b_std \
+            = preprocess_dyad(
             dat_physiological_data["raw_signal_a"],
             dat_physiological_data["raw_signal_b"],
-            signal_type='IBI_MS' if val_checkbox_IBI.get() else 'EDA'
+            signal_type='event-based' if val_checkbox_eb.get() else 'fixed-rate'
         )
 
         # store physiological data
         dat_physiological_data["signal_a"] = signal_a
         dat_physiological_data["signal_b"] = signal_b
+        dat_physiological_data["signal_a_std"] = signal_a_std
+        dat_physiological_data["signal_b_std"] = signal_b_std
 
         # update val data length
         val_data_length.set(len(signal_a))
@@ -575,6 +594,8 @@ def preprocess_data():
         # reset physiological data
         dat_physiological_data["signal_a"] = []
         dat_physiological_data["signal_b"] = []
+        dat_physiological_data["signal_a_std"] = []
+        dat_physiological_data["signal_b_std"] = []
         dat_physiological_data["raw_signal_a"] = []
         dat_physiological_data["raw_signal_b"] = []
         # reset plot
@@ -683,8 +704,8 @@ def run_batch_process():
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
+        'checkbox_fr': val_checkbox_fr.get(),
     }
     batch_process(params)
 
@@ -724,8 +745,8 @@ def run_random_pair():
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
-        'checkbox_IBI': val_checkbox_IBI.get(),
-        'checkbox_EDA': val_checkbox_EDA.get(),
+        'checkbox_eb': val_checkbox_eb.get(),
+        'checkbox_fr': val_checkbox_fr.get(),
     }
 
     # run random pair analysis
@@ -776,7 +797,7 @@ tab_correlation = group_params_tabview.add("Correlation & Visualisation")
 tab_export_batch = group_params_tabview.add("Export, Batch & RP")
 group_params_tabview.configure(command=on_tab_change)
 
-# INPUT DATA & DATA TYPE
+# INPUT DATA & Preprocessing
 subgroup_input_data = tk.CTkFrame(tab_input_data)
 subgroup_input_data.grid(row=0, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
@@ -786,17 +807,17 @@ button_file_picker = tk.CTkButton(subgroup_input_data, text="Choose Dyad Folder"
 button_file_picker.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 label_dir_picker = tk.CTkLabel(subgroup_input_data, text="No folder selected.", font=("Arial", 14, "bold"))
 label_dir_picker.grid(row=2, column=0, sticky="w", padx=10, pady=5)
-label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet")
+label_select_sheet = tk.CTkLabel(subgroup_input_data, text="Select Sheet", font=("Arial", 14, "bold"))
 label_select_sheet.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_sheet = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_sheet_change, variable=val_selected_sheet)
 dropdown_select_sheet.grid(row=4, column=0, sticky="w", padx=10, pady=5)
-checkbox_data_has_headers = tk.CTkCheckBox(subgroup_input_data, text='Column headers', variable=val_checkbox_data_has_headers)
+checkbox_data_has_headers = tk.CTkCheckBox(subgroup_input_data, text='columns have headers', variable=val_checkbox_data_has_headers)
 checkbox_data_has_headers.grid(row=5, column=0, sticky="w", padx=10, pady=5)
-label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
+label_select_column_a = tk.CTkLabel(subgroup_input_data, text=f"Select Column A", font=("Arial", 14, "bold"))
 label_select_column_a.grid(row=6, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_a = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_a_change, variable=val_selected_column_a)
 dropdown_select_column_a.grid(row=7, column=0, sticky="w", padx=10, pady=5)
-label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column")
+label_select_column_b = tk.CTkLabel(subgroup_input_data, text=f"Select Column B", font=("Arial", 14, "bold"))
 label_select_column_b.grid(row=8, column=0, sticky="w", padx=10, pady=5)
 dropdown_select_column_b = tk.CTkComboBox(subgroup_input_data, values=['- None -'], command=on_dropdown_select_column_b_change, variable=val_selected_column_b)
 dropdown_select_column_b.grid(row=9, column=0, sticky="w", padx=10, pady=5)
@@ -805,12 +826,18 @@ error_label_input_data = tk.CTkLabel(subgroup_input_data, text='Data is invalid.
 subgroup_data_type = tk.CTkFrame(tab_input_data)
 subgroup_data_type.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 # subgroup content
-label_data_type = tk.CTkLabel(subgroup_data_type, text="Data Type", font=("Arial", 20, "bold"))
+label_data_type = tk.CTkLabel(subgroup_data_type, text="Pre-Process", font=("Arial", 20, "bold"))
 label_data_type.grid(row=0, column=0, columnspan=2, pady=20, padx=10, sticky='w')
-checkbox_is_ibi_data = tk.CTkCheckBox(subgroup_data_type, text='IBI', variable=val_checkbox_IBI, command=on_is_ibi_change)
-checkbox_is_ibi_data.grid(row=1, column=0, sticky="w", padx=10, pady=5)
-checkbox_is_eda_data = tk.CTkCheckBox(subgroup_data_type, text='EDA', variable=val_checkbox_EDA, command=on_is_eda_change)
-checkbox_is_eda_data.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+checkbox_is_eb_data = tk.CTkCheckBox(subgroup_data_type, text='event-based', variable=val_checkbox_eb, command=on_is_eb_change)
+checkbox_is_eb_data.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+checkbox_is_fr_data = tk.CTkCheckBox(subgroup_data_type, text='fixed-rate', variable=val_checkbox_fr, command=on_is_fr_change)
+checkbox_is_fr_data.grid(row=4, column=1, sticky="w", padx=10, pady=5)
+label_select_data_type = tk.CTkLabel(subgroup_data_type, text=f"Event-based data will be resampled to 5hz.")
+label_select_data_type.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+checkbox_standardise = tk.CTkCheckBox(subgroup_data_type, text='standardise', variable=val_checkbox_standardise, command=on_standardise_change)
+checkbox_standardise.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+label_standardise = tk.CTkLabel(subgroup_data_type, text=f"Scales to zero mean, unit variance.")
+label_standardise.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
 # CORRELATION & VISUALISATION
 subgroup_corr_settings = tk.CTkFrame(tab_correlation)
@@ -1107,6 +1134,9 @@ def _update_wxcorr_data():
     # read data from data containers and state variables
     signal_a = dat_physiological_data["signal_a"]
     signal_b = dat_physiological_data["signal_b"]
+    signal_a_std = dat_physiological_data["signal_a_std"]
+    signal_b_std = dat_physiological_data["signal_b_std"]
+    use_standardised_signals = val_checkbox_standardise.get()
     window_size = val_window_size.get()
     step_size = val_step_size.get()
     max_lag = val_max_lag.get()
@@ -1118,8 +1148,8 @@ def _update_wxcorr_data():
 
     # update correlation data
     dat_correlation_data['wxcorr'] = windowed_cross_correlation(
-        signal_a, 
-        signal_b, 
+        signal_a_std if use_standardised_signals else signal_a, 
+        signal_b_std if use_standardised_signals else signal_b, 
         window_size=window_size, 
         step_size=step_size, 
         max_lag=max_lag, 
@@ -1152,8 +1182,9 @@ def _update_sxcorr_data():
         return
 
     # read data from data containers and state variabled
-    signal_a = dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b"]
+    use_standardised_signals = val_checkbox_standardise.get()
+    signal_a = dat_physiological_data["signal_a_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
     max_lag = val_max_lag_sxc.get()
     absolute_values = val_checkbox_absolute_corr_sxc.get()
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
@@ -1195,6 +1226,11 @@ def update_plot(*args):
         is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
         plot_type = "windowed_xcorr" if is_windowed_xcorr else "standard_xcorr"
     
+    # select data based on standardisation selection
+    use_standardised = val_checkbox_standardise.get()
+    signal_a = dat_physiological_data['signal_a_std'] if use_standardised else dat_physiological_data['signal_a']
+    signal_b = dat_physiological_data['signal_b_std'] if use_standardised else dat_physiological_data['signal_b']
+
     # update preprocessing preview
     if plot_type == "preprocess_preview":
         # reset plot if data is invalid
@@ -1203,15 +1239,15 @@ def update_plot(*args):
             return
         # plot data
         dat_plot_data["fig"] = update_preproc_plots({
-            'signal_a': dat_physiological_data['signal_a'],
-            'signal_b': dat_physiological_data['signal_b'],
+            'signal_a': signal_a,
+            'signal_b': signal_b,
             'dyad_folder': os.path.basename(val_selected_dyad_dir.get()),
             'selected_sheet': val_selected_sheet.get(),
             'filename_a': os.path.basename(val_selected_file_a.get()),
             'filename_b': os.path.basename(val_selected_file_b.get()),
             'column_a': val_selected_column_a.get(),
             'column_b': val_selected_column_b.get(),
-            'is_resampled': val_checkbox_IBI.get()
+            'is_resampled': val_checkbox_eb.get()
         })
         return
     
@@ -1219,8 +1255,8 @@ def update_plot(*args):
     if plot_type == "windowed_xcorr":
         if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']: return
         dat_plot_data["fig"] = update_wxcorr_plots({
-            'signal_a': dat_physiological_data['signal_a'],
-            'signal_b': dat_physiological_data['signal_b'],
+            'signal_a': signal_a,
+            'signal_b': signal_b,
             'window_size': val_window_size.get(),
             'step_size': val_step_size.get(),
             'max_lag': val_max_lag.get(),
@@ -1236,8 +1272,8 @@ def update_plot(*args):
     if plot_type == "standard_xcorr":
         if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']: return
         dat_plot_data["fig"] = update_sxcorr_plots({
-            'signal_a': dat_physiological_data['signal_a'],
-            'signal_b': dat_physiological_data['signal_b'],
+            'signal_a': signal_a,
+            'signal_b': signal_b,
             'xcorr_data': dat_correlation_data['sxcorr'],
         })
         return

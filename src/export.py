@@ -7,7 +7,8 @@ def export_wxcorr_data(file_path, params):
         'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
         'Input file A': f"{os.path.basename(params['input_file_a'])}",
         'Input file B': f"{os.path.basename(params['input_file_b'])}",
-        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
+        'Standardised (z-score)': params['is_standardised'],
         'Window size': params['window_size'],
         'Max lag': params['max_lag'],
         'Step size': params['step_size'],
@@ -18,8 +19,8 @@ def export_wxcorr_data(file_path, params):
         'Lag filter maximum': params['lag_filter_max'] if params['checkbox_lag_filter'] else '-',
     }
     vectors = {
-        'signal_a': params['signal_a'],
-        'signal_b': params['signal_b'],
+        'signal_a': params['signal_a_std'] if params['is_standardised'] else params['signal_a'],
+        'signal_b': params['signal_b_std'] if params['is_standardised'] else params['signal_b'],
         'window start index': [o['start_idx'] for o in params['wxcorr']],
         'max correlation (r_max)': [o['r_max'] for o in params['wxcorr']],
         'lag of max correlation (tau_max)': [o['tau_max'] for o in params['wxcorr']],
@@ -45,14 +46,15 @@ def export_sxcorr_data(file_path, params):
         'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
         'Input file A': f"{os.path.basename(params['input_file_a'])}",
         'Input file B': f"{os.path.basename(params['input_file_b'])}",
-        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
+        'Standardised (z-score)': params['is_standardised'],
         'Max lag': params['max_lag'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
         'Alpha (DFA scaling exponent)': params['dfa_alpha']
     }
     vectors = {
-        'signal_a': params['signal_a'],
-        'signal_b': params['signal_b'],
+        'signal_a': params['signal_a_std'] if params['is_standardised'] else params['signal_a'],
+        'signal_b': params['signal_b_std'] if params['is_standardised'] else params['signal_b'],
         'lag': params['sxcorr']['lags'],
         'correlation': params['sxcorr']['corr'],
     }
@@ -63,16 +65,23 @@ def export_random_pair_data(file_path, params, input_dir, t_stat, p_value, avg_c
     is_windowed_xcorr = params['checkbox_windowed_xcorr']
     metadata = {
         'xcorr type': "windowed cross-correlation",
-        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
+        'Standardised (z-score)': params['is_standardised'],
         'Window size': params['window_size'],
         'Max lag': params['max_lag'],
         'Step size': params['step_size'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
+        'Standardised (z-score)': params['is_standardised'],
+        'Lag filter used': params['checkbox_lag_filter'],
+        'Lag filter minimum': params['lag_filter_min'] if params['checkbox_lag_filter'] else '-',
+        'Lag filter maximum': params['lag_filter_max'] if params['checkbox_lag_filter'] else '-',
     } if is_windowed_xcorr else {
         'xcorr type': "(standard) cross-correlation",
-        'Phsyiological data type': 'EDA' if params['checkbox_EDA'] else 'IBI', 
+        'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
+        'Standardised (z-score)': params['is_standardised'],
         'Max lag': params['max_lag'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
+        'Standardised (z-score)': params['is_standardised'],
     }
     metadata['Input dyad directory'] = f"{input_dir}"
 

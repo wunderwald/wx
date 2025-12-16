@@ -25,6 +25,15 @@ The software is in the subdirectory 'src'. After downloading, follow these steps
 
 👩‍💻 ... adding more detail soon
 
+# Notes
+
+## Z-confusion: z-score vs z-transform
+
+z-score / standardisation: scaling function to make sure a vector has zero mean and unit variance.
+-> this can be done as a preprocessing step
+z-transform / fisher transform: converts correlation coefficients into roughly normally distributed values with stable variance.
+-> this is applied to coefficients in xcorr windows, e.g. before averaging
+
 # References
 
 ## Windowed Cross-Correlation

@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.stats import zscore
 
 def _remove_invalid_IBI(ibi_ms):
     return [sample for sample in ibi_ms if sample >= 100 and sample < 1000]
@@ -7,6 +8,13 @@ def _remove_invalid_IBI(ibi_ms):
 def _remove_invalid_EDA(eda):
     print("!! EDA filter not implemented yet.") # TODO: Implement EDA filter
     return [sample for sample in eda if sample >= 0]
+
+def standardize(signal):
+    '''
+    Apply z-score standardisation to signal: zero mean, unit variance.
+    ! z-scoring != != != z-transform !
+    '''
+    return zscore(signal)
 
 def resample_ibi(ibi_ms, t_offset_ms=0, target_sampling_rate_hz=5, scale_output=False):  
     """
@@ -61,25 +69,25 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
     Parameters:
         signal_a (list or array-like): The first signal to preprocess.
         signal_b (list or array-like): The second signal to preprocess.
-        signal_type (str): The type of the signals, must be either 'IBI_MS' or 'EDA'.
+        signal_type (str): The type of the signals, must be either 'event-based' or 'fixed-rate'.
         t_offset_ms_a (int, optional): The time offset in milliseconds for signal_a. Defaults to 0.
         t_offset_ms_b (int, optional): The time offset in milliseconds for signal_b. Defaults to 0.
         remove_invalid_samples (bool, optional): If True, invalid samples will be removed from the signals. Defaults to False.
     Returns:
         tuple: A tuple containing the preprocessed signal_a and signal_b.
     Raises:
-        Exception: If the signal_type is not 'IBI_MS' or 'EDA'.
+        Exception: If the signal_type is not 'event-based' or 'fixed-rate'.
     """
-    if signal_type not in ['IBI_MS', 'EDA']:
-        raise Exception("Invalid signal type. Must be 'IBI_MS' or 'EDA'.")
+    if signal_type not in ['event-based', 'fixed-rate']:
+        raise Exception("Invalid signal type. Must be 'event-based' or 'fixed-rate'.")
     
     # optionally remove invalid values
     if remove_invalid_samples:
-        signal_a = _remove_invalid_IBI(signal_a) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_a)
-        signal_b = _remove_invalid_IBI(signal_b) if signal_type == 'IBI_MS' else _remove_invalid_EDA(signal_b)
+        signal_a = _remove_invalid_IBI(signal_a) if signal_type == 'event-based' else _remove_invalid_EDA(signal_a)
+        signal_b = _remove_invalid_IBI(signal_b) if signal_type == 'event-based' else _remove_invalid_EDA(signal_b)
 
     # resample IBI (exclude first and last sample, shift by first sample)
-    if signal_type == 'IBI_MS':
+    if signal_type == 'event-based':
         t_offset_ms_a = signal_a[0]
         t_offset_ms_b = signal_b[0]
         signal_a = resample_ibi(signal_a[1:-1], t_offset_ms=t_offset_ms_a, target_sampling_rate_hz=5)
@@ -90,4 +98,8 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
     signal_a = signal_a[:min_length]
     signal_b = signal_b[:min_length]
 
-    return signal_a, signal_b
+    # apply z-score
+    signal_a_z_scored = standardize(signal_a)
+    signal_b_z_scored = standardize(signal_b)
+
+    return signal_a, signal_b, signal_a_z_scored, signal_b_z_scored 
