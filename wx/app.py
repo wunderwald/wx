@@ -4,7 +4,7 @@ import utils
 import customtkinter as tk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots
+from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots, update_preproc_plots
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 from dfa import dfa, dfa_wxcorr, dfa_wxcorr_window_averages
 from signal_processing import preprocess_dyad
@@ -1081,6 +1081,12 @@ def update_plot(*args):
     # update preprocessing preview
     if plot_type == "preprocess_preview":
         if not val_INPUT_DATA_VALID.get(): return
+        # TODO: show filenames!
+        # plot data
+        dat_plot_data["fig"] = update_preproc_plots({
+            'signal_a': dat_physiological_data['signal_a'],
+            'signal_b': dat_physiological_data['signal_b'],
+        })
         return
     
     # update windowed xcorr plot
@@ -1095,6 +1101,7 @@ def update_plot(*args):
             'use_timescale_win_center': val_checkbox_tscl_center.get(),
             'windowed_xcorr_data': dat_correlation_data["wxcorr"]
         })
+        return
 
     # update standard xcorr plot
     if plot_type == "standard_xcorr":
@@ -1104,6 +1111,7 @@ def update_plot(*args):
             'signal_b': dat_physiological_data['signal_b'],
             'xcorr_data': dat_correlation_data['sxcorr'],
         })
+        return
     
     # don't update
     print("! warning: no plot type selected in update_plot")

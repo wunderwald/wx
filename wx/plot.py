@@ -143,6 +143,30 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     fig.tight_layout()
     return fig
 
+def plot_preprocessed_signals(signal_a, signal_b):
+    # Initialize plot layout
+    fig = plt.figure(figsize=FIGSIZE)
+    gs = gridspec.GridSpec(2, 1)
+    
+    # Plot signal_a
+    ax1 = fig.add_subplot(gs[0])
+    ax1.plot(signal_a, color='blue')
+    ax1.set_title('signal_a')
+    ax1.set_xlabel('Index')
+    ax1.set_ylabel('Value')
+    ax1.grid()
+    
+    # Plot signal_b
+    ax2 = fig.add_subplot(gs[1])
+    ax2.plot(signal_b, color='purple')
+    ax2.set_title('signal_b')
+    ax2.set_xlabel('Index')
+    ax2.set_ylabel('Value')
+    ax2.grid()
+    
+    fig.tight_layout()
+    return fig
+
 # update windowed xcorr plots
 def update_wxcorr_plots(params):
     """
@@ -184,11 +208,20 @@ def update_sxcorr_plots(params):
         matplotlib.figure.Figure: The figure object containing the updated cross-correlation plot.
     """
 
-    # read data from data containers and state variabled
+    # read data from data containers and state variables
     signal_a = params["signal_a"]
     signal_b = params["signal_b"]
     xcorr_data = params["xcorr_data"]
 
     # create and store plot figure
     fig = plot_standard_cross_correlation(xcorr_data, signal_a, signal_b)
+    return fig
+
+# update preprocessing preview plots
+def update_preproc_plots(params):
+    # extract data
+    signal_a = params["signal_a"]
+    signal_b = params["signal_b"]
+    # create figure
+    fig = plot_preprocessed_signals(signal_a, signal_b)
     return fig
