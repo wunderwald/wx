@@ -411,6 +411,9 @@ def _export_wxcorr_data(file_path):
         'window_size': val_window_size.get(),
         'max_lag': val_max_lag.get(),
         'step_size': val_step_size.get(),
+        'checkbox_lag_filter': val_checkbox_lag_filter.get(),
+        'lag_filter_min': val_lag_filter_min.get(),
+        'lag_filter_max': val_lag_filter_max.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_IBI': val_checkbox_IBI.get(),
@@ -418,7 +421,6 @@ def _export_wxcorr_data(file_path):
         'signal_b': dat_physiological_data["signal_b"],
         'wxcorr': dat_correlation_data["wxcorr"],
         'dfa_alpha_window_averages_wxcorr': dat_correlation_data['dfa_alpha_window_averages_wxcorr']
-        # 'dfa_alpha_per_lag_wxcorr': dat_correlation_data['dfa_alpha_per_lag_wxcorr'],
     }
     export_wxcorr_data(file_path, params)
 

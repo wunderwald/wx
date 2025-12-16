@@ -13,7 +13,9 @@ def export_wxcorr_data(file_path, params):
         'Step size': params['step_size'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
         'Per-window averages': params['checkbox_average_windows'],
-        # 'Alpha of per-window averages (DFA)': params['dfa_alpha_window_averages_wxcorr']
+        'Lag filter used': params['checkbox_lag_filter'],
+        'Lag filter minimum': params['lag_filter_min'] if params['checkbox_lag_filter'] else '-',
+        'Lag filter maximum': params['lag_filter_max'] if params['checkbox_lag_filter'] else '-',
     }
     vectors = {
         'signal_a': params['signal_a'],
