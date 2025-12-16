@@ -1,4 +1,0 @@
-openpyxl
-customtkinter
-scipy
-matplotlib
