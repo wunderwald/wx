@@ -55,6 +55,9 @@ val_MAX_LAG_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID_SXC = tk.BooleanVar(value=True)
 val_INPUT_DATA_VALID = tk.BooleanVar(value=False)
 
+# GUI state
+val_CURRENT_TAB = tk.StringVar(value="Input Data")
+
 # update count: changes trigger rerendering
 val_UPDATE_COUNT = tk.IntVar(value=0)
 
@@ -192,6 +195,12 @@ dat_correlation_data = {
 # ---------
 # CALLBACKS
 # ---------
+
+# gui state callbacks
+def on_tab_change():
+    selected_tab = group_params_tabview.get()
+    val_CURRENT_TAB.set(selected_tab)
+    PARAMS_CHANGED()
 
 # entry callbacks windowed xcorr
 def on_window_size_input_change(name, index, mode):
@@ -690,6 +699,7 @@ group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
 tab_input_data = group_params_tabview.add("Input Data")
 tab_correlation = group_params_tabview.add("Correlation & Visualisation")
 tab_export_batch = group_params_tabview.add("Export, Batch & RP")
+group_params_tabview.configure(command=on_tab_change)
 
 # INPUT DATA & DATA TYPE
 subgroup_input_data = tk.CTkFrame(tab_input_data)
@@ -1059,8 +1069,22 @@ def update_canvas():
     canvas.get_tk_widget().pack()
 
 def update_plot(*args):
-    is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
-    if is_windowed_xcorr:
+    # figure out which plot to show next
+    plot_type = None
+    current_tab = val_CURRENT_TAB.get()
+    if current_tab == "Input Data":
+        plot_type = "preprocess_preview"
+    else: 
+        is_windowed_xcorr = val_checkbox_windowed_xcorr.get()
+        plot_type = "windowed_xcorr" if is_windowed_xcorr else "standard_xcorr"
+    
+    # update preprocessing preview
+    if plot_type == "preprocess_preview":
+        # TODO
+        return
+    
+    # update windowed xcorr plot
+    if plot_type == "windowed_xcorr":
         if not val_CORRELATION_SETTINGS_VALID.get() or not dat_correlation_data['wxcorr']: return
         dat_plot_data["fig"] = update_wxcorr_plots({
             'signal_a': dat_physiological_data['signal_a'],
@@ -1071,13 +1095,18 @@ def update_plot(*args):
             'use_timescale_win_center': val_checkbox_tscl_center.get(),
             'windowed_xcorr_data': dat_correlation_data["wxcorr"]
         })
-    else:
+
+    # update standard xcorr plot
+    if plot_type == "standard_xcorr":
         if not val_CORRELATION_SETTINGS_VALID_SXC.get() or not dat_correlation_data['sxcorr']: return
         dat_plot_data["fig"] = update_sxcorr_plots({
             'signal_a': dat_physiological_data['signal_a'],
             'signal_b': dat_physiological_data['signal_b'],
             'xcorr_data': dat_correlation_data['sxcorr'],
         })
+    
+    # don't update
+    print("! warning: no plot type selected in update_plot")
 
 # -----------
 # UPDATE LOOP
