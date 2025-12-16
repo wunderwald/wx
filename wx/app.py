@@ -1084,7 +1084,10 @@ def update_plot(*args):
     
     # update preprocessing preview
     if plot_type == "preprocess_preview":
-        if not val_INPUT_DATA_VALID.get(): return
+        # reset plot if data is invalid
+        if not val_INPUT_DATA_VALID.get(): 
+            dat_plot_data["fig"] = plot_init()
+            return
         # plot data
         dat_plot_data["fig"] = update_preproc_plots({
             'signal_a': dat_physiological_data['signal_a'],
