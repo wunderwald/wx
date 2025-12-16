@@ -33,11 +33,13 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
     y = np.asarray(y)
 
     # set lag range: filtered or unfiltered
-    lag_range = range(-max_lag, max_lag + 1)
+    _min_lag = -max_lag
+    _max_lag = max_lag
+    lag_range = range(_min_lag, _max_lag + 1)
     if use_lag_filter and not (lag_filter_min is None or lag_filter_max is None):
-        _min = min(lag_filter_min, lag_filter_max)
-        _max = max(lag_filter_min, lag_filter_max)
-        lag_range = range(_min, _max + 1)
+        _min_lag = min(lag_filter_min, lag_filter_max)
+        _max_lag = max(lag_filter_min, lag_filter_max)
+        lag_range = range(_min_lag, _max_lag + 1)
 
     for start in range(0, n - window_size + 1, step_size):
         # Extract the windowed segments
@@ -69,8 +71,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
         # Find the peak correlation and its corresponding lag
         correlations = np.array(correlations)
         r_max = np.max(correlations)
-        tau_max = np.argmax(correlations) - \
-            max_lag if not average_windows else 0
+        tau_max = np.argmax(correlations) + _min_lag if not average_windows else 0
 
         # per window avg and var of z-transformed correlations (->flexibility)
         correlations_z_transformed = np.arctanh(correlations)
