@@ -103,7 +103,7 @@ def check_max_lag():
 def check_lag_filter_in_range():
     lf_min = val_lag_filter_min.get()
     lf_max = val_lag_filter_max.get()
-    max_lag = val_MAX_LAG_VALID.get()
+    max_lag = val_max_lag.get()
     return (lf_min >= -max_lag) and (lf_min <= max_lag) and (lf_max >= -max_lag) and (lf_max <= max_lag)
 
 def check_lag_filter_sorted():
@@ -283,16 +283,20 @@ val_max_lag_input_sxc.trace_add("write", on_max_lag_input_change_sxc)
 def on_min_lag_input_change(name, index, mode):
     new_str_val = val_lag_filter_min_input.get()
     if new_str_val == '' or new_str_val == '-':
-        val_lag_filter_min.set(None)
-    val_lag_filter_min.set(int(new_str_val))
+        val_lag_filter_min.set(0)
+        val_lag_filter_min_input.set(0)
+    else:
+        val_lag_filter_min.set(int(new_str_val))
     check_wx_correlation_settings()
 val_lag_filter_min_input.trace_add("write", on_min_lag_input_change)
 
 def on_max_lag_filter_input_change(name, index, mode):
     new_str_val = val_lag_filter_max_input.get()
     if new_str_val == '':
-        val_lag_filter_max.set(None)
-    val_lag_filter_max.set(int(new_str_val))
+        val_lag_filter_max.set(0)
+        val_lag_filter_max_input.set(0)
+    else:
+        val_lag_filter_max.set(int(new_str_val))
     check_wx_correlation_settings()
 val_lag_filter_max_input.trace_add("write", on_max_lag_filter_input_change)
 
