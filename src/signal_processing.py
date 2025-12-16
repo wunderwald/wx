@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.stats import zscore
 
 def _remove_invalid_IBI(ibi_ms):
     return [sample for sample in ibi_ms if sample >= 100 and sample < 1000]
@@ -7,6 +8,13 @@ def _remove_invalid_IBI(ibi_ms):
 def _remove_invalid_EDA(eda):
     print("!! EDA filter not implemented yet.") # TODO: Implement EDA filter
     return [sample for sample in eda if sample >= 0]
+
+def standardize(signal):
+    '''
+    Apply z-score standardisation to signal: zero mean, unit variance.
+    ! z-scoring != != != z-transform !
+    '''
+    return zscore(signal)
 
 def resample_ibi(ibi_ms, t_offset_ms=0, target_sampling_rate_hz=5, scale_output=False):  
     """
