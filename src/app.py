@@ -54,6 +54,7 @@ val_STEP_SIZE_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID = tk.BooleanVar(value=True)
 val_MAX_LAG_VALID_SXC = tk.BooleanVar(value=True)
 val_INPUT_DATA_VALID = tk.BooleanVar(value=False)
+val_LAG_FILTER_VALID = tk.BooleanVar(value=True)
 
 # GUI state
 val_CURRENT_TAB = tk.StringVar(value="Input Data")
@@ -119,9 +120,13 @@ def check_lag_filter_exists():
 
 def check_lag_filter():
     # filter is valid if disabled
-    if not checkbox_lag_filter.get(): return True
+    if not checkbox_lag_filter.get(): 
+        return True
     # otherwise it should be sorted, existing, in range
-    return check_lag_filter_exists() and check_lag_filter_sorted() and check_lag_filter_in_range()
+    lag_filter_is_valid = check_lag_filter_exists() and check_lag_filter_sorted() and check_lag_filter_in_range()
+    # update state & return
+    val_LAG_FILTER_VALID.set(lag_filter_is_valid)
+    return lag_filter_is_valid
 
 def check_wx_correlation_settings():
     window_size_is_valid = check_window_size()
@@ -832,13 +837,14 @@ entry_step_size = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key"
 entry_step_size.grid(row=5, column=1, sticky="w", padx=10, pady=5)
 error_label_step_size = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='Step Size must be in range [1, window_size]', text_color='red') # initially hidden
 checkbox_lag_filter = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Filter Range of Lags', variable=val_checkbox_lag_filter)
-checkbox_lag_filter.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+checkbox_lag_filter.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 entry_lag_filter_min = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_lag_filter_min_input, border_color='#777777')
 entry_lag_filter_max = tk.CTkEntry(subgroup_windowed_xcorr_parameters, validate="key", validatecommand=(validate_numeric_input, "%P"), textvariable=val_lag_filter_max_input, border_color='#777777')
+error_label_lag_filter = tk.CTkLabel(subgroup_windowed_xcorr_parameters, text='', text_color='red') # initially hidden
 checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr, command=on_absolute_corr_change)
-checkbox_absolute_corr.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+checkbox_absolute_corr.grid(row=15, column=0, sticky="w", padx=10, pady=5)
 checkbox_average_windows = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Average Values in Windows', variable=val_checkbox_average_windows, command=on_average_windows_change)
-checkbox_average_windows.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+checkbox_average_windows.grid(row=16, column=0, sticky="w", padx=10, pady=5)
 
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(subgroup_corr_settings)
@@ -989,12 +995,33 @@ val_STEP_SIZE_VALID.trace_add('write', update_step_size_entry_on_validation)
 # lag filter min/max - hide/show based on checkbox
 def update_lag_filter_visibility(*args):
     if val_checkbox_lag_filter.get():
-        entry_lag_filter_min.grid(row=7, column=0, sticky="w", padx=10, pady=5)
-        entry_lag_filter_max.grid(row=7, column=1, sticky="w", padx=10, pady=5)
+        entry_lag_filter_min.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+        entry_lag_filter_max.grid(row=10, column=1, sticky="w", padx=10, pady=5)
     else:
         entry_lag_filter_min.grid_forget()
         entry_lag_filter_max.grid_forget()
+        error_label_lag_filter.grid_forget()
 val_checkbox_lag_filter.trace_add('write', update_lag_filter_visibility)
+
+# lag filter errors
+def update_lag_filter_entries_on_validation(*args):
+    if val_LAG_FILTER_VALID.get():
+        # hide error messages and remove red color if valid
+        entry_lag_filter_min.configure(border_color='#777777')
+        entry_lag_filter_max.configure(border_color='#777777')
+        error_label_lag_filter.grid_forget()
+        return
+    # show error message and red borders if unsorted or out of range
+    entry_lag_filter_min.configure(border_color='#777777')
+    entry_lag_filter_max.configure(border_color='#777777')
+    lf_sorted = check_lag_filter_sorted()
+    lf_in_range = check_lag_filter_in_range()
+    if not lf_sorted or not lf_in_range:
+        msg = f"Filter limits must be {"sorted" if not lf_sorted else ""}{" and " if not lf_sorted and not lf_in_range else ""} {"in [-max_lag, max_lag]" if not lf_in_range else ""}"
+        error_label_lag_filter.configure(text=msg, text_color='red')
+        error_label_lag_filter.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+val_LAG_FILTER_VALID.trace_add('write', update_lag_filter_entries_on_validation)
+    
 
 # standard xcorr entries
 def update_max_lag_entry_on_validation_sxc(*args):
