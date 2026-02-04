@@ -1,0 +1,13 @@
+customtkinter
+cx-freeze
+importlib-metadata
+jaraco-context
+jaraco-functools
+jaraco.text
+matplotlib
+openpyxl
+pip-chill
+platformdirs
+pyinstaller
+scipy
+tomli
