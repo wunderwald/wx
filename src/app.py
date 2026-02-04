@@ -27,8 +27,8 @@ app.title("wx")
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
 
-# Window Scaling
-RETINA = True
+# Window Scaling: adapt to high-dpi screens (e.g. mac retina screens)
+RETINA = app.winfo_fpixels('1i') > 72
 app.geometry(f"{screen_width}x{screen_height}")
 scaling_factor = 1.5 if RETINA else 1
 app.tk.call('tk', 'scaling', scaling_factor)
