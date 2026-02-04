@@ -1050,7 +1050,7 @@ def update_lag_filter_entries_on_validation(*args):
     lf_sorted = check_lag_filter_sorted()
     lf_in_range = check_lag_filter_in_range()
     if not lf_sorted or not lf_in_range:
-        msg = f"Filter limits must be {"sorted" if not lf_sorted else ""}{" and " if not lf_sorted and not lf_in_range else ""} {"in [-max_lag, max_lag]" if not lf_in_range else ""}"
+        msg = f"Filter limits must be {'sorted' if not lf_sorted else ''}{' and ' if not lf_sorted and not lf_in_range else ''} {'in [-max_lag, max_lag]' if not lf_in_range else ''}"
         error_label_lag_filter.configure(text=msg, text_color='red')
         error_label_lag_filter.grid(row=11, column=0, sticky="w", padx=10, pady=5)
 val_LAG_FILTER_VALID.trace_add('write', update_lag_filter_entries_on_validation)
