@@ -7,7 +7,7 @@ import random
 import numpy as np
 from datetime import datetime
 from scipy.stats import ttest_ind
-from dfa import dfa_wxcorr
+from dfa import dfa_wxcorr, dfa
 from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, save_figure_to_png
 
 def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
@@ -135,6 +135,11 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             max_lag = params['max_lag_sxc']
             absolute_values = params['checkbox_absolute_corr_sxc']
             corr_data = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
+            
+            # calculate dfa
+            A, F = dfa(corr_data['corr'], order=1)
+            dfa_alpha = A[0]
+
             # export
             export_params = {
                 'selected_dyad_dir': dyad_dir,
@@ -144,17 +149,25 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'max_lag': params['max_lag_sxc'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr_sxc'],
                 'checkbox_eb': params['checkbox_eb'],
-                'signal_a': signal_a,
-                'signal_b': signal_b,
-                'sxcorr': corr_data
+                'signal_a': _signal_a,
+                'signal_b': _signal_b,
+                'signal_a_std': _signal_a_z_scored,
+                'signal_b_std': _signal_b_z_scored,
+                'sxcorr': corr_data,
+                'is_standardised': use_standardised_data,
+                'dfa_alpha': dfa_alpha
             }
+            
             # export data and plot
             if export:
                 output_file_name = f"{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_sxcorr.xlsx"
                 output_file_path = os.path.join(output_dir, output_file_name)
                 export_sxcorr_data(output_file_path, export_params)
 
-                # TODO continue here
+                plot_file_name = f"{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_sxcorr.png"
+                plot_file_path = os.path.join(output_dir, plot_file_name)
+                fig = plot_standard_cross_correlation(sxc_data=corr_data, signal_a=signal_a, signal_b=signal_b)
+                save_figure_to_png(fig=fig, filepath=plot_file_path)
 
             return corr_data
     except Exception as e:
