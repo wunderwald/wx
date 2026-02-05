@@ -36,9 +36,9 @@ app.tk.call('tk', 'scaling', scaling_factor)
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 60                   # := 3s for 5hz signals
-INIT_MAX_LAG = INIT_WINDOW_SIZE // 2    # window_size//2
-INIT_STEP_SIZE = INIT_WINDOW_SIZE // 2  # window_size//2
+INIT_WINDOW_SIZE = 600                           # := 30s for 5hz signals
+INIT_MAX_LAG = min(1, INIT_WINDOW_SIZE // 20)    # window_size//2 * .1; 1.5s in this case
+INIT_STEP_SIZE = min(1, INIT_WINDOW_SIZE // 20)  # window_size//2 * .1; 1.5s in this case
 INIT_MAX_LAG_SXC = 100
 
 # ---------------------
