@@ -128,17 +128,15 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     # Plot input signal a over time
     ax1 = fig.add_subplot(gs[1])
     ax1.plot(signal_a, label='Signal a', color='blue')
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('Sample Value')
-    ax1.legend()
+    ax1.set_xlabel('Index')
+    ax1.set_ylabel('Signal a')
     ax1.grid()
 
     # Plot input signal b over time
     ax1 = fig.add_subplot(gs[2])
     ax1.plot(signal_b, label='Signal b', color='purple')
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('Sample Value')
-    ax1.legend()
+    ax1.set_xlabel('Index')
+    ax1.set_ylabel('Signal b')
     ax1.grid()
 
     # Return figure object
