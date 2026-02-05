@@ -34,6 +34,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
                 - 'r_max': Peak cross-correlation value in the window.
                 - 'tau_max': Lag at which the peak correlation occurs.
                 - 'correlations': Array of cross-correlation values for all lags.
+                - 'correlations_sigmoid': Array of sigmoid-scaled cross-correlation values for all lags.
                 - 'avg_z_transformed_corr': average of fisher z-transformed correlation values in window
                 - 'var_z_transformed_corr': variance of fisher z-transformed correlation values in window
     """
@@ -53,6 +54,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
         _max_lag = max(lag_filter_min, lag_filter_max)
         lag_range = range(_min_lag, _max_lag + 1)
 
+    # loop over windows
     for start in range(0, n - window_size + 1, step_size):
         # Extract the windowed segments
         x_window = x[start:start + window_size]
@@ -75,15 +77,22 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
                 corr = np.abs(corr)
             correlations.append(corr)
 
+        # apply sigmoid scaling to correlation values
+        correlations_sigmoid = scale_sigmoid(correlations)
+
         # optionally average correlation values in window
         if average_windows:
             avg = np.mean(np.array(correlations))
             correlations = [avg for c in correlations]
+            avg_sigmoid = np.mean(np.array(correlations_sigmoid))
+            correlations_sigmoid = [avg_sigmoid for c in correlations_sigmoid]
 
         # Find the peak correlation and its corresponding lag
-        correlations = np.array(correlations)
+        #correlations = np.array(correlations)
         r_max = np.max(correlations)
         tau_max = np.argmax(correlations) + _min_lag if not average_windows else 0
+        r_max_sigmoid = np.max(correlations_sigmoid)
+        tau_max_sigmoid = np.argmax(correlations_sigmoid) + _min_lag if not average_windows else 0
 
         # per window avg and var of z-transformed correlations (->flexibility)
         correlations_z_transformed = np.arctanh(correlations)
@@ -95,9 +104,12 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
         result = {
             'start_idx': start,
             'center_idx': start + window_size // 2,
+            'correlations': correlations,
             'r_max': r_max,
             'tau_max': tau_max,
-            'correlations': correlations,
+            'correlations_sigmoid': correlations_sigmoid,
+            'r_max_sigmoid': r_max_sigmoid,
+            'tau_max_sigmoid': tau_max_sigmoid,
             'avg_z_transformed_corr': avg_z_transformed_corr,
             'var_z_transformed_corr': var_z_transformed_corr
         }
