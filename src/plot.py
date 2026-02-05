@@ -86,7 +86,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax2.set_ylabel('tau_max')
     ax2.set_title('Lag at Peak Correlation Over Time')
     ax2.grid()
-    num_bins_tau_max = min(len(tau_max_values)//4, max_lag)
+    num_bins_tau_max = min(len(tau_max_values)//4, max_lag // 2)
     ax2_hist = fig.add_subplot(ax2_gs_inner[1])
     ax2_hist.hist(tau_max_values, bins=num_bins_tau_max, orientation='vertical', color='black', alpha=1)
     ax2_hist.set_xlim(-max_lag, max_lag)
