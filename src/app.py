@@ -23,6 +23,23 @@ tk.set_default_color_theme("dark-blue") # options 'blue', 'green', 'dark-blue'
 app = tk.CTk()  
 app.title("wx")
 
+# # force refocus (e.g. after alt-tab )
+# refocus_delay_ms = 40
+# _refocus_job = None
+# def force_focus():
+#     global _refocus_job
+#     _refocus_job = None
+#     app.lift()
+#     app.attributes("-topmost", True)
+#     app.after(10, lambda: app.attributes("-topmost", False))
+#     app.focus_force()
+# def schedule_focus(event=None):
+#     global _refocus_job
+#     if _refocus_job is None:
+#         _refocus_job = app.after(refocus_delay_ms, force_focus)
+# app.bind("<Map>", schedule_focus)
+
+
 # Get the screen width and height
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
@@ -31,6 +48,7 @@ screen_height = app.winfo_screenheight()
 app.geometry(f"{screen_width}x{screen_height}")
 scaling_factor = 1
 app.tk.call('tk', 'scaling', scaling_factor)
+
 
 # ----------------------
 # DEFAULTS / INIT VALUES
