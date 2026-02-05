@@ -2,18 +2,18 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
 
-RETINA = True
+SMALLER = True
 
-FIGSIZE = (5, 4) if RETINA else (10, 8)
+FIGSIZE = (5, 4) if SMALLER else (10, 8)
 
-if RETINA:
+if SMALLER:
     plt.rcParams.update({
-        'font.size': 6,         # Default font size
-        'axes.titlesize': 4,    # Title font size
-        'axes.labelsize': 4,    # Axis label font size
-        'xtick.labelsize': 4,   # X-axis tick label font size
-        'ytick.labelsize': 4,   # Y-axis tick label font size
-        'lines.linewidth': 1,    # Line width
+        'font.size': 6,         
+        'axes.titlesize': 4,    
+        'axes.labelsize': 4,    
+        'xtick.labelsize': 4,   
+        'ytick.labelsize': 4,   
+        'lines.linewidth': 1,    
     })
 
 def plot_init():
@@ -37,14 +37,12 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     """
     # Extract values for plotting
     window_start_indices = [res['start_idx'] for res in wxc_data]
-    window_center_indices = [res['center_idx'] for res in wxc_data]
     r_max_values = [res['r_max'] for res in wxc_data]
     tau_max_values = [res['tau_max'] for res in wxc_data]
 
     # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
-    # gs = gridspec.GridSpec(4, 1, height_ratios=[5, 1, 1, 1])
-    gs = gridspec.GridSpec(4, 1, height_ratios=[8, 1, 1, 1])
+    gs = gridspec.GridSpec(3, 1, height_ratios=[7, 1, 1])
 
     # get lag range (filtered or unfiltered) for y-axis
     _min_lag = -max_lag
@@ -54,47 +52,41 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         _max_lag = max(lag_filter_min, lag_filter_max)
 
     # Create a heatmap of correlations
-    ax1 = fig.add_subplot(gs[0])
+    ax0 = fig.add_subplot(gs[0])
     heatmap_data = np.array([res['correlations'] for res in wxc_data])
-    im = ax1.imshow(
+    im = ax0.imshow(
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
         extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag] if not use_win_center_tscl
           else [window_size // 2, (len(wxc_data)-1) * step_size + window_size // 2, _min_lag, _max_lag]
     )
-    fig.colorbar(im, ax=ax1, label='Correlation')
-    ax1.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')
-    ax1.set_ylabel('Lag')
-    ax1.set_title('Correlation Heatmap')
-
-    # Plot input signals over time
-    ax2 = fig.add_subplot(gs[1])
-    ax2.plot(signal_a, label='Signal a', color='blue')
-    ax2.plot(signal_b, label='Signal b', color='purple')
-    ax2.set_xlabel('Time')
-    ax2.set_ylabel('Sample Value')
-    ax2.set_title('Signals over time')
-    ax2.legend()
-    ax2.grid()
-
-    # Plot peak correlation values over time
-    ax3 = fig.add_subplot(gs[2])
-    ax3.plot(window_start_indices if not use_win_center_tscl else window_center_indices, r_max_values, marker='o', markersize=.8, color='black', label='Peak Correlation')
-    ax3.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time [window centers]')
-    ax3.set_ylabel('r_max')
-    ax3.set_title('Peak Correlation Over Time')
-    ax3.legend()
-    ax3.grid()
+    fig.colorbar(im, ax=ax0, label='Correlation')
+    ax0.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')
+    ax0.set_ylabel('Lag')
+    ax0.set_title('Correlation Heatmap')
+    
+    # Plot peak correlation values over time and as histogram
+    ax1_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[1], width_ratios=[6, 1])
+    ax1 = fig.add_subplot(ax1_gs_inner[0])
+    ax1.plot(window_start_indices, r_max_values, marker='o', markersize=.8, color='black', label='Peak Correlation')
+    ax1.set_ylabel('r_max')
+    ax1.set_title('Peak Correlation Over Time')
+    ax1.grid()
+    ax1_hist = fig.add_subplot(ax1_gs_inner[1])
+    ax1_hist.hist(r_max_values, bins=15, orientation='vertical', color='black', alpha=1)
+    ax1_hist.set_xlim(-1, 1)
 
     # Plot corresponding lags over time
-    ax4 = fig.add_subplot(gs[3])
-    ax4.plot(window_start_indices if not use_win_center_tscl else window_center_indices, tau_max_values, marker='o', markersize=.8, color='black', label='Lag at Peak')
-    ax4.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time [window centers]')
-    ax4.set_ylabel('tau_max')
-    ax4.set_title('Lag at Peak Correlation Over Time')
-    ax4.legend()
-    ax4.grid()
+    ax2_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[2], width_ratios=[6, 1])
+    ax2 = fig.add_subplot(ax2_gs_inner[0])
+    ax2.plot(window_start_indices, tau_max_values, marker='o', markersize=.8, color='black', label='Lag at Peak')
+    ax2.set_ylabel('tau_max')
+    ax2.set_title('Lag at Peak Correlation Over Time')
+    ax2.grid()
+    ax2_hist = fig.add_subplot(ax2_gs_inner[1])
+    ax2_hist.hist(tau_max_values, bins=15, orientation='vertical', color='black', alpha=1)
+    ax2_hist.set_xlim(-max_lag, max_lag)
 
     # Adjust layout
     fig.tight_layout()
