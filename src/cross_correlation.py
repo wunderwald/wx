@@ -1,4 +1,13 @@
 import numpy as np
+import math
+
+def scale_sigmoid(x: np.array):
+    '''
+    Scales values a numpy array using a modified sigmoid function. The sigmoid itsself is scaled so that it returns values
+    in range [-1, 1] for inputs in range [-1, 1]. It basically gives more range to values closer to zero and less range to
+    values closer to -1 or 1. In the correlation heatmap, sigmoid scaling increases contrast.
+    '''
+    return 2 * (1 / (1 + np.exp(-4*x))) - 1
 
 
 def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None, absolute=False, average_windows=False):
