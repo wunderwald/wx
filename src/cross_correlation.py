@@ -117,7 +117,6 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
         # Append the result to the list
         results.append(result)
 
-
     return results
 
 def standard_cross_correlation(x, y, max_lag, absolute=False):
