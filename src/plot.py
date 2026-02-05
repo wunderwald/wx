@@ -20,7 +20,7 @@ def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None):
+def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, show_sigmoid_correlations=False, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None):
     """
     Create and return a figure plotting the wxc_data of the windowed cross-correlation.
 
@@ -30,14 +30,15 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         step_size (int): Step size for the sliding window.
         signal_a (array-like): First input signal.
         signal_b (array-like): Second input signal.
-
+        show_sigmoid_correlations (bool): Show sigmoid scaled correlation values.
     Returns:
         matplotlib.figure.Figure: The figure containing the plots.
     """
     # Extract values for plotting
     window_start_indices = [res['start_idx'] for res in wxc_data]
-    r_max_values = [res['r_max'] for res in wxc_data]
-    tau_max_values = [res['tau_max'] for res in wxc_data]
+    r_max_values = [res['r_max_sigmoid' if show_sigmoid_correlations else 'r_max'] for res in wxc_data]
+    tau_max_values = [res['tau_max_sigmoid' if show_sigmoid_correlations else 'tau_max'] for res in wxc_data]
+    correlation_values = [res['correlations_sigmoid' if show_sigmoid_correlations else 'correlations'] for res in wxc_data]
 
     # Initialize plot layout
     fig = plt.figure(figsize=FIGSIZE)
@@ -52,7 +53,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
 
     # Create a heatmap of correlations
     ax0 = fig.add_subplot(gs[0])
-    heatmap_data = np.array([res['correlations'] for res in wxc_data])
+    heatmap_data = np.array(correlation_values)
     im = ax0.imshow(
         heatmap_data.T,
         aspect='auto',
@@ -65,14 +66,14 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax0.axhline(y=0, color='black', linestyle='dotted', linewidth=0.2)
     ax0.set_xlabel('Window Start Index')
     ax0.set_ylabel('Lag')
-    ax0.set_title('Correlation Heatmap')
+    ax0.set_title(f"Correlation Heatmap{' (sigmoid-scaled)' if show_sigmoid_correlations else ''}")
     
     # Plot peak correlation values over time and as histogram
     ax1_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[1], width_ratios=[6, 1], wspace=.1)
     ax1 = fig.add_subplot(ax1_gs_inner[0])
-    ax1.plot(window_start_indices, r_max_values, marker='o', markersize=.8, color='black', label='Peak Correlation')
+    ax1.plot(window_start_indices, r_max_values, marker='o', markersize=.8, color='black', label='peak correlation')
     ax1.set_ylabel('r_max')
-    ax1.set_title('Peak Correlation Over Time')
+    ax1.set_title('Peak (positive) correlation per window')
     ax1.grid()
     num_bins_r_max = min(len(r_max_values)//3, 40)
     ax1_hist = fig.add_subplot(ax1_gs_inner[1])
@@ -82,9 +83,9 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     # Plot corresponding lags over time
     ax2_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[2], width_ratios=[6, 1], wspace=.1)
     ax2 = fig.add_subplot(ax2_gs_inner[0])
-    ax2.plot(window_start_indices, tau_max_values, marker='o', markersize=.8, color='black', label='Lag at Peak')
+    ax2.plot(window_start_indices, tau_max_values, marker='o', markersize=.8, color='black', label='Lag of peak')
     ax2.set_ylabel('tau_max')
-    ax2.set_title('Lag at Peak Correlation Over Time')
+    ax2.set_title('Lag of peak (positive) correlation per window')
     ax2.grid()
     num_bins_tau_max = min(len(tau_max_values)//4, max_lag)
     ax2_hist = fig.add_subplot(ax2_gs_inner[1])
@@ -212,6 +213,7 @@ def update_wxcorr_plots(params):
             - "use_lag_filter" (bool): Apply lag filter to limit lag range.
             - "lag_filter_min" (int): Minimum lag for filter (inclusive).
             - "lag_filter_max" (int): Maximum lag for filter (inclusive).
+            - "show_sigmoid_correlations" (bool): Visualise sigmoid scaled correlation values.
     Returns:
         matplotlib.figure.Figure: The figure object containing the updated plot.
     """
@@ -224,9 +226,10 @@ def update_wxcorr_plots(params):
     use_lag_filter = params['use_lag_filter']
     lag_filter_min = params['lag_filter_min']
     lag_filter_max = params['lag_filter_max']
+    show_sigmoid_correlations = params['show_sigmoid_correlations']
     
     # create and store plot figure
-    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=use_lag_filter, lag_filter_min=lag_filter_min, lag_filter_max=lag_filter_max)
+    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, show_sigmoid_correlations=show_sigmoid_correlations, use_lag_filter=use_lag_filter, lag_filter_min=lag_filter_min, lag_filter_max=lag_filter_max)
     return fig
 
 # update standard xcorr plots
