@@ -1180,7 +1180,7 @@ def _update_sxcorr_data():
     # read data from data containers and state variabled
     use_standardised_signals = val_checkbox_standardise.get()
     signal_a = dat_physiological_data["signal_a_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b_std"] if use_standardised_signals else dat_physiological_data["signal_b"]
     max_lag = val_max_lag_sxc.get()
     absolute_values = val_checkbox_absolute_corr_sxc.get()
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
