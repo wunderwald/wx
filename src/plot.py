@@ -67,25 +67,25 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax0.set_title('Correlation Heatmap')
     
     # Plot peak correlation values over time and as histogram
-    ax1_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[1], width_ratios=[6, 1])
+    ax1_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[1], width_ratios=[6, 1], wspace=.1)
     ax1 = fig.add_subplot(ax1_gs_inner[0])
     ax1.plot(window_start_indices, r_max_values, marker='o', markersize=.8, color='black', label='Peak Correlation')
     ax1.set_ylabel('r_max')
     ax1.set_title('Peak Correlation Over Time')
     ax1.grid()
     ax1_hist = fig.add_subplot(ax1_gs_inner[1])
-    ax1_hist.hist(r_max_values, bins=15, orientation='vertical', color='black', alpha=1)
+    ax1_hist.hist(r_max_values, bins=len(r_max_values)//8, orientation='vertical', color='black', alpha=1)
     ax1_hist.set_xlim(-1, 1)
 
     # Plot corresponding lags over time
-    ax2_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[2], width_ratios=[6, 1])
+    ax2_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[2], width_ratios=[6, 1], wspace=.1)
     ax2 = fig.add_subplot(ax2_gs_inner[0])
     ax2.plot(window_start_indices, tau_max_values, marker='o', markersize=.8, color='black', label='Lag at Peak')
     ax2.set_ylabel('tau_max')
     ax2.set_title('Lag at Peak Correlation Over Time')
     ax2.grid()
     ax2_hist = fig.add_subplot(ax2_gs_inner[1])
-    ax2_hist.hist(tau_max_values, bins=15, orientation='vertical', color='black', alpha=1)
+    ax2_hist.hist(tau_max_values, bins=len(tau_max_values)//8, orientation='vertical', color='black', alpha=1)
     ax2_hist.set_xlim(-max_lag, max_lag)
 
     # Adjust layout
