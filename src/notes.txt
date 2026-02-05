@@ -1,0 +1,7 @@
+# Build
+
+python3 build.py <app_name>
+
+# Collect requirements
+
+pip-chill --no-version > requirements.txt
