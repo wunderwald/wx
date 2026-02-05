@@ -771,7 +771,7 @@ group_plot = tk.CTkFrame(group_main)
 group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='n')
 # parameter group
 group_params_tabview = tk.CTkTabview(group_main)
-group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
+group_params_tabview.grid(row=0, column=1, padx=10, pady=20, sticky='n')
 
 
 # -------------------
