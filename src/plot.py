@@ -62,6 +62,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         vmax=1
     )
     fig.colorbar(im, ax=ax0, label='Correlation')
+    ax0.axhline(y=0, color='black', linestyle='dotted', linewidth=0.2)
     ax0.set_xlabel('Window Start Index')
     ax0.set_ylabel('Lag')
     ax0.set_title('Correlation Heatmap')
