@@ -714,6 +714,7 @@ def run_batch_process():
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
+        'sigmoid_correlations': val_checkbox_show_sigmoid_correlations.get(),
         'checkbox_eb': val_checkbox_eb.get(),
         'checkbox_fr': val_checkbox_fr.get(),
     }
@@ -753,6 +754,7 @@ def run_random_pair():
         'max_lag': val_max_lag.get(),
         'max_lag_sxc': val_max_lag_sxc.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+        'sigmoid_correlations': val_checkbox_show_sigmoid_correlations.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_eb': val_checkbox_eb.get(),
