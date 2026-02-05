@@ -128,17 +128,15 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     # Plot input signal a over time
     ax1 = fig.add_subplot(gs[1])
     ax1.plot(signal_a, label='Signal a', color='blue')
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('Sample Value')
-    ax1.legend()
+    ax1.set_xlabel('Index')
+    ax1.set_ylabel('Signal a')
     ax1.grid()
 
     # Plot input signal b over time
     ax1 = fig.add_subplot(gs[2])
     ax1.plot(signal_b, label='Signal b', color='purple')
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('Sample Value')
-    ax1.legend()
+    ax1.set_xlabel('Index')
+    ax1.set_ylabel('Signal b')
     ax1.grid()
 
     # Return figure object
@@ -277,3 +275,14 @@ def update_preproc_plots(params):
     plot_titles = make_plot_titles_preproc(params["dyad_folder"], params["selected_sheet"], params["filename_a"], params["filename_b"], params["column_a"], params["column_b"], params["is_resampled"])
     fig = plot_preprocessed_signals(signal_a, signal_b, plot_titles)
     return fig
+
+def save_figure_to_png(fig, filepath):
+    """
+    Save a matplotlib figure to a PNG file.
+    
+    Args:
+        fig (matplotlib.figure.Figure): The figure object to save.
+        filepath (str): The full path where the PNG file should be saved.
+    """
+    fig.savefig(filepath, dpi=300, bbox_inches='tight')
+    #plt.close(fig)

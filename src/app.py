@@ -711,11 +711,16 @@ def run_batch_process():
         'step_size': val_step_size.get(),
         'max_lag': val_max_lag.get(),
         'max_lag_sxc': val_max_lag_sxc.get(),
+        'standardised_signals': val_checkbox_standardise.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
+        'sigmoid_correlations': val_checkbox_show_sigmoid_correlations.get(),
         'checkbox_eb': val_checkbox_eb.get(),
         'checkbox_fr': val_checkbox_fr.get(),
+        'use_lag_filter': checkbox_lag_filter.get(),
+        'lag_filter_min': val_lag_filter_min.get(),
+        'lag_filter_max': val_lag_filter_max.get()
     }
     batch_process(params)
 
@@ -753,6 +758,7 @@ def run_random_pair():
         'max_lag': val_max_lag.get(),
         'max_lag_sxc': val_max_lag_sxc.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
+        'sigmoid_correlations': val_checkbox_show_sigmoid_correlations.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_eb': val_checkbox_eb.get(),
@@ -1174,7 +1180,7 @@ def _update_sxcorr_data():
     # read data from data containers and state variabled
     use_standardised_signals = val_checkbox_standardise.get()
     signal_a = dat_physiological_data["signal_a_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
-    signal_b = dat_physiological_data["signal_b_std"] if use_standardised_signals else dat_physiological_data["signal_a"]
+    signal_b = dat_physiological_data["signal_b_std"] if use_standardised_signals else dat_physiological_data["signal_b"]
     max_lag = val_max_lag_sxc.get()
     absolute_values = val_checkbox_absolute_corr_sxc.get()
     dat_correlation_data['sxcorr'] = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)

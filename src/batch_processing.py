@@ -7,7 +7,8 @@ import random
 import numpy as np
 from datetime import datetime
 from scipy.stats import ttest_ind
-from dfa import dfa_wxcorr
+from dfa import dfa_wxcorr, dfa
+from plot import plot_windowed_cross_correlation, plot_standard_cross_correlation, save_figure_to_png
 
 def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dyad_dir=''):
     """
@@ -53,11 +54,17 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
         raw_signal_b = columns_b[params['workbook_data']['selected_column_b']]
 
         # process data
-        signal_a, signal_b = preprocess_dyad(
+        # TODO Select the right signal!
+        _signal_a, _signal_b, _signal_a_z_scored, _signal_b_z_scored = preprocess_dyad(
             raw_signal_a,
             raw_signal_b,
-            signal_type='eb_MS' if params['checkbox_eb'] else 'fr'
+            signal_type='event-based' if params['checkbox_eb'] else 'fixed-rate'
         )
+
+        # select signals based on standardisation flag
+        use_standardised_data = params['standardised_signals']
+        signal_a = _signal_a_z_scored if use_standardised_data else _signal_a
+        signal_b = _signal_b_z_scored if use_standardised_data else _signal_b
 
         # make and export correlation data
         if params['checkbox_windowed_xcorr']:
@@ -70,14 +77,14 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
             corr_data = windowed_cross_correlation(signal_a, signal_b, window_size=window_size, step_size=step_size, max_lag=max_lag, absolute=absolute_values, average_windows=average_windows)
             
             # dfa per lag (per horizontal line)
-            dfa_corr_data = None
-            try:
-                dfa_data = dfa_wxcorr(corr_data, max_lag, order=1)
-                dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
-                dfa_corr_data = dfa_alpha_per_lag
-            except ValueError as e:
-                dfa_corr_data = None
-                print("TODO: handle dfa update error in wxcorr update", e) # TODO
+            # dfa_corr_data = None
+            # try:
+            #     dfa_data = dfa_wxcorr(corr_data, max_lag, order=1)
+            #     dfa_alpha_per_lag = [{'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data]
+            #     dfa_corr_data = dfa_alpha_per_lag
+            # except ValueError as e:
+            #     dfa_corr_data = None
+            #     print("TODO: handle dfa update error in wxcorr update", e) # TODO
 
             # export
             export_params = {
@@ -90,24 +97,49 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'step_size': params['step_size'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr'],
                 'checkbox_average_windows': params['checkbox_average_windows'],
+                'sigmoid_correlations': params['sigmoid_correlations'],
                 'checkbox_eb': params['checkbox_eb'],
-                'signal_a': signal_a,
-                'signal_b': signal_b,
+                'signal_a': _signal_a,
+                'signal_b': _signal_b,
+                'signal_a_std': _signal_a_z_scored,
+                'signal_b_std': _signal_b_z_scored,
                 'wxcorr': corr_data,
-                'dfa_alpha_per_lag_wxcorr': dfa_corr_data
+                #'dfa_alpha_per_lag_wxcorr': dfa_corr_data,
+                'checkbox_lag_filter': params['use_lag_filter'],
+                'lag_filter_min': params['lag_filter_min'],
+                'lag_filter_max': params['lag_filter_max'],
+                'is_standardised': use_standardised_data
             }
             
-            # export / return data
+            # export data and plot
             if export:
                 output_file_name = f"wx_{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_wxcorr.xlsx"
                 output_file_path = os.path.join(output_dir, output_file_name)
                 export_wxcorr_data(output_file_path, export_params)
+                
+                fig = plot_windowed_cross_correlation(
+                    wxc_data=corr_data, signal_a=signal_a, signal_b=signal_b, 
+                    show_sigmoid_correlations=params['sigmoid_correlations'],
+                    use_lag_filter=params['use_lag_filter'], lag_filter_min=params['lag_filter_min'], lag_filter_max=params['lag_filter_max'],
+                    window_size=params['window_size'], max_lag=params['max_lag'], step_size=params['step_size']
+                )
+                plot_file_name = f"wx_{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_wxcorr.png"
+                plot_file_path = os.path.join(output_dir, plot_file_name)
+                save_figure_to_png(fig=fig, filepath=plot_file_path)
+
+            # return correlation data    
             return corr_data
+        
         else:
             # Standard XCorr
             max_lag = params['max_lag_sxc']
             absolute_values = params['checkbox_absolute_corr_sxc']
             corr_data = standard_cross_correlation(signal_a, signal_b, max_lag=max_lag, absolute=absolute_values)
+            
+            # calculate dfa
+            A, F = dfa(corr_data['corr'], order=1)
+            dfa_alpha = A[0]
+
             # export
             export_params = {
                 'selected_dyad_dir': dyad_dir,
@@ -117,15 +149,26 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'max_lag': params['max_lag_sxc'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr_sxc'],
                 'checkbox_eb': params['checkbox_eb'],
-                'signal_a': signal_a,
-                'signal_b': signal_b,
-                'sxcorr': corr_data
+                'signal_a': _signal_a,
+                'signal_b': _signal_b,
+                'signal_a_std': _signal_a_z_scored,
+                'signal_b_std': _signal_b_z_scored,
+                'sxcorr': corr_data,
+                'is_standardised': use_standardised_data,
+                'dfa_alpha': dfa_alpha
             }
-            # export / return data
+            
+            # export data and plot
             if export:
                 output_file_name = f"{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_sxcorr.xlsx"
                 output_file_path = os.path.join(output_dir, output_file_name)
                 export_sxcorr_data(output_file_path, export_params)
+
+                plot_file_name = f"{os.path.basename(dyad_dir) if dyad_dir else datetime.now().strftime('%Y%m%d%H%M%S')}_sxcorr.png"
+                plot_file_path = os.path.join(output_dir, plot_file_name)
+                fig = plot_standard_cross_correlation(sxc_data=corr_data, signal_a=signal_a, signal_b=signal_b)
+                save_figure_to_png(fig=fig, filepath=plot_file_path)
+
             return corr_data
     except Exception as e:
         print(f"! {os.path.basename(file_path_a)}, {os.path.basename(file_path_b)}: {e}")
@@ -222,11 +265,16 @@ def batch_process(params):
             - window_size (int): Size of the window for windowed cross-correlation.
             - step_size (int): Step size for windowed cross-correlation.
             - max_lag (int): Maximum lag for windowed cross-correlation.
+            - standardised_signals (bool): Use standardised (z-scored) input signals.
             - checkbox_absolute_corr (bool): If True, use absolute values for windowed cross-correlation.
             - checkbox_average_windows (bool): If True, average the windows for windowed cross-correlation.
+            - sigmoid_correlations (bool): If True, export sigmoid-scaled correlation values.
             - max_lag_sxc (int): Maximum lag for standard cross-correlation.
             - checkbox_absolute_corr_sxc (bool): If True, use absolute values for standard cross-correlation.
             - checkbox_fr (bool): If True, indicates that fr data is being processed.
+            - use_lag_filter (bool): Apply lag filter to limit lag range (wxcorr only).
+            - lag_filter_min (int): Minimum lag for filter (inclusive) (wxcorr only).
+            - lag_filter_max (int): Maximum lag for filter (inclusive) (wxcorr only).
     Returns:
         None
     """
@@ -247,4 +295,4 @@ def batch_process(params):
         if len(xlsx_files) >= 2:
             file_path_a = os.path.join(dyad_path, xlsx_files[0])
             file_path_b = os.path.join(dyad_path, xlsx_files[1])
-            _process_dyad(file_path_a, file_path_b, output_dir, params, dyad_dir=dyad_path)
+            _process_dyad(file_path_a, file_path_b, output_dir, params, dyad_dir=dyad_path, export=True)
