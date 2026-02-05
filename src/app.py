@@ -36,9 +36,9 @@ app.tk.call('tk', 'scaling', scaling_factor)
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 100
-INIT_STEP_SIZE = 10
-INIT_MAX_LAG = 50    # default: window_size//2
+INIT_WINDOW_SIZE = 600                           # := 30s for 5hz signals
+INIT_MAX_LAG = max(1, INIT_WINDOW_SIZE // 20)    # window_size//2 * .1; 1.5s in this case
+INIT_STEP_SIZE = max(1, INIT_WINDOW_SIZE // 20)  # window_size//2 * .1; 1.5s in this case
 INIT_MAX_LAG_SXC = 100
 
 # ---------------------
@@ -177,7 +177,7 @@ val_lag_filter_max = tk.IntVar(value=INIT_MAX_LAG)
 val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
 val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
-val_checkbox_standardise = tk.BooleanVar(value=False)
+val_checkbox_standardise = tk.BooleanVar(value=True)
 val_selected_dyad_dir = tk.StringVar(value='')
 val_selected_file_a = tk.StringVar(value='')
 val_selected_file_b = tk.StringVar(value='')

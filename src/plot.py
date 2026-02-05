@@ -57,9 +57,12 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
-        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag]
+        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag],
+        vmin=-1,
+        vmax=1
     )
     fig.colorbar(im, ax=ax0, label='Correlation')
+    ax0.axhline(y=0, color='black', linestyle='dotted', linewidth=0.2)
     ax0.set_xlabel('Window Start Index')
     ax0.set_ylabel('Lag')
     ax0.set_title('Correlation Heatmap')
@@ -71,8 +74,9 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax1.set_ylabel('r_max')
     ax1.set_title('Peak Correlation Over Time')
     ax1.grid()
+    num_bins_r_max = min(len(r_max_values)//3, 40)
     ax1_hist = fig.add_subplot(ax1_gs_inner[1])
-    ax1_hist.hist(r_max_values, bins=len(r_max_values)//8, orientation='vertical', color='black', alpha=1)
+    ax1_hist.hist(r_max_values, bins=num_bins_r_max, orientation='vertical', color='black', alpha=1)
     ax1_hist.set_xlim(-1, 1)
 
     # Plot corresponding lags over time
@@ -82,8 +86,9 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax2.set_ylabel('tau_max')
     ax2.set_title('Lag at Peak Correlation Over Time')
     ax2.grid()
+    num_bins_tau_max = min(len(tau_max_values)//4, max_lag)
     ax2_hist = fig.add_subplot(ax2_gs_inner[1])
-    ax2_hist.hist(tau_max_values, bins=len(tau_max_values)//8, orientation='vertical', color='black', alpha=1)
+    ax2_hist.hist(tau_max_values, bins=num_bins_tau_max, orientation='vertical', color='black', alpha=1)
     ax2_hist.set_xlim(-max_lag, max_lag)
 
     # Adjust layout
