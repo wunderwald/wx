@@ -178,8 +178,6 @@ val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
 val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
 val_checkbox_standardise = tk.BooleanVar(value=False)
-val_checkbox_tscl_index = tk.BooleanVar(value=True)
-val_checkbox_tscl_center = tk.BooleanVar(value=False)
 val_selected_dyad_dir = tk.StringVar(value='')
 val_selected_file_a = tk.StringVar(value='')
 val_selected_file_b = tk.StringVar(value='')
@@ -337,16 +335,6 @@ def on_is_fr_change(): # eb (event-based) vs fr (fixed-rate)
 def on_standardise_change():
     new_val = val_checkbox_standardise.get()
     clear_correlation_data()
-    PARAMS_CHANGED()
-
-def on_use_tscl_index_change():
-    new_val = val_checkbox_tscl_index.get()
-    val_checkbox_tscl_center.set(not new_val)
-    PARAMS_CHANGED()
-
-def on_use_tscl_center_change():
-    new_val = val_checkbox_tscl_center.get()
-    val_checkbox_tscl_index.set(not new_val)
     PARAMS_CHANGED()
 
 def on_windowed_xcorr_change():
@@ -783,7 +771,7 @@ group_plot = tk.CTkFrame(group_main)
 group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='n')
 # parameter group
 group_params_tabview = tk.CTkTabview(group_main)
-group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
+group_params_tabview.grid(row=0, column=1, padx=10, pady=20, sticky='n')
 
 
 # -------------------
@@ -792,8 +780,8 @@ group_params_tabview.grid(row=0, column=1, padx=10, pady=20)
 
 # Add tabs
 tab_input_data = group_params_tabview.add("Input Data")
-tab_correlation = group_params_tabview.add("Correlation & Visualisation")
-tab_export_batch = group_params_tabview.add("Export, Batch & RP")
+tab_correlation = group_params_tabview.add("Correlation")
+tab_export_batch = group_params_tabview.add("Export & Batch")
 group_params_tabview.configure(command=on_tab_change)
 
 # INPUT DATA & Preprocessing
@@ -890,20 +878,6 @@ entry_max_lag_sxc.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 error_label_max_lag_sxc = tk.CTkLabel(subgroup_standard_xcorr_parameters, text='Max Lag must be in range [0, data_length - 1]', text_color='red') # initially hidden
 checkbox_absolute_corr_sxc = tk.CTkCheckBox(subgroup_standard_xcorr_parameters, text='Absolute Correlation Values', variable=val_checkbox_absolute_corr_sxc, command=on_absolute_corr_change_sxc)
 checkbox_absolute_corr_sxc.grid(row=3, column=0, sticky="w", padx=10, pady=5)
-
-# VISUALISATION
-subgroup_vis = tk.CTkFrame(tab_correlation)
-subgroup_vis.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
-# subgroup content
-label_vis_settings = tk.CTkLabel(subgroup_vis, text="Visualisation", font=("Arial", 20, "bold"))
-label_vis_settings.grid(row=0, column=0, columnspan=2, pady=10, padx=10, sticky='w')
-# sub-subgroup content
-label_vis_time_scale  = tk.CTkLabel(subgroup_vis, text="Time format in plots")
-label_vis_time_scale.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky='w')
-checkbox_use_tscl_index = tk.CTkCheckBox(subgroup_vis, text='Window Start Indices', variable=val_checkbox_tscl_index, command=on_use_tscl_index_change)
-checkbox_use_tscl_index.grid(row=2, column=0, sticky="w", padx=10, pady=5)
-checkbox_use_tscl_center = tk.CTkCheckBox(subgroup_vis, text='Window Center Time', variable=val_checkbox_tscl_center, command=on_use_tscl_center_change)
-checkbox_use_tscl_center.grid(row=2, column=1, sticky="w", padx=10, pady=5)
 
 # EXPORT & BATCH
 # subgroup export
@@ -1083,14 +1057,6 @@ def update_xcorr_parameter_groups(*args):
         subgroup_standard_xcorr_parameters.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
 val_checkbox_windowed_xcorr.trace_add('write', update_xcorr_parameter_groups)
 
-# toggle vis group (only needed for wxc)
-def update_vis_settings_group(*args):
-    wxc_is_active = val_checkbox_windowed_xcorr.get()
-    if wxc_is_active:
-        subgroup_vis.grid(row=3, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
-    else:
-        subgroup_vis.grid_forget()
-val_checkbox_windowed_xcorr.trace_add('write', update_vis_settings_group)
 
 # batch file pickers: dynamic labels
 val_batch_input_folder.trace_add('write', lambda *args: label_batch_input_folder.configure(text=f"Selected: {os.path.basename(val_batch_input_folder.get())}"))
@@ -1259,7 +1225,6 @@ def update_plot(*args):
             'window_size': val_window_size.get(),
             'step_size': val_step_size.get(),
             'max_lag': val_max_lag.get(),
-            'use_timescale_win_center': val_checkbox_tscl_center.get(),
             'use_lag_filter': checkbox_lag_filter.get(),
             'lag_filter_min': val_lag_filter_min.get(),
             'lag_filter_max': val_lag_filter_max.get(),
