@@ -195,6 +195,7 @@ val_lag_filter_max = tk.IntVar(value=INIT_MAX_LAG)
 val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
 val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
+val_checkbox_show_sigmoid_correlations = tk.BooleanVar(value=False)
 val_checkbox_standardise = tk.BooleanVar(value=True)
 val_selected_dyad_dir = tk.StringVar(value='')
 val_selected_file_a = tk.StringVar(value='')
@@ -353,6 +354,10 @@ def on_is_fr_change(): # eb (event-based) vs fr (fixed-rate)
 def on_standardise_change():
     new_val = val_checkbox_standardise.get()
     clear_correlation_data()
+    PARAMS_CHANGED()
+
+def on_show_sigmoid_correlations_change():
+    new_val = val_checkbox_show_sigmoid_correlations.get()
     PARAMS_CHANGED()
 
 def on_windowed_xcorr_change():
@@ -883,6 +888,8 @@ checkbox_absolute_corr = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text
 checkbox_absolute_corr.grid(row=15, column=0, sticky="w", padx=10, pady=5)
 checkbox_average_windows = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Average Values in Windows', variable=val_checkbox_average_windows, command=on_average_windows_change)
 checkbox_average_windows.grid(row=16, column=0, sticky="w", padx=10, pady=5)
+checkbox_show_sigmoid_correlations = tk.CTkCheckBox(subgroup_windowed_xcorr_parameters, text='Sigmoid-Scaled Correlation Values', variable=val_checkbox_show_sigmoid_correlations, command=on_show_sigmoid_correlations_change)
+checkbox_show_sigmoid_correlations.grid(row=17, column=0, sticky="w", padx=10, pady=5)
 
 # standard xcorr specialised settings (initially hidden)
 subgroup_standard_xcorr_parameters = tk.CTkFrame(subgroup_corr_settings)
@@ -1246,7 +1253,8 @@ def update_plot(*args):
             'use_lag_filter': checkbox_lag_filter.get(),
             'lag_filter_min': val_lag_filter_min.get(),
             'lag_filter_max': val_lag_filter_max.get(),
-            'windowed_xcorr_data': dat_correlation_data["wxcorr"]
+            'windowed_xcorr_data': dat_correlation_data["wxcorr"],
+            'show_sigmoid_correlations': val_checkbox_show_sigmoid_correlations.get()
         })
         return
 

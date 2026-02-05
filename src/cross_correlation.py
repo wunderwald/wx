@@ -78,7 +78,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
             correlations.append(corr)
 
         # apply sigmoid scaling to correlation values
-        correlations_sigmoid = scale_sigmoid(correlations)
+        correlations_sigmoid = scale_sigmoid(np.array(correlations))
 
         # optionally average correlation values in window
         if average_windows:
