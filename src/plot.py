@@ -66,7 +66,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax0.axhline(y=0, color='black', linestyle='dotted', linewidth=0.2)
     ax0.set_xlabel('Window Start Index')
     ax0.set_ylabel('Lag')
-    ax0.set_title('Correlation Heatmap')
+    ax0.set_title(f"Correlation Heatmap{' (sigmoid-scaled)' if show_sigmoid_correlations else ''}")
     
     # Plot peak correlation values over time and as histogram
     ax1_gs_inner = gridspec.GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[1], width_ratios=[6, 1], wspace=.1)
