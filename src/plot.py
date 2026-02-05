@@ -20,7 +20,7 @@ def plot_init():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None, use_win_center_tscl=False):
+def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None):
     """
     Create and return a figure plotting the wxc_data of the windowed cross-correlation.
 
@@ -30,7 +30,6 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         step_size (int): Step size for the sliding window.
         signal_a (array-like): First input signal.
         signal_b (array-like): Second input signal.
-        use_win_center_tscl (bool): Use time/index of window centers for time axes (instead of window start indices; this helps to compare to other plots)
 
     Returns:
         matplotlib.figure.Figure: The figure containing the plots.
@@ -58,11 +57,10 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
-        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag] if not use_win_center_tscl
-          else [window_size // 2, (len(wxc_data)-1) * step_size + window_size // 2, _min_lag, _max_lag]
+        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag]
     )
     fig.colorbar(im, ax=ax0, label='Correlation')
-    ax0.set_xlabel('Window Start Index' if not use_win_center_tscl else 'Time')
+    ax0.set_xlabel('Window Start Index')
     ax0.set_ylabel('Lag')
     ax0.set_title('Correlation Heatmap')
     
@@ -205,7 +203,6 @@ def update_wxcorr_plots(params):
             - "window_size" (int): The size of the window for cross-correlation.
             - "step_size" (int): The step size for moving the window.
             - "max_lag" (int): The maximum lag to consider in the cross-correlation.
-            - "use_timescale_win_center" (bool): Flag indicating whether window center times or window start indices are used for time axis.
             - "windowed_xcorr_data" (array-like): The precomputed windowed cross-correlation data.
             - "use_lag_filter" (bool): Apply lag filter to limit lag range.
             - "lag_filter_min" (int): Minimum lag for filter (inclusive).
@@ -219,13 +216,12 @@ def update_wxcorr_plots(params):
     step_size = params['step_size']
     max_lag = params['max_lag']
     windowed_xcorr_data = params['windowed_xcorr_data']
-    use_timescale_win_center = params['use_timescale_win_center']
     use_lag_filter = params['use_lag_filter']
     lag_filter_min = params['lag_filter_min']
     lag_filter_max = params['lag_filter_max']
     
     # create and store plot figure
-    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=use_lag_filter, lag_filter_min=lag_filter_min, lag_filter_max=lag_filter_max, use_win_center_tscl=use_timescale_win_center)
+    fig = plot_windowed_cross_correlation(windowed_xcorr_data, window_size, max_lag, step_size, signal_a, signal_b, use_lag_filter=use_lag_filter, lag_filter_min=lag_filter_min, lag_filter_max=lag_filter_max)
     return fig
 
 # update standard xcorr plots
