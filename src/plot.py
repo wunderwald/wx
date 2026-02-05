@@ -57,7 +57,9 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         heatmap_data.T,
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
-        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag]
+        extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag],
+        vmin=-1,
+        vmax=1
     )
     fig.colorbar(im, ax=ax0, label='Correlation')
     ax0.set_xlabel('Window Start Index')
