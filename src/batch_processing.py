@@ -247,4 +247,4 @@ def batch_process(params):
         if len(xlsx_files) >= 2:
             file_path_a = os.path.join(dyad_path, xlsx_files[0])
             file_path_b = os.path.join(dyad_path, xlsx_files[1])
-            _process_dyad(file_path_a, file_path_b, output_dir, params, dyad_dir=dyad_path)
+            _process_dyad(file_path_a, file_path_b, output_dir, params, dyad_dir=dyad_path, export=True)
