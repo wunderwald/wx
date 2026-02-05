@@ -711,12 +711,16 @@ def run_batch_process():
         'step_size': val_step_size.get(),
         'max_lag': val_max_lag.get(),
         'max_lag_sxc': val_max_lag_sxc.get(),
+        'standardised_signals': val_checkbox_standardise.get(),
         'checkbox_absolute_corr': val_checkbox_absolute_corr.get(),
         'checkbox_absolute_corr_sxc': val_checkbox_absolute_corr_sxc.get(),
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'sigmoid_correlations': val_checkbox_show_sigmoid_correlations.get(),
         'checkbox_eb': val_checkbox_eb.get(),
         'checkbox_fr': val_checkbox_fr.get(),
+        'use_lag_filter': checkbox_lag_filter.get(),
+        'lag_filter_min': val_lag_filter_min.get(),
+        'lag_filter_max': val_lag_filter_max.get()
     }
     batch_process(params)
 
