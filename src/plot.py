@@ -59,6 +59,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
         extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag],
+        origin='lower',
         vmin=-1,
         vmax=1
     )

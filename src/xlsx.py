@@ -1,6 +1,6 @@
 from openpyxl import Workbook, load_workbook
 
-def write_xlsx(vectors: dict, single_values: dict, output_path: str):
+def write_xlsx(vectors: dict, single_values: dict, output_path: str, sheet_title: str="xcorr data"):
     """
     Write data to an Excel file.
     Args:
@@ -14,7 +14,7 @@ def write_xlsx(vectors: dict, single_values: dict, output_path: str):
     # Create a new workbook
     wb = Workbook()
     sheet = wb.active
-    sheet.title = "(w)ccf data"
+    sheet.title = sheet_title
 
     # Write the single valued data to columns 
     # (column 1 -> names, column 2 -> values)

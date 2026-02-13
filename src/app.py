@@ -23,23 +23,6 @@ tk.set_default_color_theme("dark-blue") # options 'blue', 'green', 'dark-blue'
 app = tk.CTk()  
 app.title("wx")
 
-# # force refocus (e.g. after alt-tab )
-# refocus_delay_ms = 40
-# _refocus_job = None
-# def force_focus():
-#     global _refocus_job
-#     _refocus_job = None
-#     app.lift()
-#     app.attributes("-topmost", True)
-#     app.after(10, lambda: app.attributes("-topmost", False))
-#     app.focus_force()
-# def schedule_focus(event=None):
-#     global _refocus_job
-#     if _refocus_job is None:
-#         _refocus_job = app.after(refocus_delay_ms, force_focus)
-# app.bind("<Map>", schedule_focus)
-
-
 # Get the screen width and height
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
@@ -54,10 +37,12 @@ app.tk.call('tk', 'scaling', scaling_factor)
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 600                           # := 30s for 5hz signals
-INIT_MAX_LAG = max(1, INIT_WINDOW_SIZE // 20)    # window_size//2 * .1; 1.5s in this case
-INIT_STEP_SIZE = max(1, INIT_WINDOW_SIZE // 20)  # window_size//2 * .1; 1.5s in this case
-INIT_MAX_LAG_SXC = 100
+USE_MY_PARAMS = True
+
+INIT_WINDOW_SIZE = 250 if USE_MY_PARAMS else 150                              # 150 := 30s for 5hz signals
+INIT_MAX_LAG = 25 if USE_MY_PARAMS else 15                                   # 15 := 3s
+INIT_STEP_SIZE = 5 if USE_MY_PARAMS else 15                                 # 15 := 3s; =max_lag
+INIT_MAX_LAG_SXC = 150
 
 # ---------------------
 # GLOBAL STATE & EVENTS
@@ -196,7 +181,7 @@ val_lag_filter_min_input = tk.StringVar(value=str(-INIT_MAX_LAG))
 val_lag_filter_max_input = tk.StringVar(value=str(INIT_MAX_LAG))
 val_checkbox_average_windows = tk.BooleanVar(value=False)
 val_checkbox_show_sigmoid_correlations = tk.BooleanVar(value=False)
-val_checkbox_standardise = tk.BooleanVar(value=True)
+val_checkbox_standardise = tk.BooleanVar(value=False)
 val_selected_dyad_dir = tk.StringVar(value='')
 val_selected_file_a = tk.StringVar(value='')
 val_selected_file_b = tk.StringVar(value='')
@@ -763,6 +748,10 @@ def run_random_pair():
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_eb': val_checkbox_eb.get(),
         'checkbox_fr': val_checkbox_fr.get(),
+        'standardised_signals': val_checkbox_standardise.get(),
+        'use_lag_filter': checkbox_lag_filter.get(),
+        'lag_filter_min': val_lag_filter_min.get(),
+        'lag_filter_max': val_lag_filter_max.get()
     }
 
     # run random pair analysis

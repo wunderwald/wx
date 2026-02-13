@@ -87,7 +87,6 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
             correlations_sigmoid = [avg_sigmoid for c in correlations_sigmoid]
 
         # Find the peak correlation and its corresponding lag
-        #correlations = np.array(correlations)
         r_max = np.max(correlations)
         tau_max = np.argmax(correlations) + _min_lag if not average_windows else 0
         r_max_sigmoid = np.max(correlations_sigmoid)
