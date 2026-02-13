@@ -101,4 +101,4 @@ def export_random_pair_data(file_path, params, input_dir, t_stat, p_value, avg_c
     }
 
     # write to xlsx
-    xlsx.write_xlsx(vectors=vectors, single_values=single_values, output_path=file_path)
+    xlsx.write_xlsx(vectors=vectors, single_values=single_values, output_path=file_path, sheet_title="Random Pair Analysis")
