@@ -23,23 +23,6 @@ tk.set_default_color_theme("dark-blue") # options 'blue', 'green', 'dark-blue'
 app = tk.CTk()  
 app.title("wx")
 
-# # force refocus (e.g. after alt-tab )
-# refocus_delay_ms = 40
-# _refocus_job = None
-# def force_focus():
-#     global _refocus_job
-#     _refocus_job = None
-#     app.lift()
-#     app.attributes("-topmost", True)
-#     app.after(10, lambda: app.attributes("-topmost", False))
-#     app.focus_force()
-# def schedule_focus(event=None):
-#     global _refocus_job
-#     if _refocus_job is None:
-#         _refocus_job = app.after(refocus_delay_ms, force_focus)
-# app.bind("<Map>", schedule_focus)
-
-
 # Get the screen width and height
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
@@ -54,9 +37,9 @@ app.tk.call('tk', 'scaling', scaling_factor)
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 600                           # := 30s for 5hz signals
-INIT_MAX_LAG = max(1, INIT_WINDOW_SIZE // 20)    # window_size//2 * .1; 1.5s in this case
-INIT_STEP_SIZE = max(1, INIT_WINDOW_SIZE // 20)  # window_size//2 * .1; 1.5s in this case
+INIT_WINDOW_SIZE = 600                              # := 30s for 5hz signals
+INIT_MAX_LAG = 60                                   # := 3s
+INIT_STEP_SIZE = 60                                 # := 3s; =max_lag
 INIT_MAX_LAG_SXC = 100
 
 # ---------------------
