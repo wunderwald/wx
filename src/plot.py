@@ -59,11 +59,16 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
         aspect='auto',
         cmap='magma', # options: viridis, plasma, magma...
         extent=[0, len(wxc_data) * step_size, _min_lag, _max_lag],
+        origin='lower',
         vmin=-1,
         vmax=1
     )
     fig.colorbar(im, ax=ax0, label='Correlation')
     ax0.axhline(y=0, color='black', linestyle='dotted', linewidth=0.2)
+    # Overlay tau_max values
+    window_positions = [start_idx for start_idx in window_start_indices]
+    ax0.plot(window_positions, tau_max_values, color='cyan', linewidth=1, marker='o', markersize=2, label='tau_max')
+    ax0.legend(loc='upper right', fontsize=5)
     ax0.set_xlabel('Window Start Index')
     ax0.set_ylabel('Lag')
     ax0.set_title(f"Correlation Heatmap{' (sigmoid-scaled)' if show_sigmoid_correlations else ''}")
