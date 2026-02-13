@@ -37,10 +37,12 @@ app.tk.call('tk', 'scaling', scaling_factor)
 # DEFAULTS / INIT VALUES
 # ----------------------
 
-INIT_WINDOW_SIZE = 150                              # := 30s for 5hz signals
-INIT_MAX_LAG = 15                                   # := 3s
-INIT_STEP_SIZE = 15                                 # := 3s; =max_lag
-INIT_MAX_LAG_SXC = 100
+USE_MY_PARAMS = True
+
+INIT_WINDOW_SIZE = 300 if USE_MY_PARAMS else 150                              # 150 := 30s for 5hz signals
+INIT_MAX_LAG = 60 if USE_MY_PARAMS else 15                                   # 15 := 3s
+INIT_STEP_SIZE = 5 if USE_MY_PARAMS else 15                                 # 15 := 3s; =max_lag
+INIT_MAX_LAG_SXC = 150
 
 # ---------------------
 # GLOBAL STATE & EVENTS
