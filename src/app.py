@@ -40,7 +40,7 @@ app.tk.call('tk', 'scaling', scaling_factor)
 USE_MY_PARAMS = True
 
 INIT_WINDOW_SIZE = 300 if USE_MY_PARAMS else 150                              # 150 := 30s for 5hz signals
-INIT_MAX_LAG = 60 if USE_MY_PARAMS else 15                                   # 15 := 3s
+INIT_MAX_LAG = 30 if USE_MY_PARAMS else 15                                   # 15 := 3s
 INIT_STEP_SIZE = 5 if USE_MY_PARAMS else 15                                 # 15 := 3s; =max_lag
 INIT_MAX_LAG_SXC = 150
 
