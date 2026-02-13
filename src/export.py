@@ -69,23 +69,21 @@ def export_random_pair_data(file_path, params, input_dir, t_stat, p_value, avg_c
     metadata = {
         'xcorr type': "windowed cross-correlation",
         'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
-        'Standardised (z-score)': params['is_standardised'],
         'Window size': params['window_size'],
         'Max lag': params['max_lag'],
         'Step size': params['step_size'],
         'Sigmoid-scaled correlation values': params['sigmoid_correlations'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
-        'Standardised (z-score)': params['is_standardised'],
-        'Lag filter used': params['checkbox_lag_filter'],
-        'Lag filter minimum': params['lag_filter_min'] if params['checkbox_lag_filter'] else '-',
-        'Lag filter maximum': params['lag_filter_max'] if params['checkbox_lag_filter'] else '-',
+        'Standardised (z-score)': params['standardised_signals'],
+        'Lag filter used': params['use_lag_filter'],
+        'Lag filter minimum': params['lag_filter_min'] if params['use_lag_filter'] else '-',
+        'Lag filter maximum': params['lag_filter_max'] if params['use_lag_filter'] else '-',
     } if is_windowed_xcorr else {
         'xcorr type': "(standard) cross-correlation",
         'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
-        'Standardised (z-score)': params['is_standardised'],
+        'Standardised (z-score)': params['standardised_signals'],
         'Max lag': params['max_lag'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
-        'Standardised (z-score)': params['is_standardised'],
     }
     metadata['Input dyad directory'] = f"{input_dir}"
 

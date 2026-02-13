@@ -39,8 +39,8 @@ app.tk.call('tk', 'scaling', scaling_factor)
 
 USE_MY_PARAMS = True
 
-INIT_WINDOW_SIZE = 300 if USE_MY_PARAMS else 150                              # 150 := 30s for 5hz signals
-INIT_MAX_LAG = 30 if USE_MY_PARAMS else 15                                   # 15 := 3s
+INIT_WINDOW_SIZE = 250 if USE_MY_PARAMS else 150                              # 150 := 30s for 5hz signals
+INIT_MAX_LAG = 25 if USE_MY_PARAMS else 15                                   # 15 := 3s
 INIT_STEP_SIZE = 5 if USE_MY_PARAMS else 15                                 # 15 := 3s; =max_lag
 INIT_MAX_LAG_SXC = 150
 
@@ -748,6 +748,10 @@ def run_random_pair():
         'checkbox_average_windows': val_checkbox_average_windows.get(),
         'checkbox_eb': val_checkbox_eb.get(),
         'checkbox_fr': val_checkbox_fr.get(),
+        'standardised_signals': val_checkbox_standardise.get(),
+        'use_lag_filter': checkbox_lag_filter.get(),
+        'lag_filter_min': val_lag_filter_min.get(),
+        'lag_filter_max': val_lag_filter_max.get()
     }
 
     # run random pair analysis
