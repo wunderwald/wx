@@ -28,8 +28,6 @@ screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
 screen_dpi = app.winfo_fpixels('1i')
 
-print(screen_width, screen_height, screen_dpi)
-
 # Window Scaling
 RETINA = screen_dpi < 75
 app.geometry(f"{screen_width}x{screen_height}")

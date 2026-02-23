@@ -20,7 +20,6 @@ def plot_init(dpi, screen_width, screen_height, is_retina):
     plot_width_inches = plot_width_px // dpi
     plot_height_inches = plot_height_px // dpi
     FIGSIZE = (plot_width_inches, plot_height_inches)
-    print(FIGSIZE)
     # initialise plot
     fig = plt.figure(figsize=FIGSIZE, dpi=dpi)
     return fig
