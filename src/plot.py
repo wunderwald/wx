@@ -13,10 +13,10 @@ plt.rcParams.update({
     'lines.linewidth': 1,    
 })
 
-def plot_init(dpi, screen_width, screen_height, scaling_factor):
+def plot_init(dpi, screen_width, screen_height, is_retina):
     # set figsize based on screen dims and dpi
-    plot_width_px = int(screen_width *.35 * scaling_factor)
-    plot_height_px = int(screen_height *.5 * scaling_factor)
+    plot_width_px = int(screen_width *.35 * (1 if is_retina else 2))
+    plot_height_px = int(screen_height *.5 * (1 if is_retina else 2))
     plot_width_inches = plot_width_px // dpi
     plot_height_inches = plot_height_px // dpi
     FIGSIZE = (plot_width_inches, plot_height_inches)
