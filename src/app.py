@@ -30,7 +30,9 @@ screen_dpi = app.winfo_fpixels('1i')
 
 # Window Scaling
 RETINA = screen_dpi < 75
-app.geometry(f"{screen_width}x{screen_height}")
+app_width = min(2000, screen_width)
+app_height = min(1200, screen_height)
+app.geometry(f"{app_width}x{app_height}")
 scaling_factor = 1 if RETINA else 1.5
 app.tk.call('tk', 'scaling', scaling_factor)
 
