@@ -2,9 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
 
-SMALLER = True
-
-FIGSIZE = (5, 4) if SMALLER else (10, 8)
+FIGSIZE = (5, 4)
 
 plt.rcParams.update({
     'font.size': 6,         
@@ -16,6 +14,9 @@ plt.rcParams.update({
 })
 
 def plot_init(isRetina=False):
+    # set figsize macro
+    FIGSIZE = (5, 4) if isRetina else (15, 12)
+    # initialise plot
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
