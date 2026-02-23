@@ -8,14 +8,7 @@ SCALING_PARAMS = {
     'DPI': 100,
 }
 
-plt.rcParams.update({
-    'font.size': 6,         
-    'axes.titlesize': 4,    
-    'axes.labelsize': 4,    
-    'xtick.labelsize': 4,   
-    'ytick.labelsize': 4,   
-    'lines.linewidth': 1,    
-})
+
 
 def plot_init(dpi, screen_width, screen_height, is_retina):
     # set figsize based on screen dims and dpi
@@ -24,6 +17,25 @@ def plot_init(dpi, screen_width, screen_height, is_retina):
     plot_width_inches = plot_width_px / dpi
     plot_height_inches = plot_height_px / dpi
     SCALING_PARAMS['FIGSIZE'] = (plot_width_inches, plot_height_inches)
+    #set plot params
+    if is_retina:
+        plt.rcParams.update({
+            'font.size': 6,         
+            'axes.titlesize': 4,    
+            'axes.labelsize': 4,    
+            'xtick.labelsize': 4,   
+            'ytick.labelsize': 4,   
+            'lines.linewidth': 1,    
+        })
+    else:
+        plt.rcParams.update({
+            'font.size': 12,         
+            'axes.titlesize': 8,    
+            'axes.labelsize': 8,    
+            'xtick.labelsize': 8,   
+            'ytick.labelsize': 8,   
+            'lines.linewidth': 2,    
+        })
     # initialise plot
     fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
     return fig
