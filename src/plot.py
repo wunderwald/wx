@@ -13,11 +13,16 @@ plt.rcParams.update({
     'lines.linewidth': 1,    
 })
 
-def plot_init(isRetina=False):
-    # set figsize macro
-    FIGSIZE = (5, 4) if isRetina else (15, 12)
+def plot_init(dpi, screen_width, screen_height):
+    # set figsize based on screen dims and dpi
+    plot_width_px = int(screen_width *.35)
+    plot_height_px = int(screen_height *.5)
+    plot_width_inches = plot_width_px // dpi
+    plot_height_inches = plot_height_px // dpi
+    FIGSIZE = (plot_width_inches, plot_height_inches)
+    print(FIGSIZE)
     # initialise plot
-    fig = plt.figure(figsize=FIGSIZE)
+    fig = plt.figure(figsize=FIGSIZE, dpi=dpi)
     return fig
 
 def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, show_sigmoid_correlations=False, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None):
