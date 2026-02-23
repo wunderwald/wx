@@ -28,6 +28,8 @@ screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
 screen_dpi = app.winfo_fpixels('1i')
 
+print(screen_width, screen_height, screen_dpi)
+
 # Window Scaling
 RETINA = screen_dpi < 144
 app.geometry(f"{screen_width}x{screen_height}")
@@ -203,7 +205,7 @@ val_random_pair_is_ready = tk.BooleanVar(value=False)
 
 # set up data containers
 dat_plot_data = {
-    'fig': plot_init(dpi=screen_dpi, screen_width=screen_width, screen_height=screen_height)
+    'fig': plot_init(dpi=screen_dpi, screen_width=screen_width, screen_height=screen_height, scaling_factor=scaling_factor)
 }
 dat_workbook_data = {
     'workbook_a': None,
@@ -596,7 +598,7 @@ def preprocess_data():
         dat_physiological_data["raw_signal_a"] = []
         dat_physiological_data["raw_signal_b"] = []
         # reset plot
-        dat_plot_data['fig'] = plot_init(dpi=screen_dpi, screen_width=screen_width, screen_height=screen_height)
+        dat_plot_data['fig'] = plot_init(dpi=screen_dpi, screen_width=screen_width, screen_height=screen_height, scaling_factor=scaling_factor)
         # set validation state
         val_INPUT_DATA_VALID.set(False)
 
@@ -1222,7 +1224,7 @@ def update_plot(*args):
     if plot_type == "preprocess_preview":
         # reset plot if data is invalid
         if not val_INPUT_DATA_VALID.get(): 
-            dat_plot_data["fig"] = plot_init(dpi=screen_dpi, screen_width=screen_width, screen_height=screen_height)
+            dat_plot_data["fig"] = plot_init(dpi=screen_dpi, screen_width=screen_width, screen_height=screen_height, scaling_factor=scaling_factor)
             return
         # plot data
         dat_plot_data["fig"] = update_preproc_plots({
