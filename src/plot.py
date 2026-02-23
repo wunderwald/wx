@@ -4,7 +4,8 @@ import numpy as np
 
 
 SCALING_PARAMS = {
-    'FIGSIZE': (5, 4)
+    'FIGSIZE': (5, 4),
+    'DPI': 100,
 }
 
 plt.rcParams.update({
@@ -18,13 +19,13 @@ plt.rcParams.update({
 
 def plot_init(dpi, screen_width, screen_height, is_retina):
     # set figsize based on screen dims and dpi
-    plot_width_px = screen_width *.25 * (1 if is_retina else 2.2)
-    plot_height_px = screen_height *.3 * (1 if is_retina else 2.2)
+    plot_width_px = screen_width *.25 * (1 if is_retina else 2)
+    plot_height_px = screen_height *.3 * (1 if is_retina else 2)
     plot_width_inches = plot_width_px / dpi
     plot_height_inches = plot_height_px / dpi
     SCALING_PARAMS['FIGSIZE'] = (plot_width_inches, plot_height_inches)
     # initialise plot
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
     return fig
 
 def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, show_sigmoid_correlations=False, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None):
@@ -48,7 +49,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     correlation_values = [res['correlations_sigmoid' if show_sigmoid_correlations else 'correlations'] for res in wxc_data]
 
     # Initialize plot layout
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
     gs = gridspec.GridSpec(3, 1, height_ratios=[7, 1, 1])
 
     # get lag range (filtered or unfiltered) for y-axis
@@ -122,7 +123,7 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     lags = sxc_data['lags']
 
     # Initialize plot layout
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
     gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1])
 
     # Plot cross-correlation
@@ -182,7 +183,7 @@ def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
         matplotlib.figure.Figure: The figure containing the plot.
     """
     # Initialize plot layout
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
     gs = gridspec.GridSpec(2, 1)
     
     # Plot signal_a
