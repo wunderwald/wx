@@ -28,8 +28,9 @@ screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
 
 # Window Scaling
+RETINA = app.winfo_fpixels('1i') < 144
 app.geometry(f"{screen_width}x{screen_height}")
-scaling_factor = 1
+scaling_factor = 1 if RETINA >= 144 else 1.5
 app.tk.call('tk', 'scaling', scaling_factor)
 
 
