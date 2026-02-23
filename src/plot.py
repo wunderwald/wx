@@ -18,12 +18,11 @@ plt.rcParams.update({
 
 def plot_init(dpi, screen_width, screen_height, is_retina):
     # set figsize based on screen dims and dpi
-    plot_width_px = screen_width *.25 * (1 if is_retina else 2)
-    plot_height_px = screen_height *.3 * (1 if is_retina else 2)
+    plot_width_px = screen_width *.25 * (1 if is_retina else 2.2)
+    plot_height_px = screen_height *.3 * (1 if is_retina else 2.2)
     plot_width_inches = plot_width_px / dpi
     plot_height_inches = plot_height_px / dpi
     SCALING_PARAMS['FIGSIZE'] = (plot_width_inches, plot_height_inches)
-    print(SCALING_PARAMS['FIGSIZE'])
     # initialise plot
     fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
     return fig
