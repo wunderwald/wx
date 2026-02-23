@@ -46,7 +46,7 @@ def run_pyinstaller_with_analysis(app_name="wx"):
         )
         
         if result.returncode == 0:
-            print(f"\n✅ Success! Built: dist/{app_name}.app")
+            print(f"\n✅ Success! Built in dist/")
             
             # Analyze the output for missing modules
             if "ModuleNotFoundError" in result.stdout or "No module named" in result.stdout:
@@ -187,7 +187,7 @@ def brute_force_build(app_name="wx"):
     result = subprocess.run(cmd, capture_output=True, text=True)
     
     if result.returncode == 0:
-        print(f"\n✅ Brute force successful! dist/{app_name}.app")
+        print(f"\n✅ Brute force successful! App in dist/")
         return True
     else:
         print("\n❌ Failed even with brute force!")
@@ -218,7 +218,7 @@ def main():
     shutil.rmtree("build", ignore_errors=True)
     
     if success:
-        print(f"\n🎉 Done! Test with: open dist/{app_name}.app")
+        print(f"\n🎉 Done! Built in folder dist/")
     else:
         print("\n🔥 Build failed!")
 
