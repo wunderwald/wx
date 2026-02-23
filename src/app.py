@@ -1282,6 +1282,32 @@ val_UPDATE_COUNT.trace_add('write', UPDATE)
 UPDATE()
 
 # ---
+# CLEANUP & SHUTDOWN
+# ---
+
+def on_window_closing():
+    """Properly clean up before closing the app"""
+    # Cancel all pending after callbacks
+    for widget_id in list(app.after_info()):
+        try:
+            app.after_cancel(widget_id)
+        except:
+            pass
+    
+    # Close matplotlib figures
+    try:
+        import matplotlib.pyplot as plt
+        plt.close('all')
+    except:
+        pass
+    
+    # Destroy the window
+    app.destroy()
+
+# Set the window close handler (Windows-specific behavior)
+app.protocol("WM_DELETE_WINDOW", on_window_closing)
+
+# ---
 # RUN
 # ---
 app.mainloop()
