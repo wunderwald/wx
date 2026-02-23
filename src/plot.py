@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
 
-FIGSIZE = (5, 4)
+
+SCALING_PARAMS = {
+    'FIGSIZE': (5, 4)
+}
 
 plt.rcParams.update({
     'font.size': 6,         
@@ -19,9 +22,9 @@ def plot_init(dpi, screen_width, screen_height, is_retina):
     plot_height_px = int(screen_height *.5 * (1 if is_retina else 2))
     plot_width_inches = plot_width_px // dpi
     plot_height_inches = plot_height_px // dpi
-    FIGSIZE = (plot_width_inches, plot_height_inches)
+    SCALING_PARAMS['FIGSIZE'] = (plot_width_inches, plot_height_inches)
     # initialise plot
-    fig = plt.figure(figsize=FIGSIZE)
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
     return fig
 
 def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, signal_a, signal_b, show_sigmoid_correlations=False, use_lag_filter=False, lag_filter_min=None, lag_filter_max=None):
@@ -45,7 +48,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     correlation_values = [res['correlations_sigmoid' if show_sigmoid_correlations else 'correlations'] for res in wxc_data]
 
     # Initialize plot layout
-    fig = plt.figure(figsize=FIGSIZE)
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
     gs = gridspec.GridSpec(3, 1, height_ratios=[7, 1, 1])
 
     # get lag range (filtered or unfiltered) for y-axis
@@ -119,7 +122,7 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     lags = sxc_data['lags']
 
     # Initialize plot layout
-    fig = plt.figure(figsize=FIGSIZE)
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
     gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1])
 
     # Plot cross-correlation
@@ -179,7 +182,7 @@ def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
         matplotlib.figure.Figure: The figure containing the plot.
     """
     # Initialize plot layout
-    fig = plt.figure(figsize=FIGSIZE)
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'])
     gs = gridspec.GridSpec(2, 1)
     
     # Plot signal_a
