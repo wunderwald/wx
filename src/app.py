@@ -202,7 +202,7 @@ val_random_pair_is_ready = tk.BooleanVar(value=False)
 
 # set up data containers
 dat_plot_data = {
-    'fig': plot_init()
+    'fig': plot_init(isRetina=RETINA)
 }
 dat_workbook_data = {
     'workbook_a': None,
@@ -595,7 +595,7 @@ def preprocess_data():
         dat_physiological_data["raw_signal_a"] = []
         dat_physiological_data["raw_signal_b"] = []
         # reset plot
-        dat_plot_data['fig'] = plot_init()
+        dat_plot_data['fig'] = plot_init(isRetina=RETINA)
         # set validation state
         val_INPUT_DATA_VALID.set(False)
 
@@ -1221,7 +1221,7 @@ def update_plot(*args):
     if plot_type == "preprocess_preview":
         # reset plot if data is invalid
         if not val_INPUT_DATA_VALID.get(): 
-            dat_plot_data["fig"] = plot_init()
+            dat_plot_data["fig"] = plot_init(isRetina=RETINA)
             return
         # plot data
         dat_plot_data["fig"] = update_preproc_plots({

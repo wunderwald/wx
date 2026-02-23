@@ -6,17 +6,16 @@ SMALLER = True
 
 FIGSIZE = (5, 4) if SMALLER else (10, 8)
 
-if SMALLER:
-    plt.rcParams.update({
-        'font.size': 6,         
-        'axes.titlesize': 4,    
-        'axes.labelsize': 4,    
-        'xtick.labelsize': 4,   
-        'ytick.labelsize': 4,   
-        'lines.linewidth': 1,    
-    })
+plt.rcParams.update({
+    'font.size': 6,         
+    'axes.titlesize': 4,    
+    'axes.labelsize': 4,    
+    'xtick.labelsize': 4,   
+    'ytick.labelsize': 4,   
+    'lines.linewidth': 1,    
+})
 
-def plot_init():
+def plot_init(isRetina=False):
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
