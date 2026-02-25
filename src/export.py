@@ -2,19 +2,16 @@ import os
 import xlsx
 
 def export_wxcorr_data(file_path, params):
-    use_sigmoid = params['sigmoid_correlations']
-
     metadata = {
         'xcorr type': "windowed cross-correlation",
         'Input dyad directory': f"{os.path.basename(params['selected_dyad_dir'])}",
         'Input file A': f"{os.path.basename(params['input_file_a'])}",
         'Input file B': f"{os.path.basename(params['input_file_b'])}",
-        'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)', 
+        'Data type': 'fixed-rate' if params['checkbox_fr'] else 'event-based (resampled to 5hz)',
         'Standardised (z-score)': params['is_standardised'],
         'Window size': params['window_size'],
         'Max lag': params['max_lag'],
         'Step size': params['step_size'],
-        'Sigmoid-scaled correlation values': params['sigmoid_correlations'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
         'Per-window averages': params['checkbox_average_windows'],
         'Lag filter used': params['checkbox_lag_filter'],
@@ -25,13 +22,13 @@ def export_wxcorr_data(file_path, params):
         'signal_a': params['signal_a_std'] if params['is_standardised'] else params['signal_a'],
         'signal_b': params['signal_b_std'] if params['is_standardised'] else params['signal_b'],
         'window start index': [o['start_idx'] for o in params['wxcorr']],
-        'max correlation (r_max)': [o['r_max_sigmoid' if use_sigmoid else 'r_max'] for o in params['wxcorr']],
-        'lag of max correlation (tau_max)': [o['tau_max_sigmoid' if use_sigmoid else 'tau_max'] for o in params['wxcorr']],
+        'max correlation (r_max)': [o['r_max'] for o in params['wxcorr']],
+        'lag of max correlation (tau_max)': [o['tau_max'] for o in params['wxcorr']],
     }
     vectors['avg_z_transformed_corr'] = [o['avg_z_transformed_corr'] for o in params['wxcorr']]
     vectors['var_z_transformed_corr'] = [o['var_z_transformed_corr'] for o in params['wxcorr']]
     for window_index, window in enumerate(params['wxcorr']):
-        vectors[f"w_{window_index}_correlations"] = window['correlations_sigmoid' if use_sigmoid else 'correlations']
+        vectors[f"w_{window_index}_correlations"] = window['correlations']
         vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
     # DFA per lag
     if 'dfa_alpha_per_lag_wxcorr' in params: 
@@ -72,7 +69,6 @@ def export_random_pair_data(file_path, params, input_dir, t_stat, p_value, avg_c
         'Window size': params['window_size'],
         'Max lag': params['max_lag'],
         'Step size': params['step_size'],
-        'Sigmoid-scaled correlation values': params['sigmoid_correlations'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
         'Standardised (z-score)': params['standardised_signals'],
         'Lag filter used': params['use_lag_filter'],
