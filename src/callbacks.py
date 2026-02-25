@@ -8,8 +8,8 @@ from batch_processing import batch_process, random_pair_analysis
 from export import export_sxcorr_data, export_wxcorr_data, export_random_pair_data
 from plot import plot_init
 
-import app_state as state
-import app_validation as validation
+import state
+import validation
 
 # ---------------------------------------------------------------------------
 # LATE-REGISTERED WIDGET REFERENCES

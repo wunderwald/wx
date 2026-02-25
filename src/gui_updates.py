@@ -1,7 +1,7 @@
 import os
 import utils
-import app_state as state
-import app_validation as validation
+import state
+import validation
 
 # ---------------------------------------------------------------------------
 # LATE-REGISTERED WIDGET REFERENCES

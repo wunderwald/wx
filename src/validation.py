@@ -1,4 +1,4 @@
-import app_state as state
+import state
 
 
 def make_validator(app):

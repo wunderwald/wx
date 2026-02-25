@@ -4,7 +4,7 @@ from plot import plot_init, update_sxcorr_plots, update_wxcorr_plots, update_pre
 from cross_correlation import windowed_cross_correlation, standard_cross_correlation
 from dfa import dfa, dfa_wxcorr, dfa_wxcorr_window_averages
 
-import app_state as state
+import state
 
 canvas = None
 

@@ -1,7 +1,7 @@
 import customtkinter as tk
 
-import app_state as state
-import app_callbacks as cb
+import state
+import callbacks as cb
 
 
 def build_layout(app, validate_numeric_input):

@@ -1,11 +1,11 @@
 import customtkinter as tk
 
-import app_state
-import app_validation
-import app_callbacks
-import app_layout
-import app_gui_updates
-import app_corr_plot
+import state
+import validation
+import callbacks
+import layout
+import gui_updates
+import corr_plot
 
 # ------------------
 # APP INITIALIZATION
@@ -31,35 +31,35 @@ app.tk.call('tk', 'scaling', 1 if RETINA else 1.5)
 # STATE — all tk.Vars & containers
 # --------------------------------
 
-app_state.init_state(screen_dpi, screen_width, screen_height, RETINA)
+state.init_state(screen_dpi, screen_width, screen_height, RETINA)
 
 # --------------------------------
 # VALIDATION & CALLBACKS
 # --------------------------------
 
-validate_numeric_input = app_validation.make_validator(app)
-app_callbacks.setup_traces()
+validate_numeric_input = validation.make_validator(app)
+callbacks.setup_traces()
 
 # --------------------------------
 # BUILD UI
 # --------------------------------
 
-widget_dict = app_layout.build_layout(app, validate_numeric_input)
+widget_dict = layout.build_layout(app, validate_numeric_input)
 
 # --------------------------------
 # REACTIVE GUI UPDATES
 # --------------------------------
 
-app_gui_updates.register_widgets(widget_dict)
-app_gui_updates.setup_traces()
+gui_updates.register_widgets(widget_dict)
+gui_updates.setup_traces()
 
 # --------------------------------
 # CORRELATION & PLOTTING ENGINE
 # --------------------------------
 
-app_corr_plot.setup(widget_dict['group_plot'])
-app_state.val_UPDATE_COUNT.trace_add('write', app_corr_plot.UPDATE)
-app_corr_plot.UPDATE()
+corr_plot.setup(widget_dict['group_plot'])
+state.val_UPDATE_COUNT.trace_add('write', corr_plot.UPDATE)
+corr_plot.UPDATE()
 
 # --------------------------------
 # CLEANUP & SHUTDOWN
