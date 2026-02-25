@@ -97,7 +97,6 @@ def _process_dyad(file_path_a, file_path_b, output_dir, params, export=True, dya
                 'step_size': params['step_size'],
                 'checkbox_absolute_corr': params['checkbox_absolute_corr'],
                 'checkbox_average_windows': params['checkbox_average_windows'],
-                'sigmoid_correlations': params['sigmoid_correlations'],
                 'checkbox_eb': params['checkbox_eb'],
                 'signal_a': _signal_a,
                 'signal_b': _signal_b,

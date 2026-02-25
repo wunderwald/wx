@@ -228,13 +228,6 @@ def build_layout(app, validate_numeric_input):
     )
     checkbox_average_windows.grid(row=16, column=0, sticky="w", padx=10, pady=5)
 
-    checkbox_show_sigmoid_correlations = tk.CTkCheckBox(
-        subgroup_windowed_xcorr_parameters, text='Sigmoid-Scaled Correlation Values',
-        variable=state.val_checkbox_show_sigmoid_correlations,
-        command=cb.on_show_sigmoid_correlations_change
-    )
-    checkbox_show_sigmoid_correlations.grid(row=17, column=0, sticky="w", padx=10, pady=5)
-
     # Standard xcorr parameters subgroup (initially hidden)
     subgroup_standard_xcorr_parameters = tk.CTkFrame(subgroup_corr_settings)
 
@@ -264,6 +257,29 @@ def build_layout(app, validate_numeric_input):
         variable=state.val_checkbox_absolute_corr_sxc, command=cb.on_absolute_corr_change_sxc
     )
     checkbox_absolute_corr_sxc.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+    # ---------------------------
+    # TAB: CORRELATION — Visualisation subgroup
+    # ---------------------------
+
+    subgroup_visualisation = tk.CTkFrame(tab_correlation)
+    subgroup_visualisation.grid(row=1, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+
+    label_visualisation = tk.CTkLabel(subgroup_visualisation, text="Visualisation", font=("Arial", 20, "bold"))
+    label_visualisation.grid(row=0, column=0, columnspan=2, pady=20, padx=10, sticky='w')
+
+    checkbox_show_sigmoid_correlations = tk.CTkCheckBox(
+        subgroup_visualisation, text='Sigmoid-Scaled Correlation Values',
+        variable=state.val_checkbox_show_sigmoid_correlations,
+        command=cb.on_show_sigmoid_correlations_change
+    )
+    checkbox_show_sigmoid_correlations.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+    label_sigmoid_info = tk.CTkLabel(
+        subgroup_visualisation,
+        text="Applies sigmoid scaling to displayed values only. Raw values are always exported."
+    )
+    label_sigmoid_info.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
     # ---------------------------
     # TAB: EXPORT & BATCH
