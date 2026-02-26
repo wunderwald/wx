@@ -4,6 +4,8 @@
 *.pyc
 */__pycache__
 *.xlsx
+!simulated_data/dyad_recording/*.xlsx
+!simulated_data/dyads_simulated/*.xlsx
 /papers
 /data
 
