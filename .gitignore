@@ -6,3 +6,10 @@
 *.xlsx
 /papers
 /data
+
+# Jupyter
+.ipynb_checkpoints
+*/.ipynb_checkpoints
+
+# Virtual environments
+*/.venv
