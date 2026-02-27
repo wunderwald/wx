@@ -23,7 +23,7 @@ screen_height = app.winfo_screenheight()
 screen_dpi    = app.winfo_fpixels('1i')
 
 RETINA     = screen_dpi < 75
-app.geometry(f"{screen_width}x{screen_height}")
+app.geometry(f"{screen_width}x{int(screen_height * 0.9)}")
 app.resizable(False, False)
 app.tk.call('tk', 'scaling', 1 if RETINA else 1.5)
 
