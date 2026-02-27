@@ -11,11 +11,12 @@ import corr_plot
 # APP INITIALIZATION
 # ------------------
 
-tk.set_appearance_mode("Light")       # options: 'System', 'Light', 'Dark'
-tk.set_default_color_theme("dark-blue")  # options: 'blue', 'green', 'dark-blue'
+tk.set_appearance_mode("Light")
+tk.set_default_color_theme("dark-blue")
 
 app = tk.CTk()
 app.title("wx")
+app.withdraw()  # hide until fully built and sized
 
 screen_width  = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
@@ -61,6 +62,11 @@ corr_plot.setup(widget_dict['group_plot'])
 state.val_UPDATE_COUNT.trace_add('write', corr_plot.UPDATE)
 corr_plot.UPDATE()
 
+# Force Tk to resolve geometry and pack/grid layout so widget sizes are known,
+# then size the figure to the actual canvas dimensions before showing the window.
+app.update()
+corr_plot.fit_canvas_to_container()
+
 # --------------------------------
 # CLEANUP & SHUTDOWN
 # --------------------------------
@@ -84,4 +90,5 @@ app.protocol("WM_DELETE_WINDOW", on_window_closing)
 # RUN
 # --------------------------------
 
+app.deiconify()  # show now — figure already sized correctly
 app.mainloop()

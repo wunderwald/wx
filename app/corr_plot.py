@@ -7,15 +7,60 @@ from dfa import dfa, dfa_wxcorr, dfa_wxcorr_window_averages
 import state
 
 canvas = None
+_resize_after_id = None
 
 
 def setup(group_plot):
     """
-    Creates the matplotlib canvas inside group_plot.
-    Must be called after app_state.init_state() and after app_layout.build_layout().
+    Creates and packs the matplotlib canvas inside group_plot.
+    Call before app.update() — sizes are not yet known here.
     """
     global canvas
     canvas = FigureCanvasTkAgg(state.dat_plot_data["fig"], master=group_plot)
+    widget = canvas.get_tk_widget()
+    widget.pack(fill='both', expand=True)
+    widget.bind('<Configure>', _on_canvas_configure)
+
+
+def fit_canvas_to_container():
+    """
+    Called once after app.update() has resolved all widget sizes.
+    Resizes the figure to the canvas widget's actual pixel dimensions and redraws.
+    This is the initial sizing — the window is still hidden at this point.
+    """
+    widget = canvas.get_tk_widget()
+    w, h = widget.winfo_width(), widget.winfo_height()
+    if w > 1 and h > 1:
+        _apply_figure_size(canvas.figure, w, h)
+        canvas.draw()
+
+
+def _on_canvas_configure(event):
+    """
+    Fired on every window resize. Debounced so a drag doesn't redraw every pixel.
+    Uses event.width/height captured in the closure — always the latest size.
+    """
+    global _resize_after_id
+    w, h = event.width, event.height
+    if w <= 1 or h <= 1:
+        return
+    widget = canvas.get_tk_widget()
+    if _resize_after_id:
+        widget.after_cancel(_resize_after_id)
+    _resize_after_id = widget.after(120, lambda: _do_resize(w, h))
+
+
+def _do_resize(w, h):
+    global _resize_after_id
+    _resize_after_id = None
+    if canvas is None or canvas.figure is None:
+        return
+    _apply_figure_size(canvas.figure, w, h)
+    canvas.draw_idle()
+
+
+def _apply_figure_size(fig, w, h):
+    fig.set_size_inches(w / fig.get_dpi(), h / fig.get_dpi())
 
 
 # ---------------------------------------------------------------------------
@@ -102,12 +147,7 @@ def update_plot(*args):
 
 def _update_preprocess_plot():
     if not state.val_INPUT_DATA_VALID.get():
-        state.dat_plot_data["fig"] = plot_init(
-            dpi=state.screen_dpi,
-            screen_width=state.screen_width,
-            screen_height=state.screen_height,
-            is_retina=state.RETINA,
-        )
+        state.dat_plot_data["fig"] = plot_init(is_retina=state.RETINA)
         return
 
     use_std  = state.val_checkbox_standardise.get()
@@ -172,8 +212,11 @@ def update_canvas():
     if not state.dat_plot_data["fig"]:
         return
     canvas.figure = state.dat_plot_data["fig"]
+    widget = canvas.get_tk_widget()
+    w, h = widget.winfo_width(), widget.winfo_height()
+    if w > 1 and h > 1:
+        _apply_figure_size(canvas.figure, w, h)
     canvas.draw()
-    canvas.get_tk_widget().pack()
 
 
 # ---------------------------------------------------------------------------

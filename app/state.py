@@ -173,7 +173,7 @@ def init_state(dpi, sw, sh, retina):
     val_random_pair_is_ready               = tk.BooleanVar(value=False)
 
     # data containers
-    dat_plot_data['fig'] = plot_init(dpi=dpi, screen_width=sw, screen_height=sh, is_retina=retina)
+    dat_plot_data['fig'] = plot_init(is_retina=retina)
 
     dat_workbook_data.update({
         'workbook_a': None,
