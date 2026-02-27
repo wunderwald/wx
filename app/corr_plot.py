@@ -19,8 +19,9 @@ def setup(group_plot):
 
 def fit_canvas_to_container():
     """
-    Called once after app.update() has resolved all widget sizes.
     Sizes the figure to the canvas and does the first draw.
+    Safe to call multiple times — only resizes/draws when canvas has real dimensions.
+    Called once pre-show (may be 1x1 on external displays) and once post-show.
     """
     widget = canvas.get_tk_widget()
     w, h = widget.winfo_width(), widget.winfo_height()
