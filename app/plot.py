@@ -56,7 +56,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
 
     # Initialize plot layout
     fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
-    gs = gridspec.GridSpec(3, 1, height_ratios=[6, 1, 1], figure=fig)
+    gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1], figure=fig)
 
     # get lag range (filtered or unfiltered) for y-axis
     _min_lag = -max_lag
