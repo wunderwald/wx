@@ -56,7 +56,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
 
     # Initialize plot layout
     fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
-    gs = gridspec.GridSpec(3, 1, height_ratios=[7, 1, 1])
+    gs = gridspec.GridSpec(3, 1, height_ratios=[6, 1, 1], figure=fig)
 
     # get lag range (filtered or unfiltered) for y-axis
     _min_lag = -max_lag
@@ -127,7 +127,7 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
 
     # Initialize plot layout
     fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
-    gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1])
+    gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1], figure=fig)
 
     # Plot cross-correlation
     ax2 = fig.add_subplot(gs[0])
@@ -186,7 +186,7 @@ def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
     """
     # Initialize plot layout
     fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
-    gs = gridspec.GridSpec(2, 1)
+    gs = gridspec.GridSpec(2, 1, figure=fig)
     
     # Plot signal_a
     ax1 = fig.add_subplot(gs[0])

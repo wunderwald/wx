@@ -1,3 +1,4 @@
+import tkinter
 import customtkinter as tk
 
 import state
@@ -14,19 +15,17 @@ def build_layout(app, validate_numeric_input):
     # ---------------
     # MAIN APP LAYOUT
     # ---------------
-    group_main = tk.CTkFrame(app)
-    group_main.pack(fill='both', expand=True, pady=10, padx=20)
+    # Both top-level widgets pack directly into app (CTk root handles its own background).
+    # No intermediate container — any wrapper frame inherits system colors and shows
+    # as black on macOS dark-mode systems regardless of CTk appearance mode.
+    #
+    # Pack order matters: tabview must be packed side='right' FIRST so it claims its
+    # strip before group_plot fills all remaining space.
+    group_params_tabview = tk.CTkTabview(app)
+    group_params_tabview.pack(side='right', anchor='n', padx=(5, 20), pady=10)
 
-    # 70% vis / 30% params — both columns grow with the window
-    group_main.columnconfigure(0, weight=7)
-    group_main.columnconfigure(1, weight=3)
-    group_main.rowconfigure(0, weight=1)
-
-    group_plot = tk.CTkFrame(group_main)
-    group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='nsew')
-
-    group_params_tabview = tk.CTkTabview(group_main)
-    group_params_tabview.grid(row=0, column=1, padx=10, pady=20, sticky='n')
+    group_plot = tkinter.Frame(app)
+    group_plot.pack(side='left', fill='both', expand=True, padx=(20, 5), pady=10)
 
     # -------------------
     # GUI PARAMETER GROUP
