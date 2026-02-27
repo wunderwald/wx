@@ -55,7 +55,7 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     correlation_values = [res['correlations_sigmoid' if show_sigmoid_correlations else 'correlations'] for res in wxc_data]
 
     # Initialize plot layout
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
     gs = gridspec.GridSpec(3, 1, height_ratios=[7, 1, 1])
 
     # get lag range (filtered or unfiltered) for y-axis
@@ -107,9 +107,6 @@ def plot_windowed_cross_correlation(wxc_data, window_size, max_lag, step_size, s
     ax2_hist.hist(tau_max_values, bins=num_bins_tau_max, orientation='vertical', color='black', alpha=1)
     ax2_hist.set_xlim(-max_lag, max_lag)
 
-    # Adjust layout
-    fig.tight_layout()
-
     # Return the figure
     return fig
 
@@ -129,7 +126,7 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     lags = sxc_data['lags']
 
     # Initialize plot layout
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
     gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 1])
 
     # Plot cross-correlation
@@ -155,7 +152,6 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
     ax1.grid()
 
     # Return figure object
-    fig.tight_layout()
     return fig
 
 def make_plot_titles_preproc(dyad_folder, selected_sheet, filename_a, filename_b, column_a, column_b, is_resampled):
@@ -189,7 +185,7 @@ def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
         matplotlib.figure.Figure: The figure containing the plot.
     """
     # Initialize plot layout
-    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'])
+    fig = plt.figure(figsize=SCALING_PARAMS['FIGSIZE'], dpi=SCALING_PARAMS['DPI'], layout='constrained')
     gs = gridspec.GridSpec(2, 1)
     
     # Plot signal_a
@@ -208,7 +204,6 @@ def plot_preprocessed_signals(signal_a, signal_b, plot_titles):
     ax2.set_ylabel('Value')
     ax2.grid()
     
-    fig.tight_layout()
     return fig
 
 # update windowed xcorr plots
