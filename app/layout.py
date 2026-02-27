@@ -14,11 +14,16 @@ def build_layout(app, validate_numeric_input):
     # ---------------
     # MAIN APP LAYOUT
     # ---------------
-    group_main = tk.CTkScrollableFrame(app, width=state.screen_width, height=state.screen_height)
-    group_main.pack(pady=10, padx=20)
+    group_main = tk.CTkFrame(app)
+    group_main.pack(fill='both', expand=True, pady=10, padx=20)
+
+    # 70% vis / 30% params — both columns grow with the window
+    group_main.columnconfigure(0, weight=7)
+    group_main.columnconfigure(1, weight=3)
+    group_main.rowconfigure(0, weight=1)
 
     group_plot = tk.CTkFrame(group_main)
-    group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='n')
+    group_plot.grid(row=0, column=0, pady=10, padx=0, sticky='nsew')
 
     group_params_tabview = tk.CTkTabview(group_main)
     group_params_tabview.grid(row=0, column=1, padx=10, pady=20, sticky='n')
