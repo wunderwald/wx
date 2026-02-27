@@ -5,9 +5,9 @@ Interactive visual toolbox for working with windowed cross-correlation, optimize
 
 # Setup
 
-The software is in the subdirectory 'src'. After downloading, follow these steps:
+The software is in the subdirectory 'app'. After downloading, follow these steps:
 
-+ switch into ./src
++ switch into ./app
 + create a virtual environment
 + install the requirements using requirements.txt
 + run the app: python3 -m app.py

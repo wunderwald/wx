@@ -7,7 +7,7 @@
 
 ---
 
-## App modules (new, split from the original monolith)
+## App modules
 
 | Module | Responsibility |
 |---|---|
@@ -20,7 +20,7 @@
 
 ---
 
-## Pre-existing modules
+## Processing modules
 
 | Module | Responsibility |
 |---|---|
