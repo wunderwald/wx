@@ -7,9 +7,9 @@ from plot import plot_init
 
 USE_MY_PARAMS = True
 
-INIT_WINDOW_SIZE = 250 if USE_MY_PARAMS else 150   # 150 := 30s for 5hz signals
-INIT_MAX_LAG     = 25  if USE_MY_PARAMS else 15    # 15 := 3s
-INIT_STEP_SIZE   = 5   if USE_MY_PARAMS else 15    # 15 := 3s; =max_lag
+INIT_WINDOW_SIZE = 150   # 150 := 30s for 5hz signals
+INIT_MAX_LAG     = 30    # 30 := 6s
+INIT_STEP_SIZE   = 10    # 10 := 2s
 INIT_MAX_LAG_SXC = 150
 
 # ---------------------
