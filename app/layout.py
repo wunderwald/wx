@@ -277,7 +277,7 @@ def build_layout(app, validate_numeric_input):
 
     label_sigmoid_info = tk.CTkLabel(
         subgroup_visualisation,
-        text="Applies sigmoid scaling to displayed values only. Raw values are always exported."
+        text="Applies sigmoid scaling to displayed values only."
     )
     label_sigmoid_info.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
