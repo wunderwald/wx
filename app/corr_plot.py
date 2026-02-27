@@ -214,8 +214,11 @@ def update_canvas():
     canvas.figure = state.dat_plot_data["fig"]
     widget = canvas.get_tk_widget()
     w, h = widget.winfo_width(), widget.winfo_height()
-    if w > 1 and h > 1:
-        _apply_figure_size(canvas.figure, w, h)
+    if w <= 1 or h <= 1:
+        # Canvas not yet laid out (called before app.update()).
+        # fit_canvas_to_container() will do the first real draw after geometry resolves.
+        return
+    _apply_figure_size(canvas.figure, w, h)
     canvas.draw()
 
 

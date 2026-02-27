@@ -23,9 +23,7 @@ screen_height = app.winfo_screenheight()
 screen_dpi    = app.winfo_fpixels('1i')
 
 RETINA     = screen_dpi < 75
-app_width  = min(2000, screen_width)
-app_height = min(1200, screen_height)
-app.geometry(f"{app_width}x{app_height}")
+app.geometry(f"{screen_width}x{screen_height}")
 app.tk.call('tk', 'scaling', 1 if RETINA else 1.5)
 
 # --------------------------------
@@ -62,8 +60,9 @@ corr_plot.setup(widget_dict['group_plot'])
 state.val_UPDATE_COUNT.trace_add('write', corr_plot.UPDATE)
 corr_plot.UPDATE()
 
-# Force Tk to resolve geometry and pack/grid layout so widget sizes are known,
-# then size the figure to the actual canvas dimensions before showing the window.
+# Two update() passes: the first resolves the basic pack layout; the second lets
+# CTkTabview finish its internal geometry so the canvas reports its true final size.
+app.update()
 app.update()
 corr_plot.fit_canvas_to_container()
 
