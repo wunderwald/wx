@@ -12,8 +12,8 @@ _resize_after_id = None
 
 def setup(group_plot):
     """
-    Creates the matplotlib canvas inside group_plot.
-    Must be called after state.init_state() and after layout.build_layout().
+    Creates and packs the matplotlib canvas inside group_plot.
+    Call before app.update() — sizes are not yet known here.
     """
     global canvas
     canvas = FigureCanvasTkAgg(state.dat_plot_data["fig"], master=group_plot)
@@ -22,12 +22,23 @@ def setup(group_plot):
     widget.bind('<Configure>', _on_canvas_configure)
 
 
+def fit_canvas_to_container():
+    """
+    Called once after app.update() has resolved all widget sizes.
+    Resizes the figure to the canvas widget's actual pixel dimensions and redraws.
+    This is the initial sizing — the window is still hidden at this point.
+    """
+    widget = canvas.get_tk_widget()
+    w, h = widget.winfo_width(), widget.winfo_height()
+    if w > 1 and h > 1:
+        _apply_figure_size(canvas.figure, w, h)
+        canvas.draw()
+
+
 def _on_canvas_configure(event):
     """
-    Fired whenever the canvas widget is resized.
-    event.width / event.height are the widget's committed new dimensions —
-    always correct, unlike winfo_width/height which may lag behind.
-    Debounced so a window drag doesn't redraw on every pixel.
+    Fired on every window resize. Debounced so a drag doesn't redraw every pixel.
+    Uses event.width/height captured in the closure — always the latest size.
     """
     global _resize_after_id
     w, h = event.width, event.height
@@ -36,8 +47,6 @@ def _on_canvas_configure(event):
     widget = canvas.get_tk_widget()
     if _resize_after_id:
         widget.after_cancel(_resize_after_id)
-    # Capture w/h from this event in the closure so the deferred call always
-    # uses the size that triggered it, not a stale winfo query.
     _resize_after_id = widget.after(120, lambda: _do_resize(w, h))
 
 
