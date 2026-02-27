@@ -9,7 +9,7 @@ USE_MY_PARAMS = True
 
 INIT_WINDOW_SIZE = 150   # 150 := 30s for 5hz signals
 INIT_MAX_LAG     = 30    # 30 := 6s
-INIT_STEP_SIZE   = 10    # 10 := 2s
+INIT_STEP_SIZE   = 30    # 30 := 6s
 INIT_MAX_LAG_SXC = 150
 
 # ---------------------
