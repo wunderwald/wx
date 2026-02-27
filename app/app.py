@@ -66,7 +66,7 @@ corr_plot.UPDATE()
 # --------------------------------
 
 def on_window_closing():
-    for widget_id in list(app.after_info()):
+    for widget_id in app.tk.call('after', 'info'):
         try:
             app.after_cancel(widget_id)
         except Exception:
