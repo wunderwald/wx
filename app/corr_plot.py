@@ -7,56 +7,26 @@ from dfa import dfa, dfa_wxcorr, dfa_wxcorr_window_averages
 import state
 
 canvas = None
-_resize_after_id = None
 
 
 def setup(group_plot):
-    """
-    Creates and packs the matplotlib canvas inside group_plot.
-    Call before app.update() — sizes are not yet known here.
-    """
+    """Creates and packs the matplotlib canvas inside group_plot."""
     global canvas
     canvas = FigureCanvasTkAgg(state.dat_plot_data["fig"], master=group_plot)
     widget = canvas.get_tk_widget()
     widget.pack(fill='both', expand=True)
-    widget.bind('<Configure>', _on_canvas_configure)
 
 
 def fit_canvas_to_container():
     """
     Called once after app.update() has resolved all widget sizes.
-    Resizes the figure to the canvas widget's actual pixel dimensions and redraws.
-    This is the initial sizing — the window is still hidden at this point.
+    Sizes the figure to the canvas and does the first draw.
     """
     widget = canvas.get_tk_widget()
     w, h = widget.winfo_width(), widget.winfo_height()
     if w > 1 and h > 1:
         _apply_figure_size(canvas.figure, w, h)
         canvas.draw()
-
-
-def _on_canvas_configure(event):
-    """
-    Fired on every window resize. Debounced so a drag doesn't redraw every pixel.
-    Uses event.width/height captured in the closure — always the latest size.
-    """
-    global _resize_after_id
-    w, h = event.width, event.height
-    if w <= 1 or h <= 1:
-        return
-    widget = canvas.get_tk_widget()
-    if _resize_after_id:
-        widget.after_cancel(_resize_after_id)
-    _resize_after_id = widget.after(120, lambda: _do_resize(w, h))
-
-
-def _do_resize(w, h):
-    global _resize_after_id
-    _resize_after_id = None
-    if canvas is None or canvas.figure is None:
-        return
-    _apply_figure_size(canvas.figure, w, h)
-    canvas.draw_idle()
 
 
 def _apply_figure_size(fig, w, h):
@@ -211,13 +181,11 @@ def _update_sxcorr_plot():
 def update_canvas():
     if not state.dat_plot_data["fig"]:
         return
-    canvas.figure = state.dat_plot_data["fig"]
     widget = canvas.get_tk_widget()
     w, h = widget.winfo_width(), widget.winfo_height()
     if w <= 1 or h <= 1:
-        # Canvas not yet laid out (called before app.update()).
-        # fit_canvas_to_container() will do the first real draw after geometry resolves.
-        return
+        return  # not yet laid out; fit_canvas_to_container() handles the first draw
+    canvas.figure = state.dat_plot_data["fig"]
     _apply_figure_size(canvas.figure, w, h)
     canvas.draw()
 
