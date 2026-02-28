@@ -90,7 +90,10 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
 
         # Fisher z-transform per-lag correlations before any averaging, so that
         # avg/var reflect mean(arctanh(r_i)) across lags, not arctanh(mean(r_i))
-        correlations_z_transformed = np.arctanh(np.array(correlations))
+        # Suppress the expected RuntimeWarning for r=±1 (arctanh(±1)=±inf); those
+        # entries are zeroed out immediately below.
+        with np.errstate(invalid='ignore', divide='ignore'):
+            correlations_z_transformed = np.arctanh(np.array(correlations))
         correlations_z_transformed[np.isinf(correlations_z_transformed)] = 0
         correlations_z_transformed[np.isnan(correlations_z_transformed)] = 0
         avg_z_transformed_corr = np.mean(correlations_z_transformed)
