@@ -147,7 +147,7 @@ def build_layout(app, validate_numeric_input):
     subgroup_windowed_xcorr_parameters.grid(row=2, sticky='ew', column=0, columnspan=2, padx=0, pady=0)
 
     label_wxp = tk.CTkLabel(
-        subgroup_windowed_xcorr_parameters, text='Windowed cross-correlation parameters'
+        subgroup_windowed_xcorr_parameters, text='Windowed cross-correlation parameters (# samples)'
     )
     label_wxp.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky='w')
 
@@ -284,6 +284,17 @@ def build_layout(app, validate_numeric_input):
         text="Applies sigmoid scaling to displayed values only."
     )
     label_sigmoid_info.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
+    subgroup_lag_hint = tk.CTkFrame(tab_correlation)
+    subgroup_lag_hint.grid(row=2, column=0, sticky='ew', columnspan=2, padx=0, pady=0)
+
+    label_lag_hint = tk.CTkLabel(
+        subgroup_lag_hint,
+        text="How to read tau_max:\n  τ > 0  →  A leads B\n  τ = 0  →  simultaneous\n  τ < 0  →  B leads A",
+        justify='left',
+        font=("Arial", 12),
+    )
+    label_lag_hint.grid(row=0, column=0, sticky="w", padx=10, pady=12)
 
     # ---------------------------
     # TAB: EXPORT & BATCH
