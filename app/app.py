@@ -90,5 +90,11 @@ app.protocol("WM_DELETE_WINDOW", on_window_closing)
 # RUN
 # --------------------------------
 
-app.deiconify()  # show now — figure already sized correctly
+app.deiconify()
+# On some displays (e.g. large external monitors) the canvas reports 1×1 during the
+# pre-show update passes, so fit_canvas_to_container() above is a no-op. Scheduling
+# a second call at after(0) guarantees the canvas is primed once the event loop has
+# resolved all geometry — this prevents the first real draw (Tab 1 data load) from
+# rendering at 2× zoom due to an uninitialised Tk PhotoImage.
+app.after(0, corr_plot.fit_canvas_to_container)
 app.mainloop()

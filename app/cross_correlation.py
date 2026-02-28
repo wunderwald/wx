@@ -14,7 +14,7 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
     Compute windowed cross-correlation between two time series.
 
     Lag convention:
-        Rxy(lag) = mean( x_window[t + lag] * y_window[t] )
+        Rxy(lag) = mean( x_window[t] * y_window[t + lag] )
         - lag > 0: x leads y (x's pattern occurs lag steps before y's)
         - lag = 0: simultaneous correlation (Pearson r)
         - lag < 0: y leads x (y's pattern occurs |lag| steps before x's)
@@ -72,12 +72,13 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
         y_window = (y_window - np.mean(y_window)) / np.std(y_window)
 
         # Compute cross-correlation for lags in the range [-max_lag, max_lag]
+        # Convention: Rxy(lag) = mean(x[t] * y[t+lag]), so lag > 0 means x leads y.
         correlations = []
         for lag in lag_range:
             if lag < 0:
-                corr = np.mean(x_window[:lag] * y_window[-lag:])
+                corr = np.mean(x_window[-lag:] * y_window[:lag])
             elif lag > 0:
-                corr = np.mean(x_window[lag:] * y_window[:-lag])
+                corr = np.mean(x_window[:-lag] * y_window[lag:])
             else:
                 corr = np.mean(x_window * y_window)
             if absolute:
@@ -89,7 +90,12 @@ def windowed_cross_correlation(x, y, window_size, step_size, max_lag, use_lag_fi
 
         # Fisher z-transform per-lag correlations before any averaging, so that
         # avg/var reflect mean(arctanh(r_i)) across lags, not arctanh(mean(r_i))
-        correlations_z_transformed = np.array([.5 * np.log(1 + r / 1 - r) for r in correlations])
+        # Suppress the expected RuntimeWarning for r=±1 (arctanh(±1)=±inf); those
+        # entries are zeroed out immediately below.
+        with np.errstate(invalid='ignore', divide='ignore'):
+            correlations_z_transformed = np.arctanh(np.array(correlations))
+        correlations_z_transformed[np.isinf(correlations_z_transformed)] = 0
+        correlations_z_transformed[np.isnan(correlations_z_transformed)] = 0
         avg_z_transformed_corr = np.mean(correlations_z_transformed)
         var_z_transformed_corr = np.var(correlations_z_transformed)
 
@@ -129,7 +135,7 @@ def standard_cross_correlation(x, y, max_lag, absolute=False):
     Compute standard (1D) cross-correlation between two time series.
 
     Lag convention:
-        Rxy(lag) = mean( x[t + lag] * y[t] )
+        Rxy(lag) = mean( x[t] * y[t + lag] )
         - lag > 0: x leads y (x's pattern occurs lag steps before y's)
         - lag = 0: simultaneous correlation (Pearson r)
         - lag < 0: y leads x (y's pattern occurs |lag| steps before x's)
@@ -156,13 +162,14 @@ def standard_cross_correlation(x, y, max_lag, absolute=False):
     y = (y - np.mean(y)) / np.std(y)
 
     # Compute cross-correlation for lags in the range [-max_lag, max_lag]
+    # Convention: Rxy(lag) = mean(x[t] * y[t+lag]), so lag > 0 means x leads y.
     correlations = []
     lags = []
     for lag in range(-max_lag, max_lag + 1):
         if lag < 0:
-            corr = np.mean(x[:lag] * y[-lag:])
+            corr = np.mean(x[-lag:] * y[:lag])
         elif lag > 0:
-            corr = np.mean(x[lag:] * y[:-lag])
+            corr = np.mean(x[:-lag] * y[lag:])
         else:
             corr = np.mean(x * y)
         if absolute:
