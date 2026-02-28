@@ -31,10 +31,10 @@ def export_wxcorr_data(file_path, params):
         vectors[f"w_{window_index}_correlations"] = window['correlations']
         vectors[f"w_{window_index}_meta"] = [ f"start_idx={window['start_idx']}", f"center_idx={window['center_idx']}", f"r_max={window['r_max']}", f"tau_max={window['tau_max']}" ]
     # DFA per lag
-    if 'dfa_alpha_per_lag_wxcorr' in params: 
+    if params.get('dfa_alpha_per_lag_wxcorr') is not None:
         vectors['dfa_lags'] = [d['lag'] for d in params['dfa_alpha_per_lag_wxcorr']]
         vectors['dfa_alpha'] = [d['alpha'] for d in params['dfa_alpha_per_lag_wxcorr']]
-    else: 
+    else:
         vectors['dfa_lags'] = ['-']
         vectors['dfa_alpha'] = ['-']
 
@@ -50,7 +50,7 @@ def export_sxcorr_data(file_path, params):
         'Standardised (z-score)': params['is_standardised'],
         'Max lag': params['max_lag'],
         'Absolute correlation values': params['checkbox_absolute_corr'],
-        'Alpha (DFA scaling exponent)': params['dfa_alpha']
+        'Alpha (DFA scaling exponent)': params['dfa_alpha'] if params['dfa_alpha'] is not None else '-'
     }
     vectors = {
         'signal_a': params['signal_a_std'] if params['is_standardised'] else params['signal_a'],

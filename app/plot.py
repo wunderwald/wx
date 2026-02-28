@@ -131,7 +131,7 @@ def plot_standard_cross_correlation(sxc_data, signal_a, signal_b):
 
     # Plot cross-correlation
     ax2 = fig.add_subplot(gs[0])
-    ax2.plot(lags, corr, marker='o', color='black')
+    ax2.plot(lags, corr, marker='o', markersize=1.5, color='black')
     ax2.set_xlabel('Lag')
     ax2.set_ylabel('Cross-correlation')
     ax2.set_title('Standard Cross-correlation')

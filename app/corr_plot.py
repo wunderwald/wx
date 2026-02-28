@@ -19,8 +19,9 @@ def setup(group_plot):
 
 def fit_canvas_to_container():
     """
-    Called once after app.update() has resolved all widget sizes.
     Sizes the figure to the canvas and does the first draw.
+    Safe to call multiple times — only resizes/draws when canvas has real dimensions.
+    Called once pre-show (may be 1x1 on external displays) and once post-show.
     """
     widget = canvas.get_tk_widget()
     w, h = widget.winfo_width(), widget.winfo_height()
@@ -63,9 +64,8 @@ def _update_wxcorr_data():
         state.dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = [
             {'lag': o['lag'], 'alpha': o['A'][0]} for o in dfa_data
         ]
-    except ValueError as e:
+    except ValueError:
         state.dat_correlation_data['dfa_alpha_per_lag_wxcorr'] = None
-        print("TODO: handle dfa update error in wxcorr update", e)
 
     try:
         state.dat_correlation_data['dfa_alpha_window_averages_wxcorr'] = dfa_wxcorr_window_averages(
@@ -89,8 +89,11 @@ def _update_sxcorr_data():
         absolute=state.val_checkbox_absolute_corr_sxc.get(),
     )
 
-    A, F = dfa(state.dat_correlation_data['sxcorr']['corr'], order=1)
-    state.dat_correlation_data['dfa_alpha_sxcorr'] = A[0]
+    try:
+        A, _ = dfa(state.dat_correlation_data['sxcorr']['corr'], order=1)
+        state.dat_correlation_data['dfa_alpha_sxcorr'] = A[0]
+    except ValueError:
+        state.dat_correlation_data['dfa_alpha_sxcorr'] = None
 
 
 def update_corr():
