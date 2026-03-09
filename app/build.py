@@ -9,6 +9,9 @@ import sys
 import shutil
 from pathlib import Path
 
+# Always run relative to this script's directory
+os.chdir(Path(__file__).parent)
+
 def run_pyinstaller_with_analysis(app_name="wx"):
     """Run PyInstaller with module analysis"""
     
