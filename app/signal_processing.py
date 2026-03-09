@@ -12,7 +12,7 @@ def _remove_invalid_EDA(eda):
 def standardize(signal):
     '''
     Apply z-score standardisation to signal: zero mean, unit variance.
-    ! z-scoring != != != z-transform !
+    (z-scoring != z-transform)
     '''
     return zscore(signal)
 
@@ -80,7 +80,7 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
     """
     if signal_type not in ['event-based', 'fixed-rate']:
         raise Exception("Invalid signal type. Must be 'event-based' or 'fixed-rate'.")
-    
+
     # optionally remove invalid values
     if remove_invalid_samples:
         signal_a = _remove_invalid_IBI(signal_a) if signal_type == 'event-based' else _remove_invalid_EDA(signal_a)
@@ -98,7 +98,7 @@ def preprocess_dyad(signal_a, signal_b, signal_type, remove_invalid_samples=Fals
     signal_a = signal_a[:min_length]
     signal_b = signal_b[:min_length]
 
-    # apply z-score
+    # apply z-score standardisation
     signal_a_z_scored = standardize(signal_a)
     signal_b_z_scored = standardize(signal_b)
 

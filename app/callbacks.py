@@ -295,8 +295,8 @@ def preprocess_data():
         state.val_INPUT_DATA_VALID.set(False)
         return
 
-    d["raw_signal_a"] = state.dat_workbook_data["columns_a"][state.dat_workbook_data["selected_column_a"]]
-    d["raw_signal_b"] = state.dat_workbook_data["columns_b"][state.dat_workbook_data["selected_column_b"]]
+    d["raw_signal_a"] = state.dat_workbook_data["columns_a"][state.val_selected_column_a.get()]
+    d["raw_signal_b"] = state.dat_workbook_data["columns_b"][state.val_selected_column_b.get()]
 
     if not (utils.is_numeric_array(d["raw_signal_a"]) and utils.is_numeric_array(d["raw_signal_b"])):
         state.val_INPUT_DATA_VALID.set(False)
